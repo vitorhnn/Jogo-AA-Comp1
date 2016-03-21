@@ -9,8 +9,6 @@
 #include <SDL2/SDL_ttf.h>
 #include <physfs.h>
 
-#include "3rdparty/asprintf/asprintf.h"
-
 #include "common.h"
 #include "credits_state.h"
 
@@ -117,8 +115,8 @@ int main(int argc, char** argv) {
         show_error("failed to PHYSFS_init", ERROR_SOURCE_PHYSFS);
     }
 
-    PHYSFS_mount("data.7z", NULL, 1);
-    PHYSFS_mount("loosefiles/", NULL, 1);
+    PHYSFS_mount("data.pak", NULL, 0);
+    PHYSFS_mount("loosefiles/", NULL, 0);
 
     int retval = engine_run();
     
