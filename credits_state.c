@@ -30,3 +30,5 @@ void credits_paint(SDL_Renderer* renderer) {
 void credits_quit(void) {
     SDL_DestroyTexture(credits);
 }
+
+// vim: set ts=4 sw=4 expandtab:
