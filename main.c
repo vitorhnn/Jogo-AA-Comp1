@@ -12,11 +12,13 @@
 #include "common.h"
 #include "credits_state.h"
 
+#define TICKS_PER_SECOND 240
+#define MS_PER_UPDATE 1000 / TICKS_PER_SECOND
 
 typedef void (*state_initializer_ptr)(SDL_Renderer*);
 typedef void (*state_handler_ptr)(SDL_Event*);
 typedef state (*state_thinker_ptr)(void);
-typedef void (*state_painter_ptr)(SDL_Renderer*);
+typedef void (*state_painter_ptr)(SDL_Renderer*, unsigned);
 typedef void (*state_quitter_ptr)(void);
 
 typedef struct {
@@ -51,14 +53,20 @@ static int engine_run(void) {
     
     SDL_Window*   window   = SDL_CreateWindow("joguin", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_RESIZABLE);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    SDL_DisableScreenSaver();
 
     bool running = true;
     SDL_Event event;
 
     init(renderer);
 
+    unsigned then = SDL_GetTicks();
+    long lag = 0;
     while (running) {
-        unsigned then = SDL_GetTicks();
+        unsigned now = SDL_GetTicks();
+        unsigned diff = now - then;
+        then = now;
+        lag += diff;
 
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderClear(renderer);
@@ -73,9 +81,15 @@ static int engine_run(void) {
                     break;
             }
         }
-
-        state should_switch = ptrs.think();
-        ptrs.paint(renderer);
+        state should_switch = STATE_NOCHANGE;
+        while (lag >= MS_PER_UPDATE) {
+            should_switch = ptrs.think();
+            lag -= MS_PER_UPDATE;
+            if (should_switch != 0) {
+                break;
+            }
+        }
+        ptrs.paint(renderer, (unsigned) lag / MS_PER_UPDATE);
 
         SDL_RenderPresent(renderer);
 
@@ -83,11 +97,6 @@ static int engine_run(void) {
             ptrs.quit();
             state_initializer_ptr state_init = engine_reevaluate_ptrs(&ptrs, should_switch);
             state_init(renderer);
-        }
-
-        unsigned now = SDL_GetTicks();
-        if (now - then < 1000 / 60) {
-            SDL_Delay(1000 / 60 - (now - then));
         }
     }
 
@@ -109,10 +118,12 @@ int main(int argc, char** argv) {
 
     if (TTF_Init() != 0) {
         show_error_msgbox("failed to TTF_Init", ERROR_SOURCE_SDL);
+        return EXIT_FAILURE;
     }
 
     if (PHYSFS_init(argv[0]) == 0) {
-        show_error("failed to PHYSFS_init", ERROR_SOURCE_PHYSFS);
+        show_error_msgbox("failed to PHYSFS_init", ERROR_SOURCE_PHYSFS);
+        return EXIT_FAILURE;
     }
 
     PHYSFS_mount("data.pak", NULL, 0);

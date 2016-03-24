@@ -5,6 +5,7 @@
 #include "credits_state.h"
 
 static SDL_Texture* credits = NULL;
+static SDL_Texture* overlay = NULL;
 
 void credits_init(SDL_Renderer* renderer) {
     SDL_RenderSetLogicalSize(renderer, 1280, 720);
@@ -23,7 +24,7 @@ state credits_think(void) {
     return STATE_NOCHANGE;
 }
 
-void credits_paint(SDL_Renderer* renderer) {
+void credits_paint(SDL_Renderer* renderer, unsigned diff) {
     SDL_RenderCopy(renderer, credits, NULL, NULL);
 }
 
