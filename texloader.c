@@ -18,6 +18,7 @@ SDL_Texture* tex_load_from_file(SDL_Renderer* renderer, const char* path) {
     else {
         SDL_Surface* temp_surf = IMG_Load_RW(file, 0); // there's a IMG_LoadTexture_RW function but that's undocumented 
                                                        // and likely doesn't exist on older versions
+        SDL_FreeRW(file);
         if (temp_surf == NULL) {
             show_error("tex_load_from_file: IMG_Load_RW failed", ERROR_SOURCE_SDL);
         }

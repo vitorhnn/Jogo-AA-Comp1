@@ -28,6 +28,12 @@ typedef struct {
     state_quitter_ptr quit;
 } state_function_ptrs;
 
+static bool running = true;
+
+void engine_quit(void) {
+    running = false;
+}
+
 static state_initializer_ptr engine_reevaluate_ptrs(state_function_ptrs* ptrs, state new_state) {
     state_initializer_ptr retval = NULL;
     switch (new_state) {
@@ -55,7 +61,6 @@ static int engine_run(void) {
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_DisableScreenSaver();
 
-    bool running = true;
     SDL_Event event;
 
     init(renderer);
