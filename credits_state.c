@@ -13,14 +13,25 @@ static void credits_rerender_overlay(SDL_Renderer* renderer, unsigned diff) {
     unsigned diffedticks = ticks + diff;
     if (overlay == NULL) {
         overlay = SDL_CreateTexture(renderer,
-                                    SDL_PIXELFORMAT_NV21,
+                                    SDL_PIXELFORMAT_NV12,
                                     SDL_TEXTUREACCESS_TARGET | SDL_TEXTUREACCESS_STREAMING,
                                     1280,
                                     720);
 
         if (overlay == NULL) {
-            show_error_msgbox("credits_rerender_overlay: failed to SDL_CreateTexture", ERROR_SOURCE_SDL);
-            return;
+            // SDL's software renderer doesn't seem to support NV12.
+            // try again with a simpler format.
+            overlay = SDL_CreateTexture(renderer,
+                                        SDL_PIXELFORMAT_RGBX8888,
+                                        SDL_TEXTUREACCESS_TARGET | SDL_TEXTUREACCESS_STREAMING,
+                                        1280,
+                                        720);
+
+            if (overlay == NULL) {
+                // if that still fails, ¯\_(ツ)_/¯
+                show_error_msgbox("credits_rerender_overlay: failed to SDL_CreateTexture", ERROR_SOURCE_SDL);
+                return;
+           }
         }
         SDL_SetTextureBlendMode(overlay, SDL_BLENDMODE_BLEND);
     }
@@ -41,10 +52,8 @@ static void credits_rerender_overlay(SDL_Renderer* renderer, unsigned diff) {
     }
 
 
-    SDL_Color color = {0, 0, 0, alpha};
-
-    SDL_SetTextureColorMod(overlay, color.r, color.g, color.b);
-    SDL_SetTextureAlphaMod(overlay, color.a);
+    SDL_SetTextureColorMod(overlay, 0, 0, 0);
+    SDL_SetTextureAlphaMod(overlay, alpha);
 }
 
 void credits_init(SDL_Renderer* renderer) {
