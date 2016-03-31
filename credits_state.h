@@ -1,5 +1,5 @@
 // Copyright © 2016 Victor Hermann "vitorhnn" Chiletto
-// Licensed under the MIT/X11 license.
+// Licensed under the MIT/Expat license.
 
 #ifndef CREDITS_STATE_H
 #define CREDITS_STATE_H

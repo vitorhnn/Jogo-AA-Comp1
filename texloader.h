@@ -1,5 +1,5 @@
 // Copyright © Victor Hermann "vitorhnn" Chiletto
-// Licensed under the MIT/X11
+// Licensed under the MIT/Expat
 #ifndef TEXLOADER_H
 #define TEXLOADER_H
 

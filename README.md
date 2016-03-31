@@ -16,4 +16,4 @@ Passos:
     make
 
 ## Licença
-MIT/X11, veja o arquivo LICENSE para mais detalhes.
+MIT/Expat, veja o arquivo LICENSE para mais detalhes.
