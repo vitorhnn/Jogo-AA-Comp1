@@ -15,20 +15,19 @@ void settings_init(int argc, char** argv) {
 
     // set some sane defaults
 
-    settings->width       ;//= 1280;
+    settings->width       = 1280;
     settings->height      = 720;
-    settings->renderflags = SDL_RENDERER_ACCELERATED;
-
+    settings->renderflags = 0;
     struct option longopts[] = {
-        {"width",       required_argument, 0,       'w'},
-        {"height",      required_argument, 0,       'h'},
-        {"accelerated", no_argument,       0,       'a'},
-        {NULL,          0,                 NULL,     0}
+        {"width",           required_argument, 0,       'w'},
+        {"height",          required_argument, 0,       'h'},
+        {"accelerated",     no_argument,       0,       'a'},
+        {"softrenderer",    no_argument,       0,       's'},
+        {NULL,              0,                 NULL,     0}
     };
 
     int opt;
-    while ((opt = getopt_long(argc, argv, "w:h:a", longopts, NULL)) != -1) {
-        printf("%d\n", opt);
+    while ((opt = getopt_long(argc, argv, "w:h:as", longopts, NULL)) != -1) {
         switch (opt) {
             case 'w': {
                 char* end;
@@ -57,12 +56,17 @@ void settings_init(int argc, char** argv) {
             case 'a':
                 settings->renderflags |= SDL_RENDERER_ACCELERATED; 
                 break;
+            case 's':
+                settings->renderflags |= SDL_RENDERER_SOFTWARE;
             default:
                 break;
         }
     }
+    if (settings->renderflags == 0) {
+        // assume a accelerated renderer if we haven't been told otherwise
+        settings->renderflags = SDL_RENDERER_ACCELERATED;
+    }
 }
-
 settings_t* settings_get_settings_ptr(void) {
     return settings;
 }
