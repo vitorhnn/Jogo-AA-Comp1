@@ -37,13 +37,13 @@ static void credits_rerender_overlay(SDL_Renderer* renderer, unsigned diff) {
     }
 
     uint8_t alpha = 0;
-    if (ticks < 240) {
+    if (diffedticks < 240) {
         alpha = (uint8_t) (((240 - diffedticks) / (float) 240) * 255);
     }
-    else if (ticks > 240 && ticks < 720) {
+    else if (diffedticks < 720) {
         alpha = 0;
     }
-    else if (ticks > 720 && ticks < 960) {
+    else if (diffedticks >= 720 && diffedticks < 960) {
         unsigned relticks = diffedticks - 720;
         alpha = (uint8_t) ((relticks / (float) 240) * 255);
     }
