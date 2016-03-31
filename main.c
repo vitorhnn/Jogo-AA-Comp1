@@ -10,6 +10,7 @@
 #include <physfs.h>
 
 #include "common.h"
+#include "settings.h"
 #include "credits_state.h"
 
 #define TICKS_PER_SECOND 240
@@ -53,13 +54,30 @@ static state_initializer_ptr engine_reevaluate_ptrs(state_function_ptrs* ptrs, s
 }
 
 static int engine_run(void) {
+    settings_t* settings = settings_get_settings_ptr();
+    SDL_Window* window = SDL_CreateWindow("joguin",
+                                              SDL_WINDOWPOS_CENTERED,
+                                              SDL_WINDOWPOS_CENTERED,
+                                              settings->width,
+                                              settings->height,
+                                              SDL_WINDOW_RESIZABLE);
+
+    if (window == NULL) {
+        show_error_msgbox("Failed to SDL_CreateWindow", ERROR_SOURCE_SDL);
+        return EXIT_FAILURE;
+    }
+
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, settings->renderflags);
+
+    if (renderer == NULL) {
+        show_error_msgbox("Failed to SDL_CreateRenderer", ERROR_SOURCE_SDL);
+        return EXIT_FAILURE;
+    }
+    SDL_DisableScreenSaver();
+
     state current_state = STATE_CREDITS;
     state_function_ptrs ptrs;
     state_initializer_ptr init = engine_reevaluate_ptrs(&ptrs, current_state);
-    
-    SDL_Window*   window   = SDL_CreateWindow("joguin", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_RESIZABLE);
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    SDL_DisableScreenSaver();
 
     SDL_Event event;
 
@@ -109,7 +127,6 @@ static int engine_run(void) {
 }
 
 int main(int argc, char** argv) {
-#pragma unused (argc)
     // start everything up
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         show_error_msgbox("failed to SDL_Init", ERROR_SOURCE_SDL);
@@ -131,11 +148,14 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
+    settings_init(argc, argv);
+
     PHYSFS_mount("data.pak", NULL, 0);
     PHYSFS_mount("loosefiles/", NULL, 0);
 
     int retval = engine_run();
-    
+
+    settings_quit();
     PHYSFS_deinit();
     TTF_Quit();
     Mix_Quit();

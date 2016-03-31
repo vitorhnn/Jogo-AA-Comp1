@@ -36,7 +36,6 @@ import ycm_core
 # CHANGE THIS LIST OF FLAGS. YES, THIS IS THE DROID YOU HAVE BEEN LOOKING FOR.
 flags = [
 '-Weverything',
-'-Werror',
 '-Wno-long-long',
 '-Wno-variadic-macros',
 '-DNDEBUG',
