@@ -56,11 +56,11 @@ static state_initializer_ptr engine_reevaluate_ptrs(state_function_ptrs* ptrs, s
 static int engine_run(void) {
     settings_t* settings = settings_get_settings_ptr();
     SDL_Window* window = SDL_CreateWindow("joguin",
-                                              SDL_WINDOWPOS_CENTERED,
-                                              SDL_WINDOWPOS_CENTERED,
-                                              settings->width,
-                                              settings->height,
-                                              SDL_WINDOW_RESIZABLE);
+                                          SDL_WINDOWPOS_CENTERED,
+                                          SDL_WINDOWPOS_CENTERED,
+                                          settings->width,
+                                          settings->height,
+                                          SDL_WINDOW_RESIZABLE);
 
     if (window == NULL) {
         show_error_msgbox("Failed to SDL_CreateWindow", ERROR_SOURCE_SDL);
