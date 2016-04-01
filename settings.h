@@ -7,20 +7,31 @@
 #include <stdbool.h>
 #include <SDL2/SDL_render.h>
 
-typedef struct {
-    int width;
-    int height;
-    SDL_RendererFlags renderflags;
-} settings_t; // _t is evil, I get it.
+typedef struct setting {
+    char* name;
+    char* value;
+    struct setting* next;
+} setting;
 
-void settings_init(int argc, char** argv);
+void setting_register(setting* setting);
 
-settings_t* settings_get_settings_ptr(void);
+setting* setting_find(char* setting_name);
 
-void settings_disk_sync(void);
+void setting_set(char* setting_name, char* value);
+
+void setting_set_num(char* setting_name, float value);
+
+void setting_set_bool(char* setting_name, bool value);
+
+char* setting_strvalue(char* setting_name);
+
+float setting_floatvalue(char* setting_name);
+
+bool setting_boolvalue(char* setting_name);
 
 void settings_quit(void);
 
+void settings_parse_argv(int argc, char** argv);
 
 #endif
 

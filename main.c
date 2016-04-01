@@ -9,6 +9,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <physfs.h>
 
+#include "main.h"
 #include "common.h"
 #include "settings.h"
 #include "credits_state.h"
@@ -30,6 +31,11 @@ typedef struct {
 } state_function_ptrs;
 
 static bool running = true;
+static setting r_width          = {"r_width", "1280"};
+static setting r_height         = {"r_height", "720"};
+static setting r_accelerated    = {"r_accelerated", "true"};
+static setting r_tickrate       = {"r_tickrate", "240"};
+
 
 void engine_quit(void) {
     running = false;
@@ -53,27 +59,50 @@ static state_initializer_ptr engine_reevaluate_ptrs(state_function_ptrs* ptrs, s
     return retval;
 }
 
-static int engine_run(void) {
-    settings_t* settings = settings_get_settings_ptr();
-    SDL_Window* window = SDL_CreateWindow("joguin",
-                                          SDL_WINDOWPOS_CENTERED,
-                                          SDL_WINDOWPOS_CENTERED,
-                                          settings->width,
-                                          settings->height,
-                                          SDL_WINDOW_RESIZABLE);
+
+
+static bool vid_init(SDL_Window** window, SDL_Renderer** renderer) {
+    // TODO: maybe split off to video.c?
+    // also, those are double pointers. blame the language.
+
+    *window = SDL_CreateWindow("joguin",
+                              SDL_WINDOWPOS_CENTERED,
+                              SDL_WINDOWPOS_CENTERED,
+                              setting_floatvalue("r_width"),
+                              setting_floatvalue("r_height"),
+                              SDL_WINDOW_RESIZABLE);
 
     if (window == NULL) {
         show_error_msgbox("Failed to SDL_CreateWindow", ERROR_SOURCE_SDL);
-        return EXIT_FAILURE;
+        return false;
     }
 
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, settings->renderflags);
+    SDL_RendererFlags flags = 0;
+
+    if (setting_boolvalue("r_accelerated")) {
+        flags |= SDL_RENDERER_ACCELERATED;
+    }
+    else {
+        flags |= SDL_RENDERER_SOFTWARE;
+    }
+
+    *renderer = SDL_CreateRenderer(*window, -1, flags);
 
     if (renderer == NULL) {
         show_error_msgbox("Failed to SDL_CreateRenderer", ERROR_SOURCE_SDL);
-        return EXIT_FAILURE;
+        return false;
     }
     SDL_DisableScreenSaver();
+    return true;
+}
+
+static int engine_run(void) {
+    SDL_Window* window = NULL;
+    SDL_Renderer* renderer = NULL;
+
+    if (!vid_init(&window, &renderer)) {
+        return EXIT_FAILURE;
+    }
 
     state current_state = STATE_CREDITS;
     state_function_ptrs ptrs;
@@ -148,19 +177,24 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    settings_init(argc, argv);
+    setting_register(&r_width);
+    setting_register(&r_height);
+    setting_register(&r_accelerated);
+
+    settings_parse_argv(argc, argv);
 
     PHYSFS_mount("data.pak", NULL, 0);
     PHYSFS_mount("loosefiles/", NULL, 0);
 
     int retval = engine_run();
 
-    settings_quit();
     PHYSFS_deinit();
     TTF_Quit();
     Mix_Quit();
     SDL_Quit();
 
+
+    settings_quit();
     return retval;
 }
 
