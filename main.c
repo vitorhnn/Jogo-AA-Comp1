@@ -14,8 +14,7 @@
 #include "settings.h"
 #include "credits_state.h"
 
-#define TICKS_PER_SECOND 240
-#define MS_PER_UPDATE 1000 / TICKS_PER_SECOND
+#define MS_PER_UPDATE 1000 / (int) setting_floatvalue("game_tickrate")
 
 typedef void (*state_initializer_ptr)(SDL_Renderer*);
 typedef void (*state_handler_ptr)(SDL_Event*);
@@ -34,7 +33,7 @@ static bool running = true;
 static setting r_width          = {"r_width", "1280"};
 static setting r_height         = {"r_height", "720"};
 static setting r_accelerated    = {"r_accelerated", "true"};
-static setting r_tickrate       = {"r_tickrate", "240"};
+static setting game_tickrate       = {"game_tickrate", "240"};
 
 
 void engine_quit(void) {
@@ -180,6 +179,7 @@ int main(int argc, char** argv) {
     setting_register(&r_width);
     setting_register(&r_height);
     setting_register(&r_accelerated);
+    setting_register(&game_tickrate);
 
     settings_parse_argv(argc, argv);
 
