@@ -5,7 +5,6 @@
 #define SETTINGS_H
 
 #include <stdbool.h>
-#include <SDL2/SDL_render.h>
 
 typedef struct setting {
     char* name;

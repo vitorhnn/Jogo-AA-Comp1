@@ -30,10 +30,11 @@ typedef struct {
 } state_function_ptrs;
 
 static bool running = true;
-static setting r_width          = {"r_width", "1280"};
-static setting r_height         = {"r_height", "720"};
-static setting r_accelerated    = {"r_accelerated", "true"};
-static setting game_tickrate       = {"game_tickrate", "240"};
+static setting r_width              = {"r_width", "1280"};
+static setting r_height             = {"r_height", "720"};
+static setting r_accelerated        = {"r_accelerated", "true"};
+static setting r_fullscreen         = {"r_fullscreen", "false"};
+static setting game_tickrate        = {"game_tickrate", "240"};
 
 
 void engine_quit(void) {
@@ -64,28 +65,34 @@ static bool vid_init(SDL_Window** window, SDL_Renderer** renderer) {
     // TODO: maybe split off to video.c?
     // also, those are double pointers. blame the language.
 
+    SDL_WindowFlags wflags = SDL_WINDOW_RESIZABLE;
+
+    if (setting_boolvalue("r_fullscreen")) {
+        wflags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+    }
+
     *window = SDL_CreateWindow("joguin",
                               SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED,
                               setting_floatvalue("r_width"),
                               setting_floatvalue("r_height"),
-                              SDL_WINDOW_RESIZABLE);
+                              wflags);
 
     if (window == NULL) {
         show_error_msgbox("Failed to SDL_CreateWindow", ERROR_SOURCE_SDL);
         return false;
     }
 
-    SDL_RendererFlags flags = 0;
+    SDL_RendererFlags rflags = 0;
 
     if (setting_boolvalue("r_accelerated")) {
-        flags |= SDL_RENDERER_ACCELERATED;
+        rflags |= SDL_RENDERER_ACCELERATED;
     }
     else {
-        flags |= SDL_RENDERER_SOFTWARE;
+        rflags |= SDL_RENDERER_SOFTWARE;
     }
 
-    *renderer = SDL_CreateRenderer(*window, -1, flags);
+    *renderer = SDL_CreateRenderer(*window, -1, rflags);
 
     if (renderer == NULL) {
         show_error_msgbox("Failed to SDL_CreateRenderer", ERROR_SOURCE_SDL);
@@ -179,6 +186,7 @@ int main(int argc, char** argv) {
     setting_register(&r_width);
     setting_register(&r_height);
     setting_register(&r_accelerated);
+    setting_register(&r_fullscreen);
     setting_register(&game_tickrate);
 
     settings_parse_argv(argc, argv);
