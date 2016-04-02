@@ -66,13 +66,17 @@ void credits_init(SDL_Renderer* renderer) {
 }
 
 void credits_handle(SDL_Event* event) {
-#pragma unused (event)
+    if (event->type == SDL_KEYDOWN) {
+        if (event->key.keysym.sym == SDLK_RETURN) {
+            ticks = 960; // TODO: make this less hacky
+        }
+    }
 }
 
 state credits_think(void) {
     ticks++;
-    if (ticks == 960) {
-        engine_quit();
+    if (ticks >= 960) {
+        return STATE_MENU;
     }
 
     return STATE_NOCHANGE;

@@ -12,9 +12,13 @@
 #include "main.h"
 #include "common.h"
 #include "settings.h"
-#include "credits_state.h"
 
-#define MS_PER_UPDATE 1000 / (int) setting_floatvalue("game_tickrate")
+
+#include "credits_state.h"
+#include "menu_state.h"
+
+
+#define MS_PER_UPDATE (unsigned) (1000 / setting_floatvalue("game_tickrate"))
 
 typedef void (*state_initializer_ptr)(SDL_Renderer*);
 typedef void (*state_handler_ptr)(SDL_Event*);
@@ -45,11 +49,18 @@ static state_initializer_ptr engine_reevaluate_ptrs(state_function_ptrs* ptrs, s
     state_initializer_ptr retval = NULL;
     switch (new_state) {
         case STATE_CREDITS:
-            retval       = &credits_init;
-            ptrs->handle = &credits_handle;
-            ptrs->think  = &credits_think;
-            ptrs->paint  = &credits_paint;
-            ptrs->quit   = &credits_quit;
+            retval          = &credits_init;
+            ptrs->handle    = &credits_handle;
+            ptrs->think     = &credits_think;
+            ptrs->paint     = &credits_paint;
+            ptrs->quit      = &credits_quit;
+            break;
+        case STATE_MENU:
+            retval          = &menu_init;
+            ptrs->handle    = &menu_handle;
+            ptrs->think     = &menu_think;
+            ptrs->paint     = &menu_paint;
+            ptrs->quit      = &menu_quit;
             break;
         case STATE_WTF:
         default:
@@ -157,6 +168,8 @@ static int engine_run(void) {
             state_init(renderer);
         }
     }
+
+    ptrs.quit();
 
     return EXIT_SUCCESS;
 }

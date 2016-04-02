@@ -9,7 +9,12 @@
 
 typedef enum {ERROR_SOURCE_SDL, ERROR_SOURCE_PHYSFS, ERROR_SOURCE_INTERNAL} error_source;
 
-typedef enum {STATE_NOCHANGE, STATE_CREDITS, STATE_WTF} state; // we use NULL to represent that the state doesn't want to change.
+typedef enum {
+    STATE_NOCHANGE,
+    STATE_CREDITS,
+    STATE_MENU,
+    STATE_WTF
+} state;
 
 void real_show_error(char* msg, error_source source, bool show_messagebox);
 

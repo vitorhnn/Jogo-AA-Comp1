@@ -21,5 +21,5 @@ include_directories(${PHYSFS_INCLUDE_DIR})
 add_library ( physfsextras 3rdparty/physicsfs/extras/physfsrwops.c )
 add_library ( asprintf 3rdparty/asprintf/asprintf.c 3rdparty/asprintf/vasprintf-c99.c )
 
-add_executable(joguin main.c common.c credits_state.c texloader.c settings.c)
+add_executable(joguin main.c common.c credits_state.c texloader.c settings.c menu_state.c)
 target_link_libraries( joguin physfsextras asprintf ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${SDL2_TTF_LIBRARY} ${SDL2_MIXER_LIBRARY} ${PHYSFS_LIBRARY})

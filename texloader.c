@@ -16,9 +16,8 @@ SDL_Texture* tex_load_from_file(SDL_Renderer* renderer, const char* path) {
         show_error("tex_load_from_file: PHYSFSRWOPS_openRead failed", ERROR_SOURCE_SDL);
     }
     else {
-        SDL_Surface* temp_surf = IMG_Load_RW(file, 0); // there's a IMG_LoadTexture_RW function but that's undocumented 
+        SDL_Surface* temp_surf = IMG_Load_RW(file, 1); // there's a IMG_LoadTexture_RW function but that's undocumented 
                                                        // and likely doesn't exist on older versions
-        SDL_FreeRW(file);
         if (temp_surf == NULL) {
             show_error("tex_load_from_file: IMG_Load_RW failed", ERROR_SOURCE_SDL);
         }
@@ -28,6 +27,25 @@ SDL_Texture* tex_load_from_file(SDL_Renderer* renderer, const char* path) {
             if (tex != NULL) {
                 return tex;
             }
+        }
+    }
+    return NULL;
+}
+
+
+// TODO: make this safer (handle some errors)
+SDL_Texture*
+tex_from_text(SDL_Renderer* renderer, const char* text, TTF_Font* font, SDL_Color color, int* width, int* height) {
+    SDL_Surface* temp_surf = TTF_RenderUTF8_Blended(font, text, color);
+
+    if (temp_surf != NULL) {
+        *width  = temp_surf->w;
+        *height = temp_surf->h;
+
+        SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer, temp_surf);
+        SDL_FreeSurface(temp_surf);
+        if (tex != NULL) {
+            return tex;
         }
     }
     return NULL;
