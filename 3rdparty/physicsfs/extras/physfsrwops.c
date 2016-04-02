@@ -23,6 +23,15 @@
 #include <stdio.h>  /* used for SEEK_SET, SEEK_CUR, SEEK_END ... */
 #include "physfsrwops.h"
 
+// THIS FUNCTION IS TEMPORARY
+// at least while physfs 2.1 doesn't hit arch's repos
+static PHYSFS_sint64 physfsrwops_size(SDL_RWops *rw) {
+    PHYSFS_File *handle = (PHYSFS_File *) rw->hidden.unknown.data1;
+
+    return (PHYSFS_fileLength(handle));
+}
+
+
 static int physfsrwops_seek(SDL_RWops *rw, int offset, int whence)
 {
     PHYSFS_File *handle = (PHYSFS_File *) rw->hidden.unknown.data1;
@@ -147,6 +156,7 @@ static SDL_RWops *create_rwops(PHYSFS_File *handle)
         retval = SDL_AllocRW();
         if (retval != NULL)
         {
+            retval->size  = physfsrwops_size;
             retval->seek  = physfsrwops_seek;
             retval->read  = physfsrwops_read;
             retval->write = physfsrwops_write;
