@@ -19,4 +19,4 @@ void menu_quit(void);
 
 #endif
 
-// vim: set ts=4 sw=4 expandtab
+// vim: set ts=4 sw=4 expandtab:

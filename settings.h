@@ -34,4 +34,4 @@ void settings_parse_argv(int argc, char** argv);
 
 #endif
 
-//vim: set ts=4 sw=4 expandtab:
+// vim: set ts=4 sw=4 expandtab:

@@ -59,3 +59,5 @@ void menu_quit(void) {
     SDL_DestroyTexture(label_play.tex);
     SDL_DestroyTexture(label_config.tex);
 }
+
+// vim: set ts=4 sw=4 expandtab:
