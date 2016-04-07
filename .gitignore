@@ -1,0 +1,5 @@
+# ycm's compiled settings file
+*.pyc
+
+# the build directory, as that is probably full of binaries.
+build/*
