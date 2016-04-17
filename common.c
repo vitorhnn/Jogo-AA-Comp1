@@ -1,4 +1,4 @@
-// Copyright © Victor Hermann "vitorhnn" Chiletto
+// Copyright © 2016 Victor Hermann "vitorhnn" Chiletto
 // Licensed under the MIT/Expat license.
 
 #include "common.h"

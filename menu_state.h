@@ -1,5 +1,5 @@
 // Copyright © 2016 Victor Hermann "vitorhnn" Chiletto
-// Licensed undher the MIT/Expat license.
+// Licensed under the MIT/Expat license.
 
 #ifndef MENU_STATE_H
 #define MENU_STATE_H
