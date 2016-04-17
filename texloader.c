@@ -49,7 +49,9 @@ tex_from_text(SDL_Renderer* renderer, const char* text, TTF_Font* font, SDL_Colo
         if (tex != NULL) {
             return tex;
         }
+        show_error("tex_from_text: SDL_CreateTextureFromSurface failed", ERROR_SOURCE_SDL);
     }
+    show_error("tex_from_text: TTF_RenderUTF8_Blended failed", ERROR_SOURCE_SDL);
     return NULL;
 }
 
