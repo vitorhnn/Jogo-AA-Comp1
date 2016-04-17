@@ -130,7 +130,9 @@ void settings_parse_argv(int argc, char** argv) {
             char* setting_name = xmalloc(len); // no need for -1 here, strlen doesn't count the NULL terminator.
             strncpy(setting_name, current + 1, len);
 
-            setting_set(setting_name, argv[i + 1]);
+            if (i + 1 < argc) {
+                setting_set(setting_name, argv[i + 1]);
+            }
 
             i++;
         }
