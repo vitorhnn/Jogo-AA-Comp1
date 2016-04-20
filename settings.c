@@ -120,7 +120,7 @@ void settings_quit(void) {
 }
 
 void settings_parse_argv(int argc, char** argv) {
-    for (int i = 1; i < argc;) {
+    for (int i = 1; i < argc; i++) {
         char* current = argv[i];
 
         // check the first character for a -
@@ -136,7 +136,6 @@ void settings_parse_argv(int argc, char** argv) {
 
             i++;
         }
-        i++;
     }
 }
 
