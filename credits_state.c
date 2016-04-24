@@ -2,6 +2,7 @@
 // Licensed under the MIT/Expat license.
 
 #include "main.h"
+#include "settings.h"
 #include "texloader.h"
 #include "credits_state.h"
 
@@ -10,32 +11,33 @@ static SDL_Texture* overlay = NULL;
 static unsigned ticks = 0;
 
 static void credits_rerender_overlay(SDL_Renderer* renderer, unsigned diff) {
-    unsigned diffedticks = ticks + diff;
     if (overlay == NULL) {
-        overlay = SDL_CreateTexture(renderer,
-                                    SDL_PIXELFORMAT_NV12,
-                                    SDL_TEXTUREACCESS_TARGET | SDL_TEXTUREACCESS_STREAMING,
-                                    1280,
-                                    720);
-
-        if (overlay == NULL) {
-            // SDL's software renderer doesn't seem to support NV12.
-            // try again with a simpler format.
+        if (setting_boolvalue("r_accelerated")) {
+            overlay = SDL_CreateTexture(renderer,
+                                        SDL_PIXELFORMAT_IYUV,
+                                        SDL_TEXTUREACCESS_STATIC,
+                                        1280,
+                                        720);
+        }
+        else {
+            // SDL's software renderer supports IYUV, but can't alpha modulate it.
+            // try a simpler format.
             overlay = SDL_CreateTexture(renderer,
                                         SDL_PIXELFORMAT_RGBX8888,
-                                        SDL_TEXTUREACCESS_TARGET | SDL_TEXTUREACCESS_STREAMING,
+                                        SDL_TEXTUREACCESS_STATIC,
                                         1280,
                                         720);
 
-            if (overlay == NULL) {
-                // if that still fails, ¯\_(ツ)_/¯
-                show_error_msgbox("credits_rerender_overlay: failed to SDL_CreateTexture", ERROR_SOURCE_SDL);
-                return;
-           }
+        }
+
+        if (overlay == NULL) {
+            show_error_msgbox("credits_rerender_overlay: failed to SDL_CreateTexture", ERROR_SOURCE_SDL);
+            return;
         }
         SDL_SetTextureBlendMode(overlay, SDL_BLENDMODE_BLEND);
     }
 
+    unsigned diffedticks = ticks + diff;
     uint8_t alpha = 0;
     if (diffedticks < 240) {
         alpha = (uint8_t) (((240 - diffedticks) / (float) 240) * 255);
