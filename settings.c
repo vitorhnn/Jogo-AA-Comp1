@@ -58,6 +58,7 @@ void setting_set_num(char* setting_name, float value) {
     char* valuestr;
     asprintf(&valuestr, "%f", value);
     setting_set(setting_name, valuestr);
+    free(valuestr);
 }
 
 void setting_set_bool(char* setting_name, bool value) {
@@ -134,6 +135,7 @@ void settings_parse_argv(int argc, char** argv) {
                 setting_set(setting_name, argv[i + 1]);
             }
 
+            free(setting_name);
             i++;
         }
     }
