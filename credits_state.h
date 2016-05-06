@@ -11,7 +11,7 @@ void credits_init(SDL_Renderer* renderer);
 
 void credits_handle(SDL_Event* event);
 
-state credits_think(void);
+void credits_think(void);
 
 void credits_paint(SDL_Renderer* renderer, unsigned diff);
 

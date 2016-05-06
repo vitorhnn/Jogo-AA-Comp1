@@ -4,7 +4,11 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include "common.h"
+
 void engine_quit(void);
+
+void engine_switch_state(game_state new_state);
 
 #endif
 

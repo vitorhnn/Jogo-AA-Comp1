@@ -40,8 +40,7 @@ void menu_handle(SDL_Event* event) {
     }
 }
 
-state menu_think(void) {
-    return STATE_NOCHANGE;
+void menu_think(void) {
 }
 
 void menu_paint(SDL_Renderer* renderer, unsigned diff) {

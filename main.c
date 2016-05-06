@@ -10,7 +10,7 @@
 #include <physfs.h>
 
 #include "main.h"
-#include "common.h"
+#include "ui.h"
 #include "settings.h"
 
 
@@ -22,7 +22,7 @@
 
 typedef void (*state_initializer_ptr)(SDL_Renderer*);
 typedef void (*state_handler_ptr)(SDL_Event*);
-typedef state (*state_thinker_ptr)(void);
+typedef void (*state_thinker_ptr)(void);
 typedef void (*state_painter_ptr)(SDL_Renderer*, unsigned);
 typedef void (*state_quitter_ptr)(void);
 
@@ -33,7 +33,10 @@ typedef struct {
     state_quitter_ptr quit;
 } state_function_ptrs;
 
-static bool running = true;
+static game_state current_state     = STATE_CREDITS;
+static bool running                 = true;
+static bool switch_pending          = false;
+
 static setting r_width              = {"r_width", "1280"};
 static setting r_height             = {"r_height", "720"};
 static setting r_accelerated        = {"r_accelerated", "true"};
@@ -45,7 +48,12 @@ void engine_quit(void) {
     running = false;
 }
 
-static state_initializer_ptr engine_reevaluate_ptrs(state_function_ptrs* ptrs, state new_state) {
+void engine_switch_state(game_state new_state) {
+    switch_pending = true;
+    current_state  = new_state;
+}
+
+static state_initializer_ptr engine_reevaluate_ptrs(state_function_ptrs* ptrs, game_state new_state) {
     state_initializer_ptr retval = NULL;
     switch (new_state) {
         case STATE_CREDITS:
@@ -62,7 +70,6 @@ static state_initializer_ptr engine_reevaluate_ptrs(state_function_ptrs* ptrs, s
             ptrs->paint     = &menu_paint;
             ptrs->quit      = &menu_quit;
             break;
-        case STATE_WTF:
         default:
             show_error_msgbox("engine_reevaluate_ptrs: called with STATE_WTF new_state", ERROR_SOURCE_INTERNAL);
             break;
@@ -76,17 +83,24 @@ static bool vid_init(SDL_Window** window, SDL_Renderer** renderer) {
     // TODO: maybe split off to video.c?
     // also, those are double pointers. blame the language.
 
+
+    bool fullscreen = setting_boolvalue("r_fullscreen");
+    int width  = (int) (setting_floatvalue("r_width")),
+        height = (int) (setting_floatvalue("r_height"));
+
+    printf("vid_init: fullscreen %s, %dx%d\n", fullscreen ? "true" : "false", width, height);
+
     SDL_WindowFlags wflags = SDL_WINDOW_RESIZABLE;
 
-    if (setting_boolvalue("r_fullscreen")) {
+    if (fullscreen) {
         wflags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
     }
 
     *window = SDL_CreateWindow("joguin",
                               SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED,
-                              setting_floatvalue("r_width"),
-                              setting_floatvalue("r_height"),
+                              width,
+                              height,
                               wflags);
 
     if (window == NULL) {
@@ -106,9 +120,17 @@ static bool vid_init(SDL_Window** window, SDL_Renderer** renderer) {
     *renderer = SDL_CreateRenderer(*window, -1, rflags);
 
     if (renderer == NULL) {
+        SDL_DestroyWindow(*window);
         show_error_msgbox("Failed to SDL_CreateRenderer", ERROR_SOURCE_SDL);
         return false;
     }
+
+    SDL_RendererInfo rinfo;
+    SDL_GetRendererInfo(*renderer, &rinfo);
+
+    printf("vid_init: using %s renderer\n", rinfo.name);
+    
+
     SDL_DisableScreenSaver();
     return true;
 }
@@ -121,7 +143,8 @@ static int engine_run(void) {
         return EXIT_FAILURE;
     }
 
-    state current_state = STATE_CREDITS;
+    ui_init();
+
     state_function_ptrs ptrs;
     state_initializer_ptr init = engine_reevaluate_ptrs(&ptrs, current_state);
 
@@ -146,26 +169,31 @@ static int engine_run(void) {
                     running = false;
                     break;
                 default:
+                    ui_handle(&event);
                     ptrs.handle(&event);
                     break;
             }
         }
-        state should_switch = STATE_NOCHANGE;
+
         while (lag >= MS_PER_UPDATE) {
-            should_switch = ptrs.think();
+            ptrs.think();
             lag -= MS_PER_UPDATE;
-            if (should_switch != 0) {
+            if (switch_pending) {
                 break;
             }
         }
+
         ptrs.paint(renderer, (unsigned) lag / MS_PER_UPDATE);
+        ui_paint(renderer);
 
         SDL_RenderPresent(renderer);
 
-        if (should_switch != 0) {
+        if (switch_pending) {
             ptrs.quit();
-            state_initializer_ptr state_init = engine_reevaluate_ptrs(&ptrs, should_switch);
+            state_initializer_ptr state_init = engine_reevaluate_ptrs(&ptrs, current_state);
             state_init(renderer);
+
+            switch_pending = false;
         }
     }
 
@@ -179,6 +207,20 @@ static int engine_run(void) {
 
 int main(int argc, char** argv) {
     // start everything up
+
+    printf("Platform is %s\n", SDL_GetPlatform());
+
+    SDL_version compiled;
+    SDL_version linked;
+
+    SDL_VERSION(&compiled);
+    SDL_VERSION(&linked);
+
+    printf("Compiled with SDL %d.%d.%d\n"
+           "Linking against SDL %d.%d.%d\n", 
+           compiled.major, compiled.minor, compiled.patch,
+           linked.major, linked.minor, linked.patch);
+
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         show_error_msgbox("failed to SDL_Init", ERROR_SOURCE_SDL);
         return EXIT_FAILURE;

@@ -75,13 +75,11 @@ void credits_handle(SDL_Event* event) {
     }
 }
 
-state credits_think(void) {
+void credits_think(void) {
     ticks++;
     if (ticks >= 960) {
-        return STATE_MENU;
+        engine_switch_state(STATE_MENU);
     }
-
-    return STATE_NOCHANGE;
 }
 
 void credits_paint(SDL_Renderer* renderer, unsigned diff) {

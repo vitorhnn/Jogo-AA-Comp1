@@ -11,7 +11,7 @@ void menu_init(SDL_Renderer* renderer);
 
 void menu_handle(SDL_Event* event);
 
-state menu_think(void);
+void menu_think(void);
 
 void menu_paint(SDL_Renderer* renderer, unsigned diff);
 
