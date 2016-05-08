@@ -13,7 +13,6 @@
 #include "containers/vector.h"
 
 #include "common.h"
-#include "math.h"
 #include "ui.h"
 
 typedef struct {
@@ -40,6 +39,8 @@ typedef struct {
     ui_type type;
 } ui_element;
 
+static bool button_render_text(SDL_Renderer *, ui_button_t *);
+
 static ui_state state;
 static vector   elements;
 static TTF_Font *ui_font;
@@ -63,7 +64,7 @@ void ui_init(void) {
     vector_init(&elements, 20);
 
     SDL_RWops *ops = PHYSFSRWOPS_openRead("opensans.ttf");
-    ui_font = TTF_OpenFontRW(ops, 1, 14);
+    ui_font = TTF_OpenFontRW(ops, 1, 40);
 }
 
 void ui_handle(SDL_Event *event) {
@@ -88,20 +89,50 @@ void ui_paint(SDL_Renderer *renderer) {
 
     SDL_Rect r = { state.mousepos.x, state.mousepos.y, 200, 200 };
     SDL_RenderFillRect(renderer, &r);
+
+    for (size_t i = 0; i < elements.used; i++) {
+        ui_element *el = (ui_element *) elements.data[i];
+
+        switch (el->type) {
+            case BUTTON: {
+                ui_button_t *btn = (ui_button_t *) el->data;
+
+                if (!btn->valid) {
+                    button_render_text(renderer, btn);
+                }
+
+                SDL_Rect rect = {
+                    .x = btn->pos.x,
+                    .y = btn->pos.y,
+                    .w = btn->w,
+                    .h = btn->h
+                };
+
+                SDL_RenderCopy(renderer, btn->tex, NULL, &rect);
+            }
+        }
+    }
 }
 
 void ui_quit(void) {
+    for (size_t i = 0; i < elements.used; i++) {
+        ui_element *el = (ui_element *) elements.data[i];
+        
+        free(el->data);
+        free(el);
+    }
+
     vector_free(&elements);
 
     TTF_CloseFont(ui_font);
 }
 
 static bool button_render_text(SDL_Renderer *renderer, ui_button_t *btn) {
-    SDL_Color c = {255, 255, 255, SDL_ALPHA_OPAQUE};
+    SDL_Color c = {0, 255, 0, SDL_ALPHA_OPAQUE};
 
     SDL_Surface *surf = TTF_RenderUTF8_Blended(ui_font, btn->text, c);
     
-    if (surf == NULL) {
+        if (surf == NULL) {
         show_error("button_render_text: TTF_RenderUTF8_Blended failed", ERROR_SOURCE_SDL);
         goto surf_fail;
     }
@@ -135,9 +166,11 @@ bool ui_button(int id, const char *text, vec2i pos) {
 
             ui_button_t *btn = (ui_button_t*) element->data;
 
-            if (mouse_in_rect(btn->pos, btn->w, btn->h)) {
+            if (mouse_in_rect(btn->pos, btn->w, btn->h) && state.mousedown) {
                 return true;
             }
+
+            return false;
         }
     }
     
@@ -146,9 +179,18 @@ bool ui_button(int id, const char *text, vec2i pos) {
     btn->pos    = pos;
     btn->text   = strdup(text);
     btn->valid  = false;
-    
+   
+    ui_element *el = xmalloc(sizeof(ui_element));
+
+    el->id = id;
+    el->type = BUTTON;
+    el->should_draw = true;
+    el->data = btn;
+
     // we can't actually know if the user clicked right now, as w and h are invalid
     // we need to wait for a render frame, so just say that the user didn't click.
 
+    vector_insert(&elements, el);
+ 
     return false;
 }

@@ -4,8 +4,11 @@
 #ifndef UI_H
 #define UI_H
 
+#include <stdbool.h>
+
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_events.h>
+#include "math.h"
 
 #ifdef UI_NOCONFLICT
 #define UI_ID (UI_NOCONFLICT + __LINE__)
@@ -20,5 +23,7 @@ void ui_handle(SDL_Event *event);
 void ui_paint(SDL_Renderer *renderer);
 
 void ui_quit(void);
+
+bool ui_button(int id, const char* text, vec2i pos);
 
 #endif

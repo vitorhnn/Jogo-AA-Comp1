@@ -8,6 +8,7 @@
 #include "main.h"
 #include "texloader.h"
 #include "menu_state.h"
+#include "ui.h"
 
 #define MAKERECT(label) {label.x, label.y, label.w, label.h}
 
@@ -26,12 +27,6 @@ static label        label_config    = {NULL, 500, 200, 0, 0};
 
 void menu_init(SDL_Renderer* renderer) {
     bg = tex_load_from_file(renderer, "menubg.png");
-    SDL_RWops* ops = PHYSFSRWOPS_openRead("opensans.ttf");
-    font = TTF_OpenFontRW(ops, 1, 50);
-
-    SDL_Color color = {0, 255, 0, SDL_ALPHA_OPAQUE};
-    label_play.tex      = tex_from_text(renderer, "dá pray", font, color, &label_play.w, &label_play.h);
-    label_config.tex    = tex_from_text(renderer, "configura aê", font, color, &label_config.w, &label_config.h);
 }
 
 void menu_handle(SDL_Event* event) {
@@ -41,16 +36,15 @@ void menu_handle(SDL_Event* event) {
 }
 
 void menu_think(void) {
+    vec2i pos = {100, 100};
+    if (ui_button(UI_ID, "dá pray", pos)) {
+        engine_quit();
+    }
 }
 
 void menu_paint(SDL_Renderer* renderer, unsigned diff) {
 #pragma unused (diff)
-    SDL_Rect r = MAKERECT(label_play);
-    SDL_Rect r2 = MAKERECT(label_config);
-
     SDL_RenderCopy(renderer, bg, NULL, NULL);
-    SDL_RenderCopy(renderer, label_play.tex, NULL, &r);
-    SDL_RenderCopy(renderer, label_config.tex, NULL, &r2);
 }
 
 void menu_quit(void) {
