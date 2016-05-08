@@ -24,6 +24,7 @@
 #define VECTOR_H
 
 #include <stddef.h> // size_t
+#include <unistd.h>
 
 typedef struct  {
   void **data;
@@ -35,7 +36,7 @@ void vector_init(vector *vector, size_t initialsize);
 
 void vector_insert(vector *vector, void *data);
 
-long long vector_find(vector *haystack, void *needle);
+ssize_t vector_find(vector *haystack, void *needle);
 
 void vector_free(vector *vector);
 

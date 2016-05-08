@@ -54,12 +54,12 @@ void vector_insert(vector *vector, void *data) {
     vector->used++;
 }
 
-long long vector_find(vector* haystack, void *needle) {
+ssize_t vector_find(vector* haystack, void *needle) {
     size_t i;
 
     for (i = 0; i < haystack->used; i++) {
         if (haystack->data[i] == needle) {
-            return (long long) i;
+            return (ssize_t) i;
         }
     }
 
