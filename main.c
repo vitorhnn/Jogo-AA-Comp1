@@ -42,6 +42,7 @@ static setting r_height             = {"r_height", "720"};
 static setting r_accelerated        = {"r_accelerated", "true"};
 static setting r_fullscreen         = {"r_fullscreen", "false"};
 static setting game_tickrate        = {"game_tickrate", "240"};
+static setting fps_max              = {"fps_max", "60"};
 
 
 void engine_quit(void) {
@@ -188,6 +189,13 @@ static int engine_run(void) {
 
         SDL_RenderPresent(renderer);
 
+        int fpsmax = (int) (setting_floatvalue("fps_max"));
+        if (fpsmax > 0) {
+            if (SDL_GetTicks() - then < 1000 / fpsmax) {
+                SDL_Delay(1000 / fpsmax - (SDL_GetTicks() - then));
+            }
+        }
+
         if (switch_pending) {
             ptrs.quit();
             state_initializer_ptr state_init = engine_reevaluate_ptrs(&ptrs, current_state);
@@ -246,6 +254,7 @@ int main(int argc, char** argv) {
     setting_register(&r_accelerated);
     setting_register(&r_fullscreen);
     setting_register(&game_tickrate);
+    setting_register(&fps_max);
 
     settings_parse_argv(argc, argv);
 
