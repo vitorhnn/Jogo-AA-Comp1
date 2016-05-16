@@ -16,6 +16,8 @@
 #include "ui.h"
 
 typedef struct {
+    int     activeitem;
+    int     hotitem;
     vec2i   mousepos;
     bool    mousedown;
 } ui_state;
@@ -68,10 +70,12 @@ void ui_init(void) {
 }
 
 void ui_handle(SDL_Event *event) {
+    state.hotitem = 0;
     switch (event->type) {
         case SDL_MOUSEMOTION:
             state.mousepos.x = event->motion.x;
             state.mousepos.y = event->motion.y;
+
             break;
         case SDL_MOUSEBUTTONDOWN:
             state.mousedown = true;
@@ -82,13 +86,29 @@ void ui_handle(SDL_Event *event) {
         default:
             break;
     }
+
+    for (size_t i = 0; i < elements.used; i++) {
+        ui_element *el = (ui_element *) elements.data[i];
+
+        switch (el->type) {
+            case BUTTON:
+            {
+                ui_button_t *btn = (ui_button_t *) el->data;
+                if (mouse_in_rect(btn->pos, btn->w, btn->h)) {
+                    state.hotitem = el->id;
+
+                    if (state.activeitem == 0 && state.mousedown) {
+                        state.activeitem = el->id;
+                    }
+                }
+                break;
+            }
+        }
+    }
 }
 
 void ui_paint(SDL_Renderer *renderer) {
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
-
-    SDL_Rect r = { state.mousepos.x, state.mousepos.y, 200, 200 };
-    SDL_RenderFillRect(renderer, &r);
 
     for (size_t i = 0; i < elements.used; i++) {
         ui_element *el = (ui_element *) elements.data[i];
@@ -112,6 +132,14 @@ void ui_paint(SDL_Renderer *renderer) {
             }
         }
     }
+
+    if (!state.mousedown) {
+        state.activeitem = 0;
+    }
+    else if (state.activeitem == 0) {
+        state.activeitem = -1;
+    }
+
 }
 
 void ui_quit(void) {
@@ -132,7 +160,7 @@ static bool button_render_text(SDL_Renderer *renderer, ui_button_t *btn) {
 
     SDL_Surface *surf = TTF_RenderUTF8_Blended(ui_font, btn->text, c);
     
-        if (surf == NULL) {
+    if (surf == NULL) {
         show_error("button_render_text: TTF_RenderUTF8_Blended failed", ERROR_SOURCE_SDL);
         goto surf_fail;
     }
@@ -161,12 +189,9 @@ bool ui_button(int id, const char *text, vec2i pos) {
         ui_element *element = (ui_element*) elements.data[i];
         if (element->id == id) {
             element->should_draw = true;
-            
-            // assert element->type == BUTTON
 
-            ui_button_t *btn = (ui_button_t*) element->data;
-
-            if (mouse_in_rect(btn->pos, btn->w, btn->h) && state.mousedown) {
+            if (!state.mousedown && state.hotitem == id && state.activeitem == id) {
+                state.activeitem = 0;
                 return true;
             }
 
@@ -182,10 +207,10 @@ bool ui_button(int id, const char *text, vec2i pos) {
    
     ui_element *el = xmalloc(sizeof(ui_element));
 
-    el->id = id;
-    el->type = BUTTON;
+    el->id          = id;
+    el->type        = BUTTON;
     el->should_draw = true;
-    el->data = btn;
+    el->data        = btn;
 
     // we can't actually know if the user clicked right now, as w and h are invalid
     // we need to wait for a render frame, so just say that the user didn't click.
