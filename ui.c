@@ -91,8 +91,7 @@ void ui_handle(SDL_Event *event) {
         ui_element *el = (ui_element *) elements.data[i];
 
         switch (el->type) {
-            case BUTTON:
-            {
+            case BUTTON: {
                 ui_button_t *btn = (ui_button_t *) el->data;
                 if (mouse_in_rect(btn->pos, btn->w, btn->h)) {
                     state.hotitem = el->id;
@@ -170,9 +169,10 @@ static bool button_render_text(SDL_Renderer *renderer, ui_button_t *btn) {
         goto tex_fail;
     }
 
-    btn->w = surf->w;
-    btn->h = surf->h;
-    btn->tex = tex;
+    btn->w      = surf->w;
+    btn->h      = surf->h;
+    btn->tex    = tex;
+    btn->valid  = true;
 
     SDL_FreeSurface(surf);
     return true;
