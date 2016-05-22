@@ -161,12 +161,12 @@ static bool button_render_text(SDL_Renderer *renderer, ui_button_t *btn) {
     
     if (surf == NULL) {
         show_error("button_render_text: TTF_RenderUTF8_Blended failed", ERROR_SOURCE_SDL);
-        goto surf_fail;
+        return false;
     }
     SDL_Texture *tex = SDL_CreateTextureFromSurface(renderer, surf);
     if (tex == NULL) {
         show_error("button_render_text: SDL_CreateTextureFromSurface failed", ERROR_SOURCE_SDL);
-        goto tex_fail;
+        goto failure;
     }
 
     btn->w      = surf->w;
@@ -177,10 +177,8 @@ static bool button_render_text(SDL_Renderer *renderer, ui_button_t *btn) {
     SDL_FreeSurface(surf);
     return true;
 
-tex_fail:
+failure:
     SDL_DestroyTexture(tex);
-surf_fail:
-    SDL_FreeSurface(surf);
     return false;
 }
 
