@@ -144,6 +144,15 @@ void ui_paint(SDL_Renderer *renderer) {
 void ui_quit(void) {
     for (size_t i = 0; i < elements.used; i++) {
         ui_element *el = (ui_element *) elements.data[i];
+
+        switch (el->type) {
+            case BUTTON: {
+                ui_button_t *btn = (ui_button_t *) el->data;
+
+                free(btn->text);
+                SDL_DestroyTexture(btn->tex);
+            }
+        }
         
         free(el->data);
         free(el);
