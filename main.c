@@ -224,7 +224,7 @@ int main(int argc, char** argv) {
     SDL_version linked;
 
     SDL_VERSION(&compiled);
-    SDL_VERSION(&linked);
+    SDL_GetVersion(&linked);
 
     printf("Compiled with SDL %d.%d.%d\n"
            "Linking against SDL %d.%d.%d\n", 
