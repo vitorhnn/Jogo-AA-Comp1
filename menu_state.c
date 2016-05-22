@@ -6,7 +6,6 @@
 #include "3rdparty/physicsfs/extras/physfsrwops.h"
 
 #include "main.h"
-#include "texloader.h"
 #include "menu_state.h"
 #include "sprite.h"
 #include "ui.h"
