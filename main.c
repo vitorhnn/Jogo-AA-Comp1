@@ -207,6 +207,8 @@ static int engine_run(void) {
 
     ptrs.quit();
 
+    ui_quit();
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 

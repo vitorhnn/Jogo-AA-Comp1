@@ -3,10 +3,10 @@
 
 #include "main.h"
 #include "settings.h"
-#include "texloader.h"
+#include "sprite.h"
 #include "credits_state.h"
 
-static SDL_Texture* credits = NULL;
+static sprite credits;
 static SDL_Texture* overlay = NULL;
 static unsigned ticks = 0;
 
@@ -60,10 +60,10 @@ static void credits_rerender_overlay(SDL_Renderer* renderer, unsigned diff) {
 
 void credits_init(SDL_Renderer* renderer) {
     SDL_RenderSetLogicalSize(renderer, 1280, 720);
-    credits = tex_load_from_file(renderer, "credits.png");
-    if (credits == NULL) {
-       show_error_msgbox("credits_init: failed to tex_load_from_file credits", ERROR_SOURCE_SDL);
-       exit(EXIT_FAILURE);
+
+    if (!sprite_load(&credits, renderer, "credits.png")) {
+        show_error_msgbox("credits_init: failed to sprite_load credits", ERROR_SOURCE_SDL);
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -84,12 +84,15 @@ void credits_think(void) {
 
 void credits_paint(SDL_Renderer* renderer, unsigned diff) {
     credits_rerender_overlay(renderer, diff);
-    SDL_RenderCopy(renderer, credits, NULL, NULL);
+
+    vec2 pos = {0, 0};
+    sprite_paint(&credits, renderer, pos);
+
     SDL_RenderCopy(renderer, overlay, NULL, NULL);
 }
 
 void credits_quit(void) {
-    SDL_DestroyTexture(credits);
+    sprite_free(&credits);
     SDL_DestroyTexture(overlay);
 }
 

@@ -8,12 +8,13 @@
 #include "main.h"
 #include "texloader.h"
 #include "menu_state.h"
+#include "sprite.h"
 #include "ui.h"
 
-static SDL_Texture* bg = NULL;
+static sprite bg;
 
 void menu_init(SDL_Renderer* renderer) {
-    bg = tex_load_from_file(renderer, "menubg.png");
+    sprite_load(&bg, renderer, "menubg.png");
 }
 
 void menu_handle(SDL_Event* event) {
@@ -37,10 +38,12 @@ void menu_think(void) {
 
 void menu_paint(SDL_Renderer* renderer, unsigned diff) {
 #pragma unused (diff)
-    SDL_RenderCopy(renderer, bg, NULL, NULL);
+    vec2 pos = {0, 0};
+    sprite_paint(&bg, renderer, pos);
 }
 
 void menu_quit(void) {
+    sprite_free(&bg);
 }
 
 // vim: set ts=4 sw=4 expandtab:
