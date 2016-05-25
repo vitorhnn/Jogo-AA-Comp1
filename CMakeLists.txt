@@ -22,5 +22,5 @@ add_library ( physfsextras 3rdparty/physicsfs/extras/physfsrwops.c )
 add_library ( asprintf 3rdparty/asprintf/asprintf.c 3rdparty/asprintf/vasprintf-c99.c )
 add_library ( z_containers containers/vector.c )
 
-add_executable(joguin main.c common.c credits_state.c settings.c menu_state.c ui.c sprite.c)
+add_executable(joguin main.c common.c credits_state.c settings.c menu_state.c ui.c sprite.c game_state.c)
 target_link_libraries( joguin physfsextras asprintf z_containers ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${SDL2_TTF_LIBRARY} ${SDL2_MIXER_LIBRARY} ${PHYSFS_LIBRARY})

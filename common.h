@@ -11,7 +11,8 @@ typedef enum {ERROR_SOURCE_SDL, ERROR_SOURCE_PHYSFS, ERROR_SOURCE_INTERNAL} erro
 
 typedef enum {
     STATE_CREDITS,
-    STATE_MENU
+    STATE_MENU,
+    STATE_GAME
 } game_state;
 
 void real_show_error(char* msg, error_source source, bool show_messagebox);

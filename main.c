@@ -16,6 +16,7 @@
 
 #include "credits_state.h"
 #include "menu_state.h"
+#include "game_state.h"
 
 
 #define MS_PER_UPDATE (unsigned) (1000 / setting_floatvalue("game_tickrate"))
@@ -70,6 +71,13 @@ static state_initializer_ptr engine_reevaluate_ptrs(state_function_ptrs* ptrs, g
             ptrs->think     = &menu_think;
             ptrs->paint     = &menu_paint;
             ptrs->quit      = &menu_quit;
+            break;
+        case STATE_GAME:
+            retval          = &game_init;
+            ptrs->handle    = &game_handle;
+            ptrs->think     = &game_think;
+            ptrs->paint     = &game_paint;
+            ptrs->quit      = &game_quit;
             break;
         default:
             show_error_msgbox("engine_reevaluate_ptrs: called with STATE_WTF new_state", ERROR_SOURCE_INTERNAL);
@@ -177,6 +185,7 @@ static int engine_run(void) {
         }
 
         while (lag >= MS_PER_UPDATE) {
+            ui_think();
             ptrs.think();
             lag -= MS_PER_UPDATE;
             if (switch_pending) {

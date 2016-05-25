@@ -89,7 +89,6 @@ void ui_handle(SDL_Event *event) {
 
     for (size_t i = 0; i < elements.used; i++) {
         ui_element *el = (ui_element *) elements.data[i];
-
         switch (el->type) {
             case BUTTON: {
                 ui_button_t *btn = (ui_button_t *) el->data;
@@ -106,11 +105,21 @@ void ui_handle(SDL_Event *event) {
     }
 }
 
+void ui_think(void) {
+    for (size_t i = 0; i < elements.used; i++) {
+        ui_element *el = (ui_element *) elements.data[i];
+        el->should_draw = false;
+    }
+}
+
 void ui_paint(SDL_Renderer *renderer) {
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
 
     for (size_t i = 0; i < elements.used; i++) {
         ui_element *el = (ui_element *) elements.data[i];
+        if (!el->should_draw) {
+            continue;
+        }
 
         switch (el->type) {
             case BUTTON: {
@@ -129,6 +138,7 @@ void ui_paint(SDL_Renderer *renderer) {
 
                 SDL_RenderCopy(renderer, btn->tex, NULL, &rect);
             }
+            break;
         }
     }
 

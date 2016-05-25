@@ -20,6 +20,8 @@ void ui_init(void);
 
 void ui_handle(SDL_Event *event);
 
+void ui_think(void);
+
 void ui_paint(SDL_Renderer *renderer);
 
 void ui_quit(void);

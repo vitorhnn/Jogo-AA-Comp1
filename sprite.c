@@ -44,10 +44,10 @@ bool sprite_load(sprite *sprite, SDL_Renderer *renderer, const char *path) {
     return false;
 }
 
-void sprite_paint(sprite *sprite, SDL_Renderer* renderer, vec2 pos) {
+void sprite_paint(sprite *sprite, SDL_Renderer* renderer, vec2i pos) {
     SDL_Rect rect = {
-        .x = (int) pos.x,
-        .y = (int) pos.y,
+        .x =  pos.x,
+        .y =  pos.y,
         .w = sprite->w,
         .h = sprite->h
     };
