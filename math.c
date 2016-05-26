@@ -5,7 +5,7 @@
 #include "math.h"
 
 static vec2 unit(vec2 *vec) {
-    int norm = sqrt(vec->x * vec->x + vec->y * vec->y);
+    float norm = sqrt(vec->x * vec->x + vec->y * vec->y);
 
     vec2 retvec = {
         .x = vec->x / norm,
