@@ -85,7 +85,7 @@ void credits_think(void) {
 void credits_paint(SDL_Renderer* renderer, unsigned diff) {
     credits_rerender_overlay(renderer, diff);
 
-    vec2i pos = {0, 0};
+    vec2 pos = {0, 0};
     sprite_paint(&credits, renderer, pos);
 
     SDL_RenderCopy(renderer, overlay, NULL, NULL);

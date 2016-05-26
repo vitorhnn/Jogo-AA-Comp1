@@ -4,23 +4,32 @@
 #include <stdbool.h>
 
 #include "sprite.h"
+#include "math.h"
 #include "game_state.h"
 
 static struct {
     bool up, down, left, right, click;
-    vec2i mousepos;
+    vec2 mousepos;
 } iptstate;
 
 static struct {
     sprite spr;
-    vec2i pos;
+    vec2 pos;
 } player;
+
+struct projectile {
+    vec2 pos;
+    vec2 mov;
+};
+
+static struct projectile projectiles[100];
 
 void game_init(SDL_Renderer *renderer) {
     iptstate.up = false;
     iptstate.down = false;
     iptstate.left = false;
     iptstate.right = false;
+    memset(projectiles, 0, sizeof(projectiles));
     sprite_load(&player.spr, renderer, "player.png");
 }
 
@@ -80,6 +89,10 @@ void game_handle(SDL_Event *event) {
                     break;
             }
             break;
+        case SDL_MOUSEMOTION:
+            iptstate.mousepos.x = event->motion.x;
+            iptstate.mousepos.y = event->motion.y;
+            break;
     }
 }
 
@@ -97,10 +110,23 @@ void game_think(void) {
     else if (iptstate.left) {
         player.pos.x -= 1;
     }
+
+    if (iptstate.click) {
+        vec2 mov = get_vec(&player.pos, &iptstate.mousepos);
+        struct projectile newp = {
+            .pos = player.pos,
+            .mov = mov
+        };
+
+        projectiles[0] = newp;
+    }
+
+    projectiles[0].pos.x += projectiles[0].mov.x;
+    projectiles[0].pos.y += projectiles[0].mov.y;
 }
 
 void game_paint(SDL_Renderer *renderer, unsigned diff) {
-    vec2i corrected = player.pos;
+    vec2 corrected = player.pos;
     if (iptstate.up) {
         corrected.y -= 1 * diff;
     } 
@@ -115,6 +141,7 @@ void game_paint(SDL_Renderer *renderer, unsigned diff) {
         corrected.x -= 1 * diff;
     }
     sprite_paint(&player.spr, renderer, player.pos);
+    sprite_paint(&player.spr, renderer, projectiles[0].pos);
 }
 
 void game_quit(void) {

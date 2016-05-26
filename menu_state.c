@@ -24,7 +24,7 @@ void menu_handle(SDL_Event* event) {
 }
 
 void menu_think(void) {
-    vec2i pos = {100, 100};
+    vec2 pos = {100, 100};
     if (ui_button(UI_ID, "dá pray", pos)) {
         engine_switch_state(STATE_GAME);
     }
@@ -37,7 +37,7 @@ void menu_think(void) {
 
 void menu_paint(SDL_Renderer* renderer, unsigned diff) {
 #pragma unused (diff)
-    vec2i pos = {0, 0};
+    vec2 pos = {0, 0};
     sprite_paint(&bg, renderer, pos);
 }
 

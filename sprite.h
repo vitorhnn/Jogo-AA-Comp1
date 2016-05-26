@@ -17,7 +17,7 @@ typedef struct {
 
 bool sprite_load(sprite *sprite, SDL_Renderer *renderer, const char *path);
 
-void sprite_paint(sprite *sprite, SDL_Renderer *renderer, vec2i pos);
+void sprite_paint(sprite *sprite, SDL_Renderer *renderer, vec2 pos);
 
 void sprite_free(sprite *sprite);
 

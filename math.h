@@ -8,9 +8,6 @@ typedef struct {
     float x, y;
 } vec2;
 
-typedef struct {
-    int x, y;
-} vec2i;
-
+vec2 get_vec(vec2 *a, vec2 *b);
 
 #endif

@@ -18,7 +18,7 @@
 typedef struct {
     int     activeitem;
     int     hotitem;
-    vec2i   mousepos;
+    vec2   mousepos;
     bool    mousedown;
 } ui_state;
 
@@ -30,7 +30,7 @@ typedef struct {
     SDL_Texture *tex;
     char        *text;
     bool        valid;
-    vec2i       pos;
+    vec2       pos;
     int         w, h;
 } ui_button_t;
 
@@ -47,7 +47,7 @@ static ui_state state;
 static vector   elements;
 static TTF_Font *ui_font;
 
-static bool mouse_in_rect(vec2i pos, int w, int h) {
+static bool mouse_in_rect(vec2 pos, int w, int h) {
     if (state.mousepos.x < pos.x || state.mousepos.y < pos.y) {
         return false;
     }
@@ -201,7 +201,7 @@ failure:
     return false;
 }
 
-bool ui_button(int id, const char *text, vec2i pos) {
+bool ui_button(int id, const char *text, vec2 pos) {
     for (size_t i = 0; i < elements.used; i++) {
         ui_element *element = (ui_element*) elements.data[i];
         if (element->id == id) {
