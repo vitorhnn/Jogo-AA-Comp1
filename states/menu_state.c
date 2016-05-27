@@ -3,12 +3,12 @@
 
 #include <SDL2/SDL_ttf.h>
 
-#include "3rdparty/physicsfs/extras/physfsrwops.h"
+#include "../3rdparty/physicsfs/extras/physfsrwops.h"
 
-#include "main.h"
+#include "../main.h"
 #include "menu_state.h"
-#include "sprite.h"
-#include "ui.h"
+#include "../sprite.h"
+#include "../ui.h"
 
 static sprite bg;
 

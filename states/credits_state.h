@@ -5,7 +5,7 @@
 #define CREDITS_STATE_H
 
 #include <SDL2/SDL.h>
-#include "common.h"
+#include "../common.h"
 
 void credits_init(SDL_Renderer* renderer);
 

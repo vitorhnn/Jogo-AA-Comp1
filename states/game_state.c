@@ -3,8 +3,8 @@
 
 #include <stdbool.h>
 
-#include "sprite.h"
-#include "math.h"
+#include "../sprite.h"
+#include "../math.h"
 #include "game_state.h"
 
 static struct {
@@ -14,13 +14,18 @@ static struct {
 
 static struct {
     sprite spr;
-    vec2 pos;
+    vec2 pos, mov;
 } player;
 
 struct projectile {
     vec2 pos;
     vec2 mov;
 };
+
+static struct {
+    sprite spr;
+    rect col;
+} background;
 
 static struct projectile projectiles[100];
 
@@ -29,8 +34,16 @@ void game_init(SDL_Renderer *renderer) {
     iptstate.down = false;
     iptstate.left = false;
     iptstate.right = false;
+    sprite_load(&player.spr, renderer, "iddle.png");
+
+    background.col.x = 65;
+    background.col.y = 90;
+    background.col.w = 1150;
+    background.col.h = 610;
+    sprite_load(&background.spr, renderer, "template.png");
+
+
     memset(projectiles, 0, sizeof(projectiles));
-    sprite_load(&player.spr, renderer, "player.png");
 }
 
 void game_handle(SDL_Event *event) {
@@ -97,19 +110,22 @@ void game_handle(SDL_Event *event) {
 }
 
 void game_think(void) {
+    vec2 newmov = {0, 0};
     if (iptstate.up) {
-        player.pos.y -= 1;
+        newmov.y -= 1;
     } 
     else if (iptstate.down) {
-        player.pos.y += 1;
+        newmov.y += 1;
     }
 
     if (iptstate.right) {
-        player.pos.x += 1;
+        newmov.x += 1;
     }
     else if (iptstate.left) {
-        player.pos.x -= 1;
+        newmov.x -= 1;
     }
+    newmov = unit(&newmov);
+    player.mov = newmov;
 
     if (iptstate.click) {
         vec2 mov = get_vec(&player.pos, &iptstate.mousepos);
@@ -127,19 +143,10 @@ void game_think(void) {
 
 void game_paint(SDL_Renderer *renderer, unsigned diff) {
     vec2 corrected = player.pos;
-    if (iptstate.up) {
-        corrected.y -= 1 * diff;
-    } 
-    else if (iptstate.down) {
-        corrected.y += 1 * diff;
-    }
 
-    if (iptstate.right) {
-        corrected.x += 1 * diff;
-    }
-    else if (iptstate.left) {
-        corrected.x -= 1 * diff;
-    }
+
+    vec2 bpos = {0, 0};
+    sprite_paint(&background.spr, renderer, bpos);
     sprite_paint(&player.spr, renderer, player.pos);
     sprite_paint(&player.spr, renderer, projectiles[0].pos);
 }

@@ -5,7 +5,7 @@
 #define MENU_STATE_H
 
 #include <SDL2/SDL.h>
-#include "common.h"
+#include "../common.h"
 
 void menu_init(SDL_Renderer* renderer);
 

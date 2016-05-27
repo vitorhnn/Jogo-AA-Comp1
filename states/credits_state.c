@@ -1,9 +1,9 @@
 // Copyright © 2016 Victor Hermann "vitorhnn" Chiletto
 // Licensed under the MIT/Expat license.
 
-#include "main.h"
-#include "settings.h"
-#include "sprite.h"
+#include "../main.h"
+#include "../settings.h"
+#include "../sprite.h"
 #include "credits_state.h"
 
 static sprite credits;
