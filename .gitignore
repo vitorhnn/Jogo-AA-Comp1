@@ -3,5 +3,5 @@
 
 # the build directory, as that is probably full of binaries.
 build/*
-#Flash files will get ignored.
+#Flash files will be ignored.
 *.fla
