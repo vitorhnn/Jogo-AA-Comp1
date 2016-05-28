@@ -1,0 +1,5 @@
+#number of sprites
+n: 12
+#width and height of each sprite
+w: 79
+h: 68
