@@ -8,7 +8,7 @@
 
 #include <SDL2/SDL.h>
 
-#include "math.h"
+#include "vecmath.h"
 
 typedef struct {
     SDL_Texture *texture;

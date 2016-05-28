@@ -8,7 +8,7 @@
 
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_events.h>
-#include "math.h"
+#include "vecmath.h"
 
 #ifdef UI_NOCONFLICT
 #define UI_ID (UI_NOCONFLICT + __LINE__)

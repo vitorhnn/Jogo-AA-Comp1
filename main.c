@@ -14,9 +14,9 @@
 #include "settings.h"
 
 
-#include "credits_state.h"
-#include "menu_state.h"
-#include "game_state.h"
+#include "states/credits_state.h"
+#include "states/menu_state.h"
+#include "states/game_state.h"
 
 
 #define MS_PER_UPDATE (unsigned) (1000 / setting_floatvalue("game_tickrate"))

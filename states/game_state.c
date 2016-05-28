@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "../sprite.h"
-#include "../math.h"
+#include "../vecmath.h"
 #include "game_state.h"
 
 static struct {
@@ -34,6 +34,10 @@ void game_init(SDL_Renderer *renderer) {
     iptstate.down = false;
     iptstate.left = false;
     iptstate.right = false;
+    player.pos.x = 0;
+    player.pos.y = 0;
+    player.mov.x = 0;
+    player.mov.y = 0;
     sprite_load(&player.spr, renderer, "iddle.png");
 
     background.col.x = 65;
@@ -127,6 +131,8 @@ void game_think(void) {
     newmov = unit(&newmov);
     player.mov = newmov;
 
+    player.pos = sum(&player.pos, &player.mov);
+
     if (iptstate.click) {
         vec2 mov = get_vec(&player.pos, &iptstate.mousepos);
         struct projectile newp = {
@@ -142,12 +148,13 @@ void game_think(void) {
 }
 
 void game_paint(SDL_Renderer *renderer, unsigned diff) {
-    vec2 corrected = player.pos;
+    vec2 corrected = mul(&player.mov, diff);
+    corrected = sum(&corrected, &player.pos);
 
 
     vec2 bpos = {0, 0};
     sprite_paint(&background.spr, renderer, bpos);
-    sprite_paint(&player.spr, renderer, player.pos);
+    sprite_paint(&player.spr, renderer, corrected);
     sprite_paint(&player.spr, renderer, projectiles[0].pos);
 }
 
