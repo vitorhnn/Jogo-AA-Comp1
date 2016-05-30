@@ -31,7 +31,7 @@ void menu_think(void) {
     pos.x = 300;
     pos.y = 300;
     if (ui_button(UI_ID, "asdasd", pos)) {
-        SDL_ShowSimpleMessageBox(0, "joguin", "asdasd!", NULL);
+        engine_quit();
     }
 }
 
