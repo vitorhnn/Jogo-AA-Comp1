@@ -197,7 +197,7 @@ static bool button_render_text(SDL_Renderer *renderer, ui_button_t *btn) {
     return true;
 
 failure:
-    SDL_DestroyTexture(tex);
+    SDL_FreeSurface(surf);
     return false;
 }
 
