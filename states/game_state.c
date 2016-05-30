@@ -20,6 +20,7 @@ static struct {
 struct projectile {
     vec2 pos;
     vec2 mov;
+    bool active;
 };
 
 static struct {
@@ -34,8 +35,8 @@ void game_init(SDL_Renderer *renderer) {
     iptstate.down = false;
     iptstate.left = false;
     iptstate.right = false;
-    player.pos.x = 0;
-    player.pos.y = 0;
+    player.pos.x = 00;
+    player.pos.y = 00;
     player.mov.x = 0;
     player.mov.y = 0;
     sprite_load(&player.spr, renderer, "iddle.png");
@@ -113,6 +114,25 @@ void game_handle(SDL_Event *event) {
     }
 }
 
+static void projectile_add(struct projectile proj) {
+    for (size_t i = 0; i < 100; i++) {
+        if (!projectiles[i].active) {
+            projectiles[i] = proj;
+            return;
+        }
+    }
+}
+
+static void projectiles_update(void) {
+    // TODO: collide projectiles with the bg borders and entities, and set active to false
+    // otherwise we're eventually going to run out of projectiles
+    for (size_t i = 0; i < 100; i++) {
+        if (projectiles[i].active) {
+            projectiles[i].pos = sum(projectiles[i].pos, projectiles[i].mov);
+        }
+    }
+}
+
 void game_think(void) {
     vec2 newmov = {0, 0};
     if (iptstate.up) {
@@ -128,34 +148,51 @@ void game_think(void) {
     else if (iptstate.left) {
         newmov.x -= 1;
     }
-    newmov = unit(&newmov);
+    newmov = unit(newmov);
     player.mov = newmov;
 
-    player.pos = sum(&player.pos, &player.mov);
+    player.pos = sum(player.pos, player.mov);
+
+    rect playercol = {player.pos.x, player.pos.y, player.spr.w, player.spr.h};
+
+    if (playercol.y <= background.col.y ||
+        playercol.y + playercol.h >= background.col.y + background.col.h || 
+        playercol.x <= background.col.x ||
+        playercol.x + playercol.h >= background.col.x + background.col.w)
+    ;
+
 
     if (iptstate.click) {
-        vec2 mov = get_vec(&player.pos, &iptstate.mousepos);
+        vec2 mov = get_vec(player.pos, iptstate.mousepos);
         struct projectile newp = {
             .pos = player.pos,
-            .mov = mov
+            .mov = mov,
+            .active = true
         };
 
-        projectiles[0] = newp;
+        projectile_add(newp);
+
+        iptstate.click = false;
     }
 
-    projectiles[0].pos.x += projectiles[0].mov.x;
-    projectiles[0].pos.y += projectiles[0].mov.y;
+    projectiles_update();
 }
 
+static void projectiles_paint(SDL_Renderer *renderer) {
+    for (size_t i = 0; i < 100; i++) {
+        // TODO: correct the projectile pos according to the current diff
+        sprite_paint(&player.spr, renderer, projectiles[i].pos);
+    }
+}
 void game_paint(SDL_Renderer *renderer, unsigned diff) {
-    vec2 corrected = mul(&player.mov, diff);
-    corrected = sum(&corrected, &player.pos);
+    vec2 corrected = mul(player.mov, diff);
+    corrected = sum(corrected, player.pos);
 
 
     vec2 bpos = {0, 0};
     sprite_paint(&background.spr, renderer, bpos);
     sprite_paint(&player.spr, renderer, corrected);
-    sprite_paint(&player.spr, renderer, projectiles[0].pos);
+    projectiles_paint(renderer);
 }
 
 void game_quit(void) {

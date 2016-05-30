@@ -4,42 +4,84 @@
 #include <math.h>
 #include "vecmath.h"
 
-vec2 get_vec(vec2 *a, vec2 *b) {
-    vec2 retvec;
-    retvec.x = b->x - a->x;
-    retvec.y = b->y - a->y;
+// not really vector math, but I need this, so
+bool edgecollide(rect a, rect b) {
+    // totally not copy and pasted from my old pong clone
+    if (a.y + a.h <= b.y) {
+        return false;
+    }
 
-    return unit(&retvec);
+    if (a.y >= b.y + b.h) {
+        return false;
+    }
+
+    if (a.x + a.w <= b.x) {
+        return false;
+    }
+
+    if (a.x >= b.x + b.w) {
+        return false;
+    }
+
+    return true;
 }
 
-vec2 unit(vec2 *vec) {
-    float norm = sqrtf(vec->x * vec->x + vec->y * vec->y);
+bool fullcollide(rect a, rect b) {
+    if (a.y + a.h < b.y) {
+        return false;
+    }
+
+    if (a.y > b.y + b.h) {
+        return false;
+    }
+
+    if (a.x + a.w < b.x) {
+        return false;
+    }
+
+    if (a.x > b.x + b.w) {
+        return false;
+    }
+
+    return true;
+}
+
+vec2 get_vec(vec2 a, vec2 b) {
+    vec2 retvec;
+    retvec.x = b.x - a.x;
+    retvec.y = b.y - a.y;
+
+    return unit(retvec);
+}
+
+vec2 unit(vec2 vec) {
+    float norm = sqrtf(vec.x * vec.x + vec.y * vec.y);
 
     if (norm == 0) {
-        return *vec;
+        return vec;
     }
 
     vec2 retvec = {
-        .x = vec->x / norm,
-        .y = vec->y / norm
+        .x = vec.x / norm,
+        .y = vec.y / norm
     };
 
     return retvec;
 }
 
-vec2 sum(vec2 *a, vec2 *b) {
+vec2 sum(vec2 a, vec2 b) {
     vec2 retvec = {
-        .x = a->x + b->x,
-        .y = a->y + b->y
+        .x = a.x + b.x,
+        .y = a.y + b.y
     };
 
     return retvec;
 }
 
-vec2 mul(vec2 *vec, float scalar) {
+vec2 mul(vec2 vec, float scalar) {
     vec2 retvec = {
-        .x = vec->x * scalar,
-        .y = vec->y * scalar
+        .x = vec.x * scalar,
+        .y = vec.y * scalar
     };
 
     return retvec;
