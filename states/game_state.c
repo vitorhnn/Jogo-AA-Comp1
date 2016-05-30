@@ -140,7 +140,7 @@ static void projectiles_update(void) {
             if (projcol.y <= background.col.y ||
                 projcol.y + projcol.h >= background.col.y + background.col.h ||
                 projcol.x <= background.col.x ||
-                projcol.x + projcol.h >= background.col.x + background.col.w)
+                projcol.x + projcol.w >= background.col.x + background.col.w)
             {
                 projectiles[i].active = false;
             }
@@ -173,7 +173,7 @@ void game_think(void) {
     if (playercol.y <= background.col.y ||
         playercol.y + playercol.h >= background.col.y + background.col.h || 
         playercol.x <= background.col.x ||
-        playercol.x + playercol.h >= background.col.x + background.col.w)
+        playercol.x + playercol.w >= background.col.x + background.col.w)
     {
         vec2 unmov = player.mov;
         unmov.x = -unmov.x;
