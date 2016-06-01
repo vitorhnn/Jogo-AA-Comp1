@@ -3,3 +3,5 @@ n: 13
 #width and height of each sprite
 w: 66
 h: 79
+rot: 31, 56
+proj: 55, 0 
