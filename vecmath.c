@@ -5,6 +5,12 @@
 #include "vecmath.h"
 
 // not really vector math, but I need this, so
+float pointangle(vec2 a, vec2 b) {
+    float deltaX = a.x - b.x;
+    float deltaY = a.y - b.y;
+
+    return atan2(deltaY, deltaX);
+}
 bool edgecollide(rect a, rect b) {
     // totally not copy and pasted from my old pong clone
     if (a.y + a.h <= b.y) {

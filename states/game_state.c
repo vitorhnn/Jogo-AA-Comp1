@@ -15,6 +15,7 @@ static struct {
 static struct {
     sprite spr;
     vec2 pos, mov;
+    float lookat;
 } player;
 
 struct projectile {
@@ -55,16 +56,16 @@ void game_handle(SDL_Event *event) {
     switch (event->type) {
         case SDL_KEYDOWN:
             switch (event->key.keysym.sym) {
-                case SDLK_DOWN:
+                case SDLK_s:
                     iptstate.down = true;
                     break;
-                case SDLK_UP:
+                case SDLK_w:
                     iptstate.up = true;
                     break;
-                case SDLK_RIGHT:
+                case SDLK_d:
                     iptstate.right = true;
                     break;
-                case SDLK_LEFT:
+                case SDLK_a:
                     iptstate.left = true;
                     break;
                 default:
@@ -73,16 +74,16 @@ void game_handle(SDL_Event *event) {
             break;
         case SDL_KEYUP:
             switch (event->key.keysym.sym) {
-                case SDLK_DOWN:
+                case SDLK_s:
                     iptstate.down = false;
                     break;
-                case SDLK_UP:
+                case SDLK_w:
                     iptstate.up = false;
                     break;
-                case SDLK_RIGHT:
+                case SDLK_d:
                     iptstate.right = false;
                     break;
-                case SDLK_LEFT:
+                case SDLK_a:
                     iptstate.left = false;
                     break;
                 default:
@@ -196,6 +197,8 @@ void game_think(void) {
         iptstate.click = false;
     }
 
+    player.lookat = (pointangle(player.pos, iptstate.mousepos) * (180/acos(-1))) - 90;
+
     projectiles_update();
 }
 
@@ -215,7 +218,7 @@ void game_paint(SDL_Renderer *renderer, unsigned diff) {
 
     vec2 bpos = {0, 0};
     sprite_paint(&background.spr, renderer, bpos);
-    sprite_paint(&player.spr, renderer, corrected);
+    sprite_paint_ex(&player.spr, renderer, corrected, player.lookat);
     projectiles_paint(renderer);
 }
 
