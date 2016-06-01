@@ -1,10 +1,11 @@
-// Copyright © 2016 Victor Hermann "vitorhnn" Chiletto
+    // Copyright © 2016 Victor Hermann "vitorhnn" Chiletto
 // Licensed under the MIT/Expat license.
 
 #include <stdbool.h>
 #include <stdlib.h>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 #include <physfs.h>
@@ -245,6 +246,11 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
+    if (IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) {
+        show_error_msgbox("failed to IMG_Init", ERROR_SOURCE_SDL);
+        return EXIT_FAILURE;
+    }
+
     if (Mix_Init(MIX_INIT_FLAC | MIX_INIT_OGG) != (MIX_INIT_FLAC | MIX_INIT_OGG) ) {
         show_error_msgbox("failed to Mix_Init", ERROR_SOURCE_SDL);
         return EXIT_FAILURE;
@@ -266,6 +272,11 @@ int main(int argc, char** argv) {
     setting_register(&r_fullscreen);
     setting_register(&game_tickrate);
     setting_register(&fps_max);
+
+    if (SDL_GetPowerInfo(NULL, NULL) == SDL_POWERSTATE_ON_BATTERY) {
+        printf("main(): device is on battery, setting default framerate to 30\n");
+        setting_set_num("fps_max", 30);
+    }
 
     settings_parse_argv(argc, argv);
 
