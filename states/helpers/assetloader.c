@@ -80,8 +80,8 @@ void entity_load(const char *path, struct entity *ent) {
 
                 center.x = strtof(x, NULL);
                 center.y = strtof(tok, NULL);
-                
-                puts("debugger break!");
+
+                ent->rotcenter = center;
 
                 tok = strtok(NULL, "\n");
             }
