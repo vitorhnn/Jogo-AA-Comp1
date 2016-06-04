@@ -1,0 +1,7 @@
+ENTITY
+anims:
+idle
+weapon
+shot
+death
+# botei o anims: ali no caso de eu implementar parsear a vida daqui.

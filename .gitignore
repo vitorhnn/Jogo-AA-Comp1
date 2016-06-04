@@ -5,3 +5,6 @@
 build/*
 #Flash files will be ignored.
 *.fla
+#Sublime text files
+*.sublime-project
+*.sublime-workspace
