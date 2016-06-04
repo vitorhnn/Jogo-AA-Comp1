@@ -19,7 +19,7 @@ bool sprite_load(sprite *sprite, SDL_Renderer *renderer, const char *path);
 
 void sprite_paint(sprite *sprite, SDL_Renderer *renderer, vec2 pos);
 
-void sprite_paint_ex(sprite *sprite, SDL_Renderer *renderer, vec2 pos, float angle);
+void sprite_paint_ex(sprite *sprite, SDL_Renderer *renderer, vec2 pos, float angle, vec2 rotcenter);
 
 void sprite_free(sprite *sprite);
 

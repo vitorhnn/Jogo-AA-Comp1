@@ -45,17 +45,22 @@ bool sprite_load(sprite *sprite, SDL_Renderer *renderer, const char *path) {
 }
 
 void sprite_paint(sprite *sprite, SDL_Renderer* renderer, vec2 pos) {
-    sprite_paint_ex(sprite, renderer, pos, 0);
+    vec2 center = {0, 0};
+    sprite_paint_ex(sprite, renderer, pos, 0, center);
 }
 
-void sprite_paint_ex(sprite *sprite, SDL_Renderer* renderer, vec2 pos, float angle) {
+void sprite_paint_ex(sprite *sprite, SDL_Renderer* renderer, vec2 pos, float angle, vec2 rotcenter) {
     SDL_Rect rect = {
         .x = (int) pos.x,
         .y = (int) pos.y,
         .w = sprite->w,
         .h = sprite->h
     };
-    SDL_RenderCopyEx(renderer, sprite->texture, NULL, &rect, angle, NULL, SDL_FLIP_NONE);
+    SDL_Point point = {
+        .x = (int) rotcenter.x,
+        .y = (int) rotcenter.y
+    };
+    SDL_RenderCopyEx(renderer, sprite->texture, NULL, &rect, angle, &point, SDL_FLIP_NONE);
 }
 void sprite_free(sprite *sprite) {
     SDL_DestroyTexture(sprite->texture);

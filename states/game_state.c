@@ -7,16 +7,14 @@
 #include "../vecmath.h"
 #include "game_state.h"
 
+#include "helpers/assetloader.h"
+
 static struct {
     bool up, down, left, right, click;
     vec2 mousepos;
 } iptstate;
 
-static struct {
-    sprite spr;
-    vec2 pos, mov;
-    float lookat;
-} player;
+static struct entity player;
 
 struct projectile {
     vec2 pos;
@@ -24,14 +22,12 @@ struct projectile {
     bool active;
 };
 
-static struct {
-    sprite spr;
-    rect col;
-} background;
+static struct background background;
 
 static struct projectile projectiles[100];
 
 void game_init(SDL_Renderer *renderer) {
+    SDL_RenderSetLogicalSize(renderer, 1280, 720);
     iptstate.up = false;
     iptstate.down = false;
     iptstate.left = false;
@@ -42,13 +38,11 @@ void game_init(SDL_Renderer *renderer) {
     player.mov.y = 0;
     sprite_load(&player.spr, renderer, "iddle.png");
 
-    background.col.x = 65;
-    background.col.y = 90;
-    background.col.w = 1150;
-    background.col.h = 610;
     sprite_load(&background.spr, renderer, "template.png");
 
+    background_load("template.txt", &background);
 
+    entity_load("idle.txt", &player);
     memset(projectiles, 0, sizeof(projectiles));
 }
 
@@ -202,11 +196,13 @@ void game_think(void) {
     projectiles_update();
 }
 
-static void projectiles_paint(SDL_Renderer *renderer) {
+static void projectiles_paint(SDL_Renderer *renderer, unsigned diff) {
     for (size_t i = 0; i < 100; i++) {
         // TODO: correct the projectile pos according to the current diff
         if (projectiles[i].active) {
-            sprite_paint(&player.spr, renderer, projectiles[i].pos);
+            vec2 corrected = mul(projectiles[i].mov, diff);
+            corrected = sum(corrected, projectiles[i].pos);
+            sprite_paint(&player.spr, renderer, corrected);
         }
     }
 }
@@ -218,8 +214,8 @@ void game_paint(SDL_Renderer *renderer, unsigned diff) {
 
     vec2 bpos = {0, 0};
     sprite_paint(&background.spr, renderer, bpos);
-    sprite_paint_ex(&player.spr, renderer, corrected, player.lookat);
-    projectiles_paint(renderer);
+    sprite_paint_ex(&player.spr, renderer, corrected, player.lookat, player.rotcenter);
+    projectiles_paint(renderer, diff);
 }
 
 void game_quit(void) {
