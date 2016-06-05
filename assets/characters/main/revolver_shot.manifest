@@ -1,8 +1,8 @@
+SPRITE_SHEET
 #number of sprites
-n: 14
+n: 12
 #width and height of each sprite
-w: 65
-h: 50
-#point of rotation and birth of projjectile
+w: 79
+h: 68
 rot: 39, 49
 proj: 65, 0 
