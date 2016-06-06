@@ -36,6 +36,10 @@ void game_init(SDL_Renderer *renderer) {
     player.pos.y = 300;
     player.mov.x = 0;
     player.mov.y = 0;
+    entity_load(renderer, "papaco", &player);
+
+    background_load(renderer, "template", &background);
+    /*
     sprite_load(&player.spr, renderer, "iddle.png");
 
     sprite_load(&background.spr, renderer, "template.png");
@@ -43,6 +47,7 @@ void game_init(SDL_Renderer *renderer) {
     background_load("template.txt", &background);
 
     entity_load("idle.txt", &player);
+    */
     memset(projectiles, 0, sizeof(projectiles));
 }
 
@@ -128,8 +133,8 @@ static void projectiles_update(void) {
             rect projcol = {
                 .x = projectiles[i].pos.x,
                 .y = projectiles[i].pos.y,
-                .w = player.spr.w,
-                .h = player.spr.h
+                .w = player.idle.w,
+                .h = player.idle.h
             };
 
             if (projcol.y <= background.col.y ||
@@ -163,7 +168,7 @@ void game_think(void) {
 
     player.pos = sum(player.pos, player.mov);
 
-    rect playercol = {player.pos.x, player.pos.y, player.spr.w, player.spr.h};
+    rect playercol = {player.pos.x, player.pos.y, player.idle.w, player.idle.h};
 
     if (playercol.y <= background.col.y ||
         playercol.y + playercol.h >= background.col.y + background.col.h || 
@@ -202,7 +207,7 @@ static void projectiles_paint(SDL_Renderer *renderer, unsigned diff) {
         if (projectiles[i].active) {
             vec2 corrected = mul(projectiles[i].mov, diff);
             corrected = sum(corrected, projectiles[i].pos);
-            sprite_paint(&player.spr, renderer, corrected);
+            sprite_paint(&player.idle, renderer, corrected);
         }
     }
 }
@@ -214,11 +219,11 @@ void game_paint(SDL_Renderer *renderer, unsigned diff) {
 
     vec2 bpos = {0, 0};
     sprite_paint(&background.spr, renderer, bpos);
-    sprite_paint_ex(&player.spr, renderer, corrected, player.lookat, player.rotcenter);
+    sprite_paint_ex(&player.idle, renderer, corrected, player.lookat, player.idle.rotcenter);
     projectiles_paint(renderer, diff);
 }
 
 void game_quit(void) {
-    sprite_free(&player.spr);
+    sprite_free(&player.idle);
 }
 // vim: set ts=4 sw=4 expandtab:

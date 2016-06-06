@@ -12,7 +12,8 @@
 
 typedef struct {
     SDL_Texture *texture;
-    int w, h;
+    vec2 rotcenter;
+    int w, h, frames;
 } sprite;
 
 bool sprite_load(sprite *sprite, SDL_Renderer *renderer, const char *path);

@@ -6,7 +6,8 @@
 
 #include "../game_state.h"
 
-void background_load(const char *path, struct background *bg);
+void background_load(SDL_Renderer *renderer, const char *path, struct background *bg);
 
-void entity_load(const char *path, struct entity *ent);
+void entity_load(SDL_Renderer *renderer, const char *path, struct entity *ent);
+
 #endif

@@ -13,7 +13,7 @@ struct background {
 };
 
 struct entity {
-    sprite spr;
+    sprite idle, revolver, revolver_shot, death;
     vec2 pos, mov, rotcenter;
     float lookat;
 };
