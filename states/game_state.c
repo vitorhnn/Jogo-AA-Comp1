@@ -36,6 +36,7 @@ void game_init(SDL_Renderer *renderer) {
     player.pos.y = 300;
     player.mov.x = 0;
     player.mov.y = 0;
+    player.current_sprite = &player.idle;
     entity_load(renderer, "papaco", &player);
 
     background_load(renderer, "template", &background);
@@ -148,25 +149,37 @@ static void projectiles_update(void) {
     }
 }
 
-void game_think(void) {
+static void player_think(void) {
     vec2 newmov = {0, 0};
+    bool moving = false;
     if (iptstate.up) {
         newmov.y -= 1;
+        moving = true;
     } 
     if (iptstate.down) {
         newmov.y += 1;
+        moving = true;
     }
 
     if (iptstate.right) {
         newmov.x += 1;
+        moving = true;
     }
     if (iptstate.left) {
         newmov.x -= 1;
+        moving = true;
     }
     newmov = unit(newmov);
     player.mov = newmov;
 
     player.pos = sum(player.pos, player.mov);
+
+    if (moving) {
+        player.current_sprite = &player.revolver;
+    }
+    else {
+        player.current_sprite= &player.idle;
+    }
 
     rect playercol = {player.pos.x, player.pos.y, player.idle.w, player.idle.h};
 
@@ -196,8 +209,11 @@ void game_think(void) {
         iptstate.click = false;
     }
 
-    player.lookat = (pointangle(player.pos, iptstate.mousepos) * (180/acos(-1))) - 90;
+    player.lookat = (pointangle(sum(player.pos, player.current_sprite->rotcenter), iptstate.mousepos) * (180/acos(-1))) - 90;
+}
 
+void game_think(void) {
+    player_think();
     projectiles_update();
 }
 
@@ -207,7 +223,7 @@ static void projectiles_paint(SDL_Renderer *renderer, unsigned diff) {
         if (projectiles[i].active) {
             vec2 corrected = mul(projectiles[i].mov, diff);
             corrected = sum(corrected, projectiles[i].pos);
-            sprite_paint(&player.idle, renderer, corrected);
+            sprite_paint(player.current_sprite, renderer, corrected);
         }
     }
 }
@@ -219,7 +235,7 @@ void game_paint(SDL_Renderer *renderer, unsigned diff) {
 
     vec2 bpos = {0, 0};
     sprite_paint(&background.spr, renderer, bpos);
-    sprite_paint_ex(&player.idle, renderer, corrected, player.lookat, player.idle.rotcenter);
+    sprite_paint_ex(player.current_sprite, renderer, corrected, player.lookat, player.current_sprite->rotcenter);
     projectiles_paint(renderer, diff);
 }
 

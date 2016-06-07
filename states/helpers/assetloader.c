@@ -4,8 +4,10 @@
 #define _XOPEN_SOURCE
 
 #include <physfs.h>
+#include <stdio.h>
 #include "../../3rdparty/asprintf/asprintf.h"
 #include "../../sprite.h"
+#include "../../common.h"
 #include "assetloader.h"
 
 static sprite sheet_load(SDL_Renderer *renderer, const char *path) {
@@ -23,6 +25,16 @@ static sprite sheet_load(SDL_Renderer *renderer, const char *path) {
     asprintf(&mnftpath, "%s.manifest", path);
 
     PHYSFS_file *fp = PHYSFS_openRead(mnftpath);
+
+    if (fp == NULL) {
+        char err[128];
+        snprintf(err, 128, "couldn't load %s", mnftpath);
+
+        show_error(err, ERROR_SOURCE_PHYSFS);
+        free(mnftpath);
+
+        return retspr;
+    }
     free(mnftpath);
 
     char buf[1024] = {0};
@@ -31,7 +43,7 @@ static sprite sheet_load(SDL_Renderer *renderer, const char *path) {
     while ((read = PHYSFS_read(fp, buf, sizeof(char), 1024)) > 0) {
         char *line = strtok(buf, "\n");
 
-        if (strncmp(line, "SPRITE_SHEET", 12) != 0) {
+        if (strncmp(line, "SPRITE", 6) != 0) {
             // we should handle failure here.
             // but really, let's just crash.
 
@@ -84,6 +96,16 @@ void entity_load(SDL_Renderer* renderer, const char *entname, struct entity *ent
     char *path;
     asprintf(&path, "%s/entity.manifest", entname);
     PHYSFS_file *fp = PHYSFS_openRead(path);
+
+    if (fp == NULL) {
+        char err[128];
+        snprintf(err, 128, "couldn't load %s", path);
+
+        show_error(err, ERROR_SOURCE_PHYSFS);
+        free(path);
+
+        return;
+    }
     free(path);
 
     char buf[1024] = {0};
@@ -139,7 +161,19 @@ void background_load(SDL_Renderer *renderer, const char *bgname, struct backgrou
     char *mnftpath;
     asprintf(&mnftpath, "%s.manifest", bgname);
     PHYSFS_file *fp = PHYSFS_openRead(mnftpath);
+
+    if (fp == NULL) {
+        char err[128];
+        snprintf(err, 128, "couldn't load %s", mnftpath);
+
+        show_error(err, ERROR_SOURCE_PHYSFS);
+
+        free(mnftpath);
+        return;
+    }
+
     free(mnftpath);
+
 
     char buf[1024] = {0};
     PHYSFS_sint64 read = 0;
