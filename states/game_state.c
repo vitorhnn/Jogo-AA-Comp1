@@ -7,15 +7,14 @@
 #include "../vecmath.h"
 #include "game_state.h"
 
+#include "helpers/assetloader.h"
+
 static struct {
     bool up, down, left, right, click;
     vec2 mousepos;
 } iptstate;
 
-static struct {
-    sprite spr;
-    vec2 pos, mov;
-} player;
+static struct entity player;
 
 struct projectile {
     vec2 pos;
@@ -23,14 +22,12 @@ struct projectile {
     bool active;
 };
 
-static struct {
-    sprite spr;
-    rect col;
-} background;
+static struct background background;
 
 static struct projectile projectiles[100];
 
 void game_init(SDL_Renderer *renderer) {
+    SDL_RenderSetLogicalSize(renderer, 1280, 720);
     iptstate.up = false;
     iptstate.down = false;
     iptstate.left = false;
@@ -39,15 +36,19 @@ void game_init(SDL_Renderer *renderer) {
     player.pos.y = 300;
     player.mov.x = 0;
     player.mov.y = 0;
+    player.current_sprite = &player.idle;
+    entity_load(renderer, "papaco", &player);
+
+    background_load(renderer, "template", &background);
+    /*
     sprite_load(&player.spr, renderer, "iddle.png");
 
-    background.col.x = 65;
-    background.col.y = 90;
-    background.col.w = 1150;
-    background.col.h = 610;
     sprite_load(&background.spr, renderer, "template.png");
 
+    background_load("template.txt", &background);
 
+    entity_load("idle.txt", &player);
+    */
     memset(projectiles, 0, sizeof(projectiles));
 }
 
@@ -55,16 +56,16 @@ void game_handle(SDL_Event *event) {
     switch (event->type) {
         case SDL_KEYDOWN:
             switch (event->key.keysym.sym) {
-                case SDLK_DOWN:
+                case SDLK_s:
                     iptstate.down = true;
                     break;
-                case SDLK_UP:
+                case SDLK_w:
                     iptstate.up = true;
                     break;
-                case SDLK_RIGHT:
+                case SDLK_d:
                     iptstate.right = true;
                     break;
-                case SDLK_LEFT:
+                case SDLK_a:
                     iptstate.left = true;
                     break;
                 default:
@@ -73,16 +74,16 @@ void game_handle(SDL_Event *event) {
             break;
         case SDL_KEYUP:
             switch (event->key.keysym.sym) {
-                case SDLK_DOWN:
+                case SDLK_s:
                     iptstate.down = false;
                     break;
-                case SDLK_UP:
+                case SDLK_w:
                     iptstate.up = false;
                     break;
-                case SDLK_RIGHT:
+                case SDLK_d:
                     iptstate.right = false;
                     break;
-                case SDLK_LEFT:
+                case SDLK_a:
                     iptstate.left = false;
                     break;
                 default:
@@ -133,8 +134,8 @@ static void projectiles_update(void) {
             rect projcol = {
                 .x = projectiles[i].pos.x,
                 .y = projectiles[i].pos.y,
-                .w = player.spr.w,
-                .h = player.spr.h
+                .w = player.idle.w,
+                .h = player.idle.h
             };
 
             if (projcol.y <= background.col.y ||
@@ -148,27 +149,39 @@ static void projectiles_update(void) {
     }
 }
 
-void game_think(void) {
+static void player_think(void) {
     vec2 newmov = {0, 0};
+    bool moving = false;
     if (iptstate.up) {
         newmov.y -= 1;
+        moving = true;
     } 
     if (iptstate.down) {
         newmov.y += 1;
+        moving = true;
     }
 
     if (iptstate.right) {
         newmov.x += 1;
+        moving = true;
     }
     if (iptstate.left) {
         newmov.x -= 1;
+        moving = true;
     }
     newmov = unit(newmov);
     player.mov = newmov;
 
     player.pos = sum(player.pos, player.mov);
 
-    rect playercol = {player.pos.x, player.pos.y, player.spr.w, player.spr.h};
+    if (moving) {
+        player.current_sprite = &player.revolver;
+    }
+    else {
+        player.current_sprite= &player.idle;
+    }
+
+    rect playercol = {player.pos.x, player.pos.y, player.idle.w, player.idle.h};
 
     if (playercol.y <= background.col.y ||
         playercol.y + playercol.h >= background.col.y + background.col.h || 
@@ -196,14 +209,21 @@ void game_think(void) {
         iptstate.click = false;
     }
 
+    player.lookat = (pointangle(sum(player.pos, player.current_sprite->rotcenter), iptstate.mousepos) * (180/acos(-1))) - 90;
+}
+
+void game_think(void) {
+    player_think();
     projectiles_update();
 }
 
-static void projectiles_paint(SDL_Renderer *renderer) {
+static void projectiles_paint(SDL_Renderer *renderer, unsigned diff) {
     for (size_t i = 0; i < 100; i++) {
         // TODO: correct the projectile pos according to the current diff
         if (projectiles[i].active) {
-            sprite_paint(&player.spr, renderer, projectiles[i].pos);
+            vec2 corrected = mul(projectiles[i].mov, diff);
+            corrected = sum(corrected, projectiles[i].pos);
+            sprite_paint(player.current_sprite, renderer, corrected);
         }
     }
 }
@@ -215,11 +235,11 @@ void game_paint(SDL_Renderer *renderer, unsigned diff) {
 
     vec2 bpos = {0, 0};
     sprite_paint(&background.spr, renderer, bpos);
-    sprite_paint(&player.spr, renderer, corrected);
-    projectiles_paint(renderer);
+    sprite_paint_ex(player.current_sprite, renderer, corrected, player.lookat, player.current_sprite->rotcenter);
+    projectiles_paint(renderer, diff);
 }
 
 void game_quit(void) {
-    sprite_free(&player.spr);
+    sprite_free(&player.idle);
 }
 // vim: set ts=4 sw=4 expandtab:

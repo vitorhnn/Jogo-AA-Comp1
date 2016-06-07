@@ -5,6 +5,19 @@
 #define GAME_STATE_H
 
 #include <SDL2/SDL.h>
+#include "../sprite.h"
+
+struct background {
+    sprite spr;
+    rect col;
+};
+
+struct entity {
+    sprite idle, revolver, revolver_shot, death;
+    sprite *current_sprite;
+    vec2 pos, mov, rotcenter;
+    float lookat;
+};
 
 void game_init(SDL_Renderer *renderer);
 

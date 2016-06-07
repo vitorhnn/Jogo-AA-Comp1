@@ -14,6 +14,8 @@ typedef struct {
     float x, y, w, h;
 } rect;
 
+float pointangle(vec2 a, vec2 b);
+
 bool edgecollide(rect a, rect b);
 
 bool fullcollide(rect a, rect b);
