@@ -10,7 +10,7 @@
 #include "../../common.h"
 #include "assetloader.h"
 
-static sprite sheet_load(SDL_Renderer *renderer, const char *path) {
+sprite sheet_load(SDL_Renderer *renderer, const char *path) {
     sprite retspr;
     // first, load it as if it were a normal sprite:
     char *pngpath;
@@ -68,7 +68,7 @@ static sprite sheet_load(SDL_Renderer *renderer, const char *path) {
 
                 retspr.w = (int) strtol(line, NULL, 10);
             }
-            else if (strncmp(line, "rot:", 3) == 0) {
+            else if (strncmp(line, "rot:", 4) == 0) {
                 line += 4;
 
                 vec2 center;
@@ -84,6 +84,22 @@ static sprite sheet_load(SDL_Renderer *renderer, const char *path) {
 
                 retspr.rotcenter = center;
 
+            }
+            else if (strncmp(line, "proj:", 5) == 0) {
+                line += 5;
+
+                vec2 origin;
+
+                char x[128] = {0};
+                for (int i = 0; *line != ','; i++, line++) {
+                    x[i] = *line;
+                }
+                line++;
+
+                origin.x = strtof(x, NULL);
+                origin.y = strtof(line, NULL);
+
+                retspr.projorigin = origin;
             }
             line = strtok(NULL, "\n");
         }

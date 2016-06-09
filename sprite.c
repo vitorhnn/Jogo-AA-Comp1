@@ -60,7 +60,24 @@ void sprite_paint_ex(sprite *sprite, SDL_Renderer* renderer, vec2 pos, float ang
         .x = (int) rotcenter.x,
         .y = (int) rotcenter.y
     };
-    SDL_RenderCopyEx(renderer, sprite->texture, NULL, &rect, angle, &point, SDL_FLIP_NONE);
+#ifdef NDEBUG
+    // SDL uses degrees for whatever god forsaken reason
+    double degrees = (angle * (180 / acos(-1)));
+    SDL_RenderCopyEx(renderer, sprite->texture, NULL, &rect, degrees, &point, SDL_FLIP_NONE);
+#else
+    SDL_Point points[4];
+    points[0].x = pos.x;
+    points[0].y = pos.y;
+    points[1].x = pos.x + sprite->w;
+    points[1].y = pos.y;
+    points[2].x = pos.x;
+    points[2].y = pos.y + sprite->h;
+    points[3].x = pos.x + sprite->w;
+    points[3].y = pos.y + sprite->h;
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderDrawLines(renderer, points, 4);
+#endif
 }
 void sprite_free(sprite *sprite) {
     SDL_DestroyTexture(sprite->texture);

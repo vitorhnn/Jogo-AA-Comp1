@@ -12,7 +12,7 @@
 
 typedef struct {
     SDL_Texture *texture;
-    vec2 rotcenter;
+    vec2 rotcenter, projorigin; // it hurts my soul to add these here, but I can't be arsed to write another struct to wrap these
     int w, h, frames;
 } sprite;
 

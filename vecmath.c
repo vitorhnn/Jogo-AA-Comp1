@@ -52,6 +52,15 @@ bool fullcollide(rect a, rect b) {
     return true;
 }
 
+vec2 rot_vec(vec2 vec, float angle) {
+    vec2 retvec = {
+        .x = vec.x * cosf(angle) + vec.y * sinf(angle),
+        .y = -(vec.x * sinf(angle)) + vec.y * cosf(angle)
+    };
+
+    return retvec;
+}
+
 vec2 get_vec(vec2 a, vec2 b) {
     vec2 retvec;
     retvec.x = b.x - a.x;
