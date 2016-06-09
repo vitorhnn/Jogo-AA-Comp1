@@ -1,0 +1,55 @@
+BACKGROUND
+#Background colision
+w: 1150
+h: 610
+x: 65
+y: 90
+
+#Assets colision
+cols: 7
+
+col1:
+x: 176
+y: 161
+w: 174
+h: 161
+
+col2:
+x: 204
+y: 478
+w: 174
+h: 161
+
+col3:
+x: 1029
+y: 208
+w: 174
+h: 161
+
+col4:
+x: 920
+y: 436
+w: 174
+h: 161
+
+col5:
+x: 395
+y: 90
+w: 72
+h: 146
+
+col6:
+x: 467
+y: 177
+w: 304
+h: 60
+
+col7:
+x: 767
+y: 147
+w: 71
+h: 92
+
+
+
+
