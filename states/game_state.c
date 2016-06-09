@@ -234,7 +234,7 @@ static void player_think(void) {
         struct projectile newp = {
             .pos = rotorigin,
             .mov = mov,
-            .angle = player.lookat,
+            .angle = pointangle(rotorigin, iptstate.mousepos) - (acos(-1)/2),
             .active = true
         };
 
