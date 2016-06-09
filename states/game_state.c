@@ -19,6 +19,7 @@ static struct entity player;
 struct projectile {
     vec2 pos;
     vec2 mov;
+    float angle;
     bool active;
 };
 
@@ -209,13 +210,31 @@ static void player_think(void) {
         player.pos = sum(player.pos, unmov);
     }
 
+    // HIC SUNT DRACONES
+    // really ugly math to get the projectile origin after the sprite has been rotated by SDL
+
+    // EM NOME DE JESUS
+
+    vec2 absrot = sum(player.pos, player.current_sprite->rotcenter);
+    vec2 absorigin = sum(player.pos, player.current_sprite->projorigin);
+    float distance = pointdistance(absorigin, absrot);
+    float angle = pointangle(absrot, absorigin) + player.lookat;
+    vec2 rotorigin = {
+        // this should really be summing (https://math.stackexchange.com/questions/475917/how-to-find-position-of-a-point-based-on-known-angle-radius-and-center-of-rotat)
+        // but after 4 hours trying to get it right, and after wrongly typing - and getting the right number
+        // I'm just going to accept that using - here is correct and move on
+        .x = absrot.x - distance * cosf(angle),
+        .y = absrot.y - distance * sinf(angle)
+    };
 
     if (iptstate.click) {
-        vec2 mov = get_vec(player.pos, iptstate.mousepos);
+
+        vec2 mov = get_vec(rotorigin, iptstate.mousepos);
 
         struct projectile newp = {
-            .pos = player.pos,
+            .pos = rotorigin,
             .mov = mov,
+            .angle = player.lookat,
             .active = true
         };
 
@@ -224,7 +243,7 @@ static void player_think(void) {
         iptstate.click = false;
     }
 
-    player.lookat = pointangle(sum(player.pos, player.current_sprite->rotcenter), iptstate.mousepos) - (acos(-1)/2);
+    player.lookat = pointangle(rotorigin, iptstate.mousepos) - (acos(-1)/2);
 }
 
 void game_think(void) {
@@ -238,7 +257,7 @@ static void projectiles_paint(SDL_Renderer *renderer, unsigned diff) {
         if (projectiles[i].active) {
             vec2 corrected = mul(projectiles[i].mov, diff);
             corrected = sum(corrected, projectiles[i].pos);
-            sprite_paint(&bullet, renderer, corrected);
+            sprite_paint_ex(&bullet, renderer, corrected, projectiles[i].angle, bullet.rotcenter);
         }
     }
 }

@@ -15,7 +15,7 @@ struct background {
 struct entity {
     sprite idle, revolver, revolver_shot, death;
     sprite *current_sprite;
-    vec2 pos, mov, rotcenter;
+    vec2 pos, mov;
     float lookat;
 };
 
