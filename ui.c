@@ -30,8 +30,9 @@ typedef struct {
     SDL_Texture *tex;
     char        *text;
     bool        valid;
-    vec2       pos;
+    vec2        pos;
     int         w, h;
+    SDL_Color   color;
 } ui_button_t;
 
 typedef struct {
@@ -174,9 +175,7 @@ void ui_quit(void) {
 }
 
 static bool button_render_text(SDL_Renderer *renderer, ui_button_t *btn) {
-    SDL_Color c = {0, 255, 0, SDL_ALPHA_OPAQUE};
-
-    SDL_Surface *surf = TTF_RenderUTF8_Blended(ui_font, btn->text, c);
+    SDL_Surface *surf = TTF_RenderUTF8_Blended(ui_font, btn->text, btn->color);
     
     if (surf == NULL) {
         show_error("button_render_text: TTF_RenderUTF8_Blended failed", ERROR_SOURCE_SDL);
@@ -201,11 +200,28 @@ failure:
     return false;
 }
 
-bool ui_button(int id, const char *text, vec2 pos) {
+bool ui_button(int id, const char *text, vec2 pos, SDL_Color color) {
     for (size_t i = 0; i < elements.used; i++) {
         ui_element *element = (ui_element*) elements.data[i];
         if (element->id == id) {
             element->should_draw = true;
+
+            ui_button_t *btn = element->data;
+
+            if (strcmp(text, btn->text) != 0) {
+                free(btn->text);
+                btn->text = strdup(text);
+                btn->valid = false;
+            }
+
+            if (btn->color.r != color.r ||
+                btn->color.g != color.g || // I'm not actually sure if just invalidating is faster
+                btn->color.b != color.b ||
+                btn->color.a != color.a)
+            {
+                btn->color = color;
+                btn->valid = false;
+            }
 
             if (!state.mousedown && state.hotitem == id && state.activeitem == id) {
                 state.activeitem = 0;
@@ -221,6 +237,7 @@ bool ui_button(int id, const char *text, vec2 pos) {
     btn->pos    = pos;
     btn->text   = strdup(text);
     btn->valid  = false;
+    btn->color  = color;
    
     ui_element *el = xmalloc(sizeof(ui_element));
 

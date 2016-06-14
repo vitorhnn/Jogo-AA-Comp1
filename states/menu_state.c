@@ -25,12 +25,14 @@ void menu_handle(SDL_Event* event) {
 
 void menu_think(void) {
     vec2 pos = {600, 100};
-    if (ui_button(UI_ID, "dá pray", pos)) {
+    SDL_Color c = {0, 0, 0, SDL_ALPHA_OPAQUE};
+
+    if (ui_button(UI_ID, "dá pray", pos, c)) {
         engine_switch_state(STATE_GAME);
     }
     pos.x = 600;
     pos.y = 300;
-    if (ui_button(UI_ID, "asdasd", pos)) {
+    if (ui_button(UI_ID, "asdasd", pos, c)) {
         engine_quit();
     }
 }
