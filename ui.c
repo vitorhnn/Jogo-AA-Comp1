@@ -89,10 +89,10 @@ void ui_handle(SDL_Event *event) {
     }
 
     for (size_t i = 0; i < elements.used; i++) {
-        ui_element *el = (ui_element *) elements.data[i];
+        ui_element *el = elements.data[i];
         switch (el->type) {
             case BUTTON: {
-                ui_button_t *btn = (ui_button_t *) el->data;
+                ui_button_t *btn = el->data;
                 if (mouse_in_rect(btn->pos, btn->w, btn->h)) {
                     state.hotitem = el->id;
 
@@ -108,7 +108,7 @@ void ui_handle(SDL_Event *event) {
 
 void ui_think(void) {
     for (size_t i = 0; i < elements.used; i++) {
-        ui_element *el = (ui_element *) elements.data[i];
+        ui_element *el = elements.data[i];
         el->should_draw = false;
     }
 }
@@ -117,14 +117,14 @@ void ui_paint(SDL_Renderer *renderer) {
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
 
     for (size_t i = 0; i < elements.used; i++) {
-        ui_element *el = (ui_element *) elements.data[i];
+        ui_element *el = elements.data[i];
         if (!el->should_draw) {
             continue;
         }
 
         switch (el->type) {
             case BUTTON: {
-                ui_button_t *btn = (ui_button_t *) el->data;
+                ui_button_t *btn = el->data;
 
                 if (!btn->valid) {
                     button_render_text(renderer, btn);
@@ -154,11 +154,11 @@ void ui_paint(SDL_Renderer *renderer) {
 
 void ui_quit(void) {
     for (size_t i = 0; i < elements.used; i++) {
-        ui_element *el = (ui_element *) elements.data[i];
+        ui_element *el = elements.data[i];
 
         switch (el->type) {
             case BUTTON: {
-                ui_button_t *btn = (ui_button_t *) el->data;
+                ui_button_t *btn = el->data;
 
                 free(btn->text);
                 SDL_DestroyTexture(btn->tex);
@@ -202,7 +202,7 @@ failure:
 
 bool ui_button(int id, const char *text, vec2 pos, SDL_Color color) {
     for (size_t i = 0; i < elements.used; i++) {
-        ui_element *element = (ui_element*) elements.data[i];
+        ui_element *element = elements.data[i];
         if (element->id == id) {
             element->should_draw = true;
 
