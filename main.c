@@ -61,6 +61,7 @@ void engine_switch_state(game_state new_state)
 static state_initializer_ptr engine_reevaluate_ptrs(state_function_ptrs *ptrs, game_state new_state)
 {
     state_initializer_ptr retval = NULL;
+
     switch (new_state) {
         case STATE_CREDITS:
             retval          = &credits_init;
@@ -69,6 +70,7 @@ static state_initializer_ptr engine_reevaluate_ptrs(state_function_ptrs *ptrs, g
             ptrs->paint     = &credits_paint;
             ptrs->quit      = &credits_quit;
             break;
+
         case STATE_MENU:
             retval          = &menu_init;
             ptrs->handle    = &menu_handle;
@@ -76,6 +78,7 @@ static state_initializer_ptr engine_reevaluate_ptrs(state_function_ptrs *ptrs, g
             ptrs->paint     = &menu_paint;
             ptrs->quit      = &menu_quit;
             break;
+
         case STATE_GAME:
             retval          = &game_init;
             ptrs->handle    = &game_handle;
@@ -83,10 +86,12 @@ static state_initializer_ptr engine_reevaluate_ptrs(state_function_ptrs *ptrs, g
             ptrs->paint     = &game_paint;
             ptrs->quit      = &game_quit;
             break;
+
         default:
             show_error_msgbox("engine_reevaluate_ptrs: called with STATE_WTF new_state", ERROR_SOURCE_INTERNAL);
             break;
     }
+
     return retval;
 }
 
@@ -168,6 +173,7 @@ static int engine_run(void)
 
     unsigned then = SDL_GetTicks();
     long lag = 0;
+
     while (running) {
         unsigned now = SDL_GetTicks();
         unsigned diff = now - then;
@@ -182,6 +188,7 @@ static int engine_run(void)
                 case SDL_QUIT:
                     running = false;
                     break;
+
                 default:
                     ui_handle(&event);
                     ptrs.handle(&event);
@@ -193,6 +200,7 @@ static int engine_run(void)
             ui_think();
             ptrs.think();
             lag -= MS_PER_UPDATE;
+
             if (switch_pending) {
                 break;
             }
@@ -204,6 +212,7 @@ static int engine_run(void)
         SDL_RenderPresent(renderer);
 
         int fpsmax = (int) (setting_floatvalue("fps_max"));
+
         if (fpsmax > 0) {
             if (SDL_GetTicks() - then < 1000 / fpsmax) {
                 SDL_Delay(1000 / fpsmax - (SDL_GetTicks() - then));

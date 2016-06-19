@@ -39,6 +39,7 @@ bool sprite_load(sprite *sprite, SDL_Renderer *renderer, const char *path)
             }
         }
     }
+
     return false;
 }
 

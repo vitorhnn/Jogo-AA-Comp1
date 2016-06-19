@@ -35,18 +35,21 @@ void setting_register(setting *setting)
 setting *setting_find(char *setting_name)
 {
     setting *ptr;
+
     // iterate through each setting, stopping if ->next leads to nowhere (avoids segfaulting!)
     for (ptr = last_setting; ptr != NULL; ptr = ptr->next) {
         if (strcmp(setting_name, ptr->name) == 0) {
             return ptr;
         }
     }
+
     return NULL;
 }
 
 void setting_set(char *setting_name, char *value)
 {
     setting *setting = setting_find(setting_name);
+
     if (setting == NULL) {
         show_error("setting_set: attempted to set unregistered setting", ERROR_SOURCE_INTERNAL);
         return;
@@ -76,6 +79,7 @@ void setting_set_bool(char *setting_name, bool value)
 char *setting_strvalue(char *setting_name)
 {
     setting *setting = setting_find(setting_name);
+
     if (setting == NULL) {
         show_error("setting_strvalue: attempted to get unregistered setting", ERROR_SOURCE_INTERNAL);
         return NULL;
@@ -87,6 +91,7 @@ char *setting_strvalue(char *setting_name)
 float setting_floatvalue(char *setting_name)
 {
     setting *setting = setting_find(setting_name);
+
     if (setting == NULL) {
         show_error("setting_floatvalue: attempted to get unregistered setting", ERROR_SOURCE_INTERNAL);
         return 0;
@@ -99,12 +104,14 @@ float setting_floatvalue(char *setting_name)
         show_error("setting_floatvalue: value was NOT a float.", ERROR_SOURCE_INTERNAL);
         return 0;
     }
+
     return maybe_value;
 }
 
 bool setting_boolvalue(char *setting_name)
 {
     setting *setting = setting_find(setting_name);
+
     if (setting == NULL) {
         show_error("setting_boolvalue: attempted to get unregistered setting", ERROR_SOURCE_INTERNAL);
         return 0;
@@ -123,6 +130,7 @@ bool setting_boolvalue(char *setting_name)
 void settings_quit(void)
 {
     setting *ptr;
+
     for (ptr = last_setting; ptr != NULL; ptr = ptr->next) {
         free(ptr->value);
     }

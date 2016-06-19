@@ -13,16 +13,20 @@
 void real_show_error(char *msg, error_source source, bool msgbox)
 {
     char *message;
+
     switch (source) {
         case ERROR_SOURCE_SDL:
             asprintf(&message, "%s\nSDL_GetError(): %s", msg, SDL_GetError());
             break;
+
         case ERROR_SOURCE_PHYSFS:
             asprintf(&message, "%s\nPHYSFS_getLastError(): %s", msg, PHYSFS_getLastError());
             break;
+
         case ERROR_SOURCE_INTERNAL:
             asprintf(&message, "internal engine error: %s", msg);
             break;
+
         default:
             asprintf(&message, "show_error_msgbox called with invalid error_source!?");
             break;
@@ -37,6 +41,7 @@ void real_show_error(char *msg, error_source source, bool msgbox)
         // if the messagebox failed, chances are this is a OOM failure, so fprintf to stderr and stop there.
         fprintf(stderr, "%s\n", message);
     }
+
     free(message);
 }
 
@@ -44,12 +49,14 @@ void real_show_error(char *msg, error_source source, bool msgbox)
 void *xmalloc(size_t size)
 {
     void *block = malloc(size);
+
     if (block == NULL) {
         // maybe attempt to save the game state in the future?
         // for now though:
         show_error_msgbox("xmalloc: could not allocate more memory", ERROR_SOURCE_INTERNAL);
         abort();
     }
+
     return block;
 }
 

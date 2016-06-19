@@ -36,6 +36,7 @@ sprite sheet_load(SDL_Renderer *renderer, const char *path)
 
         return retspr;
     }
+
     free(mnftpath);
 
     char buf[1024] = {0};
@@ -72,9 +73,11 @@ sprite sheet_load(SDL_Renderer *renderer, const char *path)
                 vec2 center;
 
                 char x[128] = {0};
+
                 for (int i = 0; *line != ','; i++, line++) {
                     x[i] = *line;
                 }
+
                 line++;
 
                 center.x = strtof(x, NULL);
@@ -88,9 +91,11 @@ sprite sheet_load(SDL_Renderer *renderer, const char *path)
                 vec2 origin;
 
                 char x[128] = {0};
+
                 for (int i = 0; *line != ','; i++, line++) {
                     x[i] = *line;
                 }
+
                 line++;
 
                 origin.x = strtof(x, NULL);
@@ -98,9 +103,11 @@ sprite sheet_load(SDL_Renderer *renderer, const char *path)
 
                 retspr.projorigin = origin;
             }
+
             line = strtok(NULL, "\n");
         }
     }
+
     PHYSFS_close(fp);
 
     return retspr;
@@ -120,6 +127,7 @@ void entity_load(SDL_Renderer *renderer, const char *entname, struct entity *ent
 
         return;
     }
+
     free(path);
 
     char buf[1024] = {0};
@@ -135,6 +143,7 @@ void entity_load(SDL_Renderer *renderer, const char *entname, struct entity *ent
 
         line = strtok_r(NULL, "\n", &saveptr);
         bool parsing_anims = false;
+
         while (line) {
             if (strncmp(line, "anims:", 6) == 0) {
                 parsing_anims = true;
@@ -163,6 +172,7 @@ void entity_load(SDL_Renderer *renderer, const char *entname, struct entity *ent
             line = strtok_r(NULL, "\n", &saveptr);
         }
     }
+
     PHYSFS_close(fp);
 }
 
@@ -188,6 +198,7 @@ void background_load(SDL_Renderer *renderer, const char *bgname, struct backgrou
 
     char buf[1024] = {0};
     PHYSFS_sint64 read = 0;
+
     while ((read = PHYSFS_read(fp, buf, sizeof(char), 1024)) > 0) {
         char *tok = strtok(buf, "\n");
 
@@ -195,7 +206,9 @@ void background_load(SDL_Renderer *renderer, const char *bgname, struct backgrou
             // invalid magic, stop
             return;
         }
+
         tok = strtok(NULL, "\n");
+
         while (tok) {
             if (strncmp(tok, "x:", 2) == 0) {
                 tok += 2;
@@ -214,9 +227,11 @@ void background_load(SDL_Renderer *renderer, const char *bgname, struct backgrou
 
                 bg->col.h = (float) (strtol(tok, NULL, 10));
             }
+
             tok = strtok(NULL, "\n");
         }
     }
+
     PHYSFS_close(fp);
 
     char *sprpath;

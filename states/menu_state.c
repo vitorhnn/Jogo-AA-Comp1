@@ -33,8 +33,10 @@ void menu_think(void)
     if (ui_button(UI_ID, "dá pray", pos, c)) {
         engine_switch_state(STATE_GAME);
     }
+
     pos.x = 600;
     pos.y = 300;
+
     if (ui_button(UI_ID, "asdasd", pos, c)) {
         engine_quit();
     }

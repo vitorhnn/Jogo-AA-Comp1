@@ -66,55 +66,73 @@ void game_handle(SDL_Event *event)
                 case SDLK_s:
                     iptstate.down = true;
                     break;
+
                 case SDLK_w:
                     iptstate.up = true;
                     break;
+
                 case SDLK_d:
                     iptstate.right = true;
                     break;
+
                 case SDLK_a:
                     iptstate.left = true;
                     break;
+
                 default:
                     break;
             }
+
             break;
+
         case SDL_KEYUP:
             switch (event->key.keysym.sym) {
                 case SDLK_s:
                     iptstate.down = false;
                     break;
+
                 case SDLK_w:
                     iptstate.up = false;
                     break;
+
                 case SDLK_d:
                     iptstate.right = false;
                     break;
+
                 case SDLK_a:
                     iptstate.left = false;
                     break;
+
                 default:
                     break;
             }
+
             break;
+
         case SDL_MOUSEBUTTONDOWN:
             switch (event->button.button) {
                 case SDL_BUTTON_LEFT:
                     iptstate.click = true;
                     break;
+
                 default:
                     break;
             }
+
             break;
+
         case SDL_MOUSEBUTTONUP:
             switch (event->button.button) {
                 case SDL_BUTTON_LEFT:
                     iptstate.click = false;
                     break;
+
                 default:
                     break;
             }
+
             break;
+
         case SDL_MOUSEMOTION:
             iptstate.mousepos.x = event->motion.x;
             iptstate.mousepos.y = event->motion.y;
@@ -148,9 +166,10 @@ static void projectiles_update(void)
             };
 
             if (projcol.y <= background.col.y ||
-                    projcol.y + projcol.h >= background.col.y + background.col.h ||
-                    projcol.x <= background.col.x ||
-                    projcol.x + projcol.w >= background.col.x + background.col.w) {
+                projcol.y + projcol.h >= background.col.y + background.col.h ||
+                projcol.x <= background.col.x ||
+                projcol.x + projcol.w >= background.col.x + background.col.w) 
+            {
                 projectiles[i].active = false;
             }
         }
@@ -174,10 +193,12 @@ static void player_think(void)
 {
     vec2 newmov = {0, 0};
     bool moving = false;
+
     if (iptstate.up) {
         newmov.y -= 1;
         moving = true;
     }
+
     if (iptstate.down) {
         newmov.y += 1;
         moving = true;
@@ -187,10 +208,12 @@ static void player_think(void)
         newmov.x += 1;
         moving = true;
     }
+
     if (iptstate.left) {
         newmov.x -= 1;
         moving = true;
     }
+
     newmov = unit(newmov);
     player.mov = newmov;
 
@@ -205,9 +228,10 @@ static void player_think(void)
     rect playercol = {player.pos.x, player.pos.y, player.current_sprite->w, player.current_sprite->h};
 
     if (playercol.y <= background.col.y ||
-            playercol.y + playercol.h >= background.col.y + background.col.h ||
-            playercol.x <= background.col.x ||
-            playercol.x + playercol.w >= background.col.x + background.col.w) {
+        playercol.y + playercol.h >= background.col.y + background.col.h ||
+        playercol.x <= background.col.x ||
+        playercol.x + playercol.w >= background.col.x + background.col.w) 
+    {
         vec2 unmov = player.mov;
         unmov.x = -unmov.x;
         unmov.y = -unmov.y;

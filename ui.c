@@ -53,6 +53,7 @@ static bool mouse_in_rect(vec2 pos, int w, int h)
     if (state.mousepos.x < pos.x || state.mousepos.y < pos.y) {
         return false;
     }
+
     if (state.mousepos.x > pos.x + w || state.mousepos.y > pos.y + h) {
         return false;
     }
@@ -75,27 +76,33 @@ void ui_init(void)
 void ui_handle(SDL_Event *event)
 {
     state.hotitem = 0;
+
     switch (event->type) {
         case SDL_MOUSEMOTION:
             state.mousepos.x = event->motion.x;
             state.mousepos.y = event->motion.y;
 
             break;
+
         case SDL_MOUSEBUTTONDOWN:
             state.mousedown = true;
             break;
+
         case SDL_MOUSEBUTTONUP:
             state.mousedown = false;
             break;
+
         default:
             break;
     }
 
     for (size_t i = 0; i < elements.used; i++) {
         ui_element *el = elements.data[i];
+
         switch (el->type) {
             case BUTTON: {
                 ui_button_t *btn = el->data;
+
                 if (mouse_in_rect(btn->pos, btn->w, btn->h)) {
                     state.hotitem = el->id;
 
@@ -103,6 +110,7 @@ void ui_handle(SDL_Event *event)
                         state.activeitem = el->id;
                     }
                 }
+
                 break;
             }
         }
@@ -123,6 +131,7 @@ void ui_paint(SDL_Renderer *renderer)
 
     for (size_t i = 0; i < elements.used; i++) {
         ui_element *el = elements.data[i];
+
         if (!el->should_draw) {
             continue;
         }
@@ -187,7 +196,9 @@ static bool button_render_text(SDL_Renderer *renderer, ui_button_t *btn)
         show_error("button_render_text: TTF_RenderUTF8_Blended failed", ERROR_SOURCE_SDL);
         return false;
     }
+
     SDL_Texture *tex = SDL_CreateTextureFromSurface(renderer, surf);
+
     if (tex == NULL) {
         show_error("button_render_text: SDL_CreateTextureFromSurface failed", ERROR_SOURCE_SDL);
         goto failure;
@@ -210,6 +221,7 @@ bool ui_button(int id, const char *text, vec2 pos, SDL_Color color)
 {
     for (size_t i = 0; i < elements.used; i++) {
         ui_element *element = elements.data[i];
+
         if (element->id == id) {
             element->should_draw = true;
 

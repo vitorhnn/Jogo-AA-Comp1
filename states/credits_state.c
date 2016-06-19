@@ -34,11 +34,13 @@ static void credits_rerender_overlay(SDL_Renderer *renderer, unsigned diff)
             show_error_msgbox("credits_rerender_overlay: failed to SDL_CreateTexture", ERROR_SOURCE_SDL);
             return;
         }
+
         SDL_SetTextureBlendMode(overlay, SDL_BLENDMODE_BLEND);
     }
 
     unsigned diffedticks = ticks + diff;
     uint8_t alpha = 0;
+
     if (diffedticks < 240) {
         alpha = (uint8_t) (((240 - diffedticks) / (float) 240) * 255);
     } else if (diffedticks < 720) {
@@ -77,6 +79,7 @@ void credits_handle(SDL_Event *event)
 void credits_think(void)
 {
     ticks++;
+
     if (ticks >= 960) {
         engine_switch_state(STATE_MENU);
     }
