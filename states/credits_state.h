@@ -7,13 +7,13 @@
 #include <SDL2/SDL.h>
 #include "../common.h"
 
-void credits_init(SDL_Renderer* renderer);
+void credits_init(SDL_Renderer *renderer);
 
-void credits_handle(SDL_Event* event);
+void credits_handle(SDL_Event *event);
 
 void credits_think(void);
 
-void credits_paint(SDL_Renderer* renderer, unsigned diff);
+void credits_paint(SDL_Renderer *renderer, unsigned diff);
 
 void credits_quit(void);
 

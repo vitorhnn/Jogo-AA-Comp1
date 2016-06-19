@@ -7,13 +7,13 @@
 #include <SDL2/SDL.h>
 #include "../common.h"
 
-void menu_init(SDL_Renderer* renderer);
+void menu_init(SDL_Renderer *renderer);
 
-void menu_handle(SDL_Event* event);
+void menu_handle(SDL_Event *event);
 
 void menu_think(void);
 
-void menu_paint(SDL_Renderer* renderer, unsigned diff);
+void menu_paint(SDL_Renderer *renderer, unsigned diff);
 
 void menu_quit(void);
 

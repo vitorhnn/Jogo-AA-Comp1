@@ -10,7 +10,8 @@
 #include "../../common.h"
 #include "assetloader.h"
 
-sprite sheet_load(SDL_Renderer *renderer, const char *path) {
+sprite sheet_load(SDL_Renderer *renderer, const char *path)
+{
     sprite retspr;
     // first, load it as if it were a normal sprite:
     char *pngpath;
@@ -57,18 +58,15 @@ sprite sheet_load(SDL_Renderer *renderer, const char *path) {
                 line += 2;
 
                 retspr.frames = (int) strtol(line, NULL, 10);
-            }
-            else if (strncmp(line, "w:", 2) == 0) {
+            } else if (strncmp(line, "w:", 2) == 0) {
                 line += 2;
 
                 retspr.w = (int) strtol(line, NULL, 10);
-            }
-            else if (strncmp(line, "h:", 2) == 0) {
+            } else if (strncmp(line, "h:", 2) == 0) {
                 line += 2;
 
                 retspr.w = (int) strtol(line, NULL, 10);
-            }
-            else if (strncmp(line, "rot:", 4) == 0) {
+            } else if (strncmp(line, "rot:", 4) == 0) {
                 line += 4;
 
                 vec2 center;
@@ -84,8 +82,7 @@ sprite sheet_load(SDL_Renderer *renderer, const char *path) {
 
                 retspr.rotcenter = center;
 
-            }
-            else if (strncmp(line, "proj:", 5) == 0) {
+            } else if (strncmp(line, "proj:", 5) == 0) {
                 line += 5;
 
                 vec2 origin;
@@ -108,7 +105,8 @@ sprite sheet_load(SDL_Renderer *renderer, const char *path) {
 
     return retspr;
 }
-void entity_load(SDL_Renderer* renderer, const char *entname, struct entity *ent) {
+void entity_load(SDL_Renderer *renderer, const char *entname, struct entity *ent)
+{
     char *path;
     asprintf(&path, "%s/entity.manifest", entname);
     PHYSFS_file *fp = PHYSFS_openRead(path);
@@ -140,26 +138,22 @@ void entity_load(SDL_Renderer* renderer, const char *entname, struct entity *ent
         while (line) {
             if (strncmp(line, "anims:", 6) == 0) {
                 parsing_anims = true;
-            }
-            else if (strncmp(line, "idle", 4) == 0 && parsing_anims) {
+            } else if (strncmp(line, "idle", 4) == 0 && parsing_anims) {
                 char *sheetpath;
                 asprintf(&sheetpath, "%s/idle", entname);
                 ent->idle = sheet_load(renderer, sheetpath);
                 free(sheetpath);
-            }
-            else if (strncmp(line, "revolver", 8) == 0 && parsing_anims) {
+            } else if (strncmp(line, "revolver", 8) == 0 && parsing_anims) {
                 char *sheetpath;
                 asprintf(&sheetpath, "%s/revolver", entname);
                 ent->revolver = sheet_load(renderer, sheetpath);
                 free(sheetpath);
-            }
-            else if (strncmp(line, "revolver_shot", 13) == 0 && parsing_anims) {
+            } else if (strncmp(line, "revolver_shot", 13) == 0 && parsing_anims) {
                 char *sheetpath;
                 asprintf(&sheetpath, "%s/revolver_shot", entname);
                 ent->revolver_shot = sheet_load(renderer, sheetpath);
                 free(sheetpath);
-            }
-            else if (strncmp(line, "death", 5) == 0 && parsing_anims) {
+            } else if (strncmp(line, "death", 5) == 0 && parsing_anims) {
                 char *sheetpath;
                 asprintf(&sheetpath, "%s/death", entname);
                 ent->death = sheet_load(renderer, sheetpath);
@@ -173,7 +167,8 @@ void entity_load(SDL_Renderer* renderer, const char *entname, struct entity *ent
 }
 
 
-void background_load(SDL_Renderer *renderer, const char *bgname, struct background *bg) {
+void background_load(SDL_Renderer *renderer, const char *bgname, struct background *bg)
+{
     char *mnftpath;
     asprintf(&mnftpath, "%s.manifest", bgname);
     PHYSFS_file *fp = PHYSFS_openRead(mnftpath);
@@ -206,18 +201,15 @@ void background_load(SDL_Renderer *renderer, const char *bgname, struct backgrou
                 tok += 2;
                 // TODO: (will probably never be done!): check (float) strtol's success
                 bg->col.x = (float) (strtol(tok, NULL, 10));
-            }
-            else if (strncmp(tok, "y:", 2) == 0) {
+            } else if (strncmp(tok, "y:", 2) == 0) {
                 tok += 2;
 
                 bg->col.y = (float) (strtol(tok, NULL, 10));
-            }
-            else if (strncmp(tok, "w:", 2) == 0) {
+            } else if (strncmp(tok, "w:", 2) == 0) {
                 tok += 2;
 
                 bg->col.w = (float) (strtol(tok, NULL, 10));
-            }
-            else if (strncmp(tok, "h:", 2) == 0) {
+            } else if (strncmp(tok, "h:", 2) == 0) {
                 tok += 2;
 
                 bg->col.h = (float) (strtol(tok, NULL, 10));
@@ -253,7 +245,7 @@ void entity_load(const char *path, struct entity *ent) {
 
                 char x[128];
                 for (int i = 0; *tok != ','; i++, tok++) {
-                    x[i] = *tok; 
+                    x[i] = *tok;
                 }
                 tok++;
 

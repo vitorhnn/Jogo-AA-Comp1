@@ -12,18 +12,21 @@
 
 static sprite bg;
 
-void menu_init(SDL_Renderer* renderer) {
+void menu_init(SDL_Renderer *renderer)
+{
     sprite_load(&bg, renderer, "menubg.png");
 }
 
-void menu_handle(SDL_Event* event) {
+void menu_handle(SDL_Event *event)
+{
 #pragma unused (event)
     /*if (event->type == SDL_KEYDOWN) {
         engine_quit();
     }*/
 }
 
-void menu_think(void) {
+void menu_think(void)
+{
     vec2 pos = {600, 100};
     SDL_Color c = {0, 0, 0, SDL_ALPHA_OPAQUE};
 
@@ -37,13 +40,15 @@ void menu_think(void) {
     }
 }
 
-void menu_paint(SDL_Renderer* renderer, unsigned diff) {
+void menu_paint(SDL_Renderer *renderer, unsigned diff)
+{
 #pragma unused (diff)
     vec2 pos = {0, 0};
     sprite_paint(&bg, renderer, pos);
 }
 
-void menu_quit(void) {
+void menu_quit(void)
+{
     sprite_free(&bg);
 }
 

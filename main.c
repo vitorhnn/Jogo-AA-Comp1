@@ -22,10 +22,10 @@
 
 #define MS_PER_UPDATE (unsigned) (1000 / setting_floatvalue("game_tickrate"))
 
-typedef void (*state_initializer_ptr)(SDL_Renderer*);
-typedef void (*state_handler_ptr)(SDL_Event*);
+typedef void (*state_initializer_ptr)(SDL_Renderer *);
+typedef void (*state_handler_ptr)(SDL_Event *);
 typedef void (*state_thinker_ptr)(void);
-typedef void (*state_painter_ptr)(SDL_Renderer*, unsigned);
+typedef void (*state_painter_ptr)(SDL_Renderer *, unsigned);
 typedef void (*state_quitter_ptr)(void);
 
 typedef struct {
@@ -47,16 +47,19 @@ static setting game_tickrate        = {"game_tickrate", "240"};
 static setting fps_max              = {"fps_max", "60"};
 
 
-void engine_quit(void) {
+void engine_quit(void)
+{
     running = false;
 }
 
-void engine_switch_state(game_state new_state) {
+void engine_switch_state(game_state new_state)
+{
     switch_pending = true;
     current_state  = new_state;
 }
 
-static state_initializer_ptr engine_reevaluate_ptrs(state_function_ptrs* ptrs, game_state new_state) {
+static state_initializer_ptr engine_reevaluate_ptrs(state_function_ptrs *ptrs, game_state new_state)
+{
     state_initializer_ptr retval = NULL;
     switch (new_state) {
         case STATE_CREDITS:
@@ -89,7 +92,8 @@ static state_initializer_ptr engine_reevaluate_ptrs(state_function_ptrs* ptrs, g
 
 
 
-static bool vid_init(SDL_Window** window, SDL_Renderer** renderer) {
+static bool vid_init(SDL_Window **window, SDL_Renderer **renderer)
+{
     // TODO: maybe split off to video.c?
     // also, those are double pointers. blame the language.
 
@@ -107,11 +111,11 @@ static bool vid_init(SDL_Window** window, SDL_Renderer** renderer) {
     }
 
     *window = SDL_CreateWindow("joguin",
-                              SDL_WINDOWPOS_CENTERED,
-                              SDL_WINDOWPOS_CENTERED,
-                              width,
-                              height,
-                              wflags);
+                               SDL_WINDOWPOS_CENTERED,
+                               SDL_WINDOWPOS_CENTERED,
+                               width,
+                               height,
+                               wflags);
 
     if (window == NULL) {
         show_error_msgbox("Failed to SDL_CreateWindow", ERROR_SOURCE_SDL);
@@ -122,8 +126,7 @@ static bool vid_init(SDL_Window** window, SDL_Renderer** renderer) {
 
     if (setting_boolvalue("r_accelerated")) {
         rflags |= SDL_RENDERER_ACCELERATED;
-    }
-    else {
+    } else {
         rflags |= SDL_RENDERER_SOFTWARE;
     }
 
@@ -139,15 +142,16 @@ static bool vid_init(SDL_Window** window, SDL_Renderer** renderer) {
     SDL_GetRendererInfo(*renderer, &rinfo);
 
     printf("vid_init: using %s renderer\n", rinfo.name);
-    
+
 
     SDL_DisableScreenSaver();
     return true;
 }
 
-static int engine_run(void) {
-    SDL_Window* window = NULL;
-    SDL_Renderer* renderer = NULL;
+static int engine_run(void)
+{
+    SDL_Window *window = NULL;
+    SDL_Renderer *renderer = NULL;
 
     if (!vid_init(&window, &renderer)) {
         return EXIT_FAILURE;
@@ -225,7 +229,8 @@ static int engine_run(void) {
     return EXIT_SUCCESS;
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
     // start everything up
 
     printf("Platform is %s\n", SDL_GetPlatform());
@@ -237,7 +242,7 @@ int main(int argc, char** argv) {
     SDL_GetVersion(&linked);
 
     printf("Compiled with SDL %d.%d.%d\n"
-           "Linking against SDL %d.%d.%d\n", 
+           "Linking against SDL %d.%d.%d\n",
            compiled.major, compiled.minor, compiled.patch,
            linked.major, linked.minor, linked.patch);
 

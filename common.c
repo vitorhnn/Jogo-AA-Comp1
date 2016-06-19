@@ -10,8 +10,9 @@
 
 #include "3rdparty/asprintf/asprintf.h"
 
-void real_show_error(char* msg, error_source source, bool msgbox) {
-    char* message;
+void real_show_error(char *msg, error_source source, bool msgbox)
+{
+    char *message;
     switch (source) {
         case ERROR_SOURCE_SDL:
             asprintf(&message, "%s\nSDL_GetError(): %s", msg, SDL_GetError());
@@ -31,7 +32,7 @@ void real_show_error(char* msg, error_source source, bool msgbox) {
         // probably OOM, but we still need to print *something* out.
         message = "show_error_msgbox: asprintf failed. you're probably out of memory.";
     }
-    
+
     if (!msgbox || SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "joguin", message, NULL) != 0) {
         // if the messagebox failed, chances are this is a OOM failure, so fprintf to stderr and stop there.
         fprintf(stderr, "%s\n", message);
@@ -40,8 +41,9 @@ void real_show_error(char* msg, error_source source, bool msgbox) {
 }
 
 // xmalloc: malloc that never returns NULL
-void* xmalloc(size_t size) {
-    void* block = malloc(size);
+void *xmalloc(size_t size)
+{
+    void *block = malloc(size);
     if (block == NULL) {
         // maybe attempt to save the game state in the future?
         // for now though:

@@ -48,7 +48,8 @@ static ui_state state;
 static vector   elements;
 static TTF_Font *ui_font;
 
-static bool mouse_in_rect(vec2 pos, int w, int h) {
+static bool mouse_in_rect(vec2 pos, int w, int h)
+{
     if (state.mousepos.x < pos.x || state.mousepos.y < pos.y) {
         return false;
     }
@@ -59,7 +60,8 @@ static bool mouse_in_rect(vec2 pos, int w, int h) {
     return true;
 }
 
-void ui_init(void) {
+void ui_init(void)
+{
     state.mousepos.x = 0;
     state.mousepos.y = 0;
     state.mousedown = false;
@@ -70,7 +72,8 @@ void ui_init(void) {
     ui_font = TTF_OpenFontRW(ops, 1, 40);
 }
 
-void ui_handle(SDL_Event *event) {
+void ui_handle(SDL_Event *event)
+{
     state.hotitem = 0;
     switch (event->type) {
         case SDL_MOUSEMOTION:
@@ -106,14 +109,16 @@ void ui_handle(SDL_Event *event) {
     }
 }
 
-void ui_think(void) {
+void ui_think(void)
+{
     for (size_t i = 0; i < elements.used; i++) {
         ui_element *el = elements.data[i];
         el->should_draw = false;
     }
 }
 
-void ui_paint(SDL_Renderer *renderer) {
+void ui_paint(SDL_Renderer *renderer)
+{
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
 
     for (size_t i = 0; i < elements.used; i++) {
@@ -145,14 +150,14 @@ void ui_paint(SDL_Renderer *renderer) {
 
     if (!state.mousedown) {
         state.activeitem = 0;
-    }
-    else if (state.activeitem == 0) {
+    } else if (state.activeitem == 0) {
         state.activeitem = -1;
     }
 
 }
 
-void ui_quit(void) {
+void ui_quit(void)
+{
     for (size_t i = 0; i < elements.used; i++) {
         ui_element *el = elements.data[i];
 
@@ -164,7 +169,7 @@ void ui_quit(void) {
                 SDL_DestroyTexture(btn->tex);
             }
         }
-        
+
         free(el->data);
         free(el);
     }
@@ -174,9 +179,10 @@ void ui_quit(void) {
     TTF_CloseFont(ui_font);
 }
 
-static bool button_render_text(SDL_Renderer *renderer, ui_button_t *btn) {
+static bool button_render_text(SDL_Renderer *renderer, ui_button_t *btn)
+{
     SDL_Surface *surf = TTF_RenderUTF8_Blended(ui_font, btn->text, btn->color);
-    
+
     if (surf == NULL) {
         show_error("button_render_text: TTF_RenderUTF8_Blended failed", ERROR_SOURCE_SDL);
         return false;
@@ -200,7 +206,8 @@ failure:
     return false;
 }
 
-bool ui_button(int id, const char *text, vec2 pos, SDL_Color color) {
+bool ui_button(int id, const char *text, vec2 pos, SDL_Color color)
+{
     for (size_t i = 0; i < elements.used; i++) {
         ui_element *element = elements.data[i];
         if (element->id == id) {
@@ -215,10 +222,9 @@ bool ui_button(int id, const char *text, vec2 pos, SDL_Color color) {
             }
 
             if (btn->color.r != color.r ||
-                btn->color.g != color.g || // I'm not actually sure if just invalidating is faster
-                btn->color.b != color.b ||
-                btn->color.a != color.a)
-            {
+                    btn->color.g != color.g || // I'm not actually sure if just invalidating is faster
+                    btn->color.b != color.b ||
+                    btn->color.a != color.a) {
                 btn->color = color;
                 btn->valid = false;
             }
@@ -231,14 +237,14 @@ bool ui_button(int id, const char *text, vec2 pos, SDL_Color color) {
             return false;
         }
     }
-    
+
     ui_button_t *btn = xmalloc(sizeof(ui_button_t));
 
     btn->pos    = pos;
     btn->text   = strdup(text);
     btn->valid  = false;
     btn->color  = color;
-   
+
     ui_element *el = xmalloc(sizeof(ui_element));
 
     el->id          = id;
@@ -250,6 +256,6 @@ bool ui_button(int id, const char *text, vec2 pos, SDL_Color color) {
     // we need to wait for a render frame, so just say that the user didn't click.
 
     vector_insert(&elements, el);
- 
+
     return false;
 }

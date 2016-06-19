@@ -29,7 +29,8 @@ static struct projectile projectiles[100];
 
 static sprite bullet;
 
-void game_init(SDL_Renderer *renderer) {
+void game_init(SDL_Renderer *renderer)
+{
     SDL_RenderSetLogicalSize(renderer, 1280, 720);
     iptstate.up = false;
     iptstate.down = false;
@@ -57,7 +58,8 @@ void game_init(SDL_Renderer *renderer) {
     memset(projectiles, 0, sizeof(projectiles));
 }
 
-void game_handle(SDL_Event *event) {
+void game_handle(SDL_Event *event)
+{
     switch (event->type) {
         case SDL_KEYDOWN:
             switch (event->key.keysym.sym) {
@@ -120,7 +122,8 @@ void game_handle(SDL_Event *event) {
     }
 }
 
-static void projectile_add(struct projectile proj) {
+static void projectile_add(struct projectile proj)
+{
     for (size_t i = 0; i < 100; i++) {
         if (!projectiles[i].active) {
             projectiles[i] = proj;
@@ -129,7 +132,8 @@ static void projectile_add(struct projectile proj) {
     }
 }
 
-static void projectiles_update(void) {
+static void projectiles_update(void)
+{
     // TODO: collide projectiles with the bg borders and entities, and set active to false
     // otherwise we're eventually going to run out of projectiles
     for (size_t i = 0; i < 100; i++) {
@@ -144,18 +148,20 @@ static void projectiles_update(void) {
             };
 
             if (projcol.y <= background.col.y ||
-                projcol.y + projcol.h >= background.col.y + background.col.h ||
-                projcol.x <= background.col.x ||
-                projcol.x + projcol.w >= background.col.x + background.col.w)
-            {
+                    projcol.y + projcol.h >= background.col.y + background.col.h ||
+                    projcol.x <= background.col.x ||
+                    projcol.x + projcol.w >= background.col.x + background.col.w) {
                 projectiles[i].active = false;
             }
         }
     }
 }
 
-static void player_switch_sprite(sprite *new_sprite) {
-    if (player.current_sprite == new_sprite) return;
+static void player_switch_sprite(sprite *new_sprite)
+{
+    if (player.current_sprite == new_sprite) {
+        return;
+    }
 
     vec2 rotdelta = sum(player.current_sprite->rotcenter, mul(new_sprite->rotcenter, -1));
 
@@ -164,13 +170,14 @@ static void player_switch_sprite(sprite *new_sprite) {
     player.pos = sum(player.pos, rotdelta);
 }
 
-static void player_think(void) {
+static void player_think(void)
+{
     vec2 newmov = {0, 0};
     bool moving = false;
     if (iptstate.up) {
         newmov.y -= 1;
         moving = true;
-    } 
+    }
     if (iptstate.down) {
         newmov.y += 1;
         moving = true;
@@ -191,18 +198,16 @@ static void player_think(void) {
 
     if (moving) {
         player_switch_sprite(&player.revolver);
-    }
-    else {
+    } else {
         player_switch_sprite(&player.revolver);
     }
 
     rect playercol = {player.pos.x, player.pos.y, player.current_sprite->w, player.current_sprite->h};
 
     if (playercol.y <= background.col.y ||
-        playercol.y + playercol.h >= background.col.y + background.col.h || 
-        playercol.x <= background.col.x ||
-        playercol.x + playercol.w >= background.col.x + background.col.w)
-    {
+            playercol.y + playercol.h >= background.col.y + background.col.h ||
+            playercol.x <= background.col.x ||
+            playercol.x + playercol.w >= background.col.x + background.col.w) {
         vec2 unmov = player.mov;
         unmov.x = -unmov.x;
         unmov.y = -unmov.y;
@@ -234,7 +239,7 @@ static void player_think(void) {
         struct projectile newp = {
             .pos = rotorigin,
             .mov = mov,
-            .angle = pointangle(rotorigin, iptstate.mousepos) - (acos(-1)/2),
+            .angle = pointangle(rotorigin, iptstate.mousepos) - (acos(-1) / 2),
             .active = true
         };
 
@@ -243,15 +248,17 @@ static void player_think(void) {
         iptstate.click = false;
     }
 
-    player.lookat = pointangle(rotorigin, iptstate.mousepos) - (acos(-1)/2);
+    player.lookat = pointangle(rotorigin, iptstate.mousepos) - (acos(-1) / 2);
 }
 
-void game_think(void) {
+void game_think(void)
+{
     player_think();
     projectiles_update();
 }
 
-static void projectiles_paint(SDL_Renderer *renderer, unsigned diff) {
+static void projectiles_paint(SDL_Renderer *renderer, unsigned diff)
+{
     for (size_t i = 0; i < 100; i++) {
         // TODO: correct the projectile pos according to the current diff
         if (projectiles[i].active) {
@@ -262,7 +269,8 @@ static void projectiles_paint(SDL_Renderer *renderer, unsigned diff) {
     }
 }
 
-void game_paint(SDL_Renderer *renderer, unsigned diff) {
+void game_paint(SDL_Renderer *renderer, unsigned diff)
+{
     vec2 corrected = mul(player.mov, diff);
     corrected = sum(corrected, player.pos);
 
@@ -273,7 +281,8 @@ void game_paint(SDL_Renderer *renderer, unsigned diff) {
     projectiles_paint(renderer, diff);
 }
 
-void game_quit(void) {
+void game_quit(void)
+{
     sprite_free(&player.idle);
 }
 

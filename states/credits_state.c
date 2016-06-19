@@ -7,10 +7,11 @@
 #include "credits_state.h"
 
 static sprite credits;
-static SDL_Texture* overlay = NULL;
+static SDL_Texture *overlay = NULL;
 static unsigned ticks = 0;
 
-static void credits_rerender_overlay(SDL_Renderer* renderer, unsigned diff) {
+static void credits_rerender_overlay(SDL_Renderer *renderer, unsigned diff)
+{
     if (overlay == NULL) {
         if (setting_boolvalue("r_accelerated")) {
             overlay = SDL_CreateTexture(renderer,
@@ -18,8 +19,7 @@ static void credits_rerender_overlay(SDL_Renderer* renderer, unsigned diff) {
                                         SDL_TEXTUREACCESS_STATIC,
                                         1280,
                                         720);
-        }
-        else {
+        } else {
             // SDL's software renderer supports IYUV, but can't alpha modulate it.
             // try a simpler format.
             overlay = SDL_CreateTexture(renderer,
@@ -41,15 +41,12 @@ static void credits_rerender_overlay(SDL_Renderer* renderer, unsigned diff) {
     uint8_t alpha = 0;
     if (diffedticks < 240) {
         alpha = (uint8_t) (((240 - diffedticks) / (float) 240) * 255);
-    }
-    else if (diffedticks < 720) {
+    } else if (diffedticks < 720) {
         alpha = 0;
-    }
-    else if (diffedticks >= 720 && diffedticks < 960) {
+    } else if (diffedticks >= 720 && diffedticks < 960) {
         unsigned relticks = diffedticks - 720;
         alpha = (uint8_t) ((relticks / (float) 240) * 255);
-    }
-    else {
+    } else {
         alpha = 255;
     }
 
@@ -58,7 +55,8 @@ static void credits_rerender_overlay(SDL_Renderer* renderer, unsigned diff) {
     SDL_SetTextureAlphaMod(overlay, alpha);
 }
 
-void credits_init(SDL_Renderer* renderer) {
+void credits_init(SDL_Renderer *renderer)
+{
     SDL_RenderSetLogicalSize(renderer, 1280, 720);
 
     if (!sprite_load(&credits, renderer, "credits.png")) {
@@ -67,7 +65,8 @@ void credits_init(SDL_Renderer* renderer) {
     }
 }
 
-void credits_handle(SDL_Event* event) {
+void credits_handle(SDL_Event *event)
+{
     if (event->type == SDL_KEYDOWN) {
         if (event->key.keysym.sym == SDLK_RETURN) {
             ticks = 960; // TODO: make this less hacky
@@ -75,14 +74,16 @@ void credits_handle(SDL_Event* event) {
     }
 }
 
-void credits_think(void) {
+void credits_think(void)
+{
     ticks++;
     if (ticks >= 960) {
         engine_switch_state(STATE_MENU);
     }
 }
 
-void credits_paint(SDL_Renderer* renderer, unsigned diff) {
+void credits_paint(SDL_Renderer *renderer, unsigned diff)
+{
     credits_rerender_overlay(renderer, diff);
 
     vec2 pos = {0, 0};
@@ -91,7 +92,8 @@ void credits_paint(SDL_Renderer* renderer, unsigned diff) {
     SDL_RenderCopy(renderer, overlay, NULL, NULL);
 }
 
-void credits_quit(void) {
+void credits_quit(void)
+{
     sprite_free(&credits);
     SDL_DestroyTexture(overlay);
 }

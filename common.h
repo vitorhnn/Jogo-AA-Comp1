@@ -15,13 +15,13 @@ typedef enum {
     STATE_GAME
 } game_state;
 
-void real_show_error(char* msg, error_source source, bool show_messagebox);
+void real_show_error(char *msg, error_source source, bool show_messagebox);
 
 #define show_error(msg, source) real_show_error(msg, source, false)
 #define show_error_msgbox(msg, source) real_show_error(msg, source, true)
 
 
-void* xmalloc(size_t size);
+void *xmalloc(size_t size);
 
 #endif
 
