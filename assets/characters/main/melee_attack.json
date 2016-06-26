@@ -126,6 +126,7 @@
 	"image": "melee_attack.png",
 	"format": "RGBA8888",
 	"size": {"w":256,"h":400},
-	"scale": "1"
+	"scale": "1",
+	"rot": {"x":42,"y":50}
 }
 }

@@ -1,0 +1,14 @@
+{
+    "anims": [
+        "idle",
+        "knives",
+        "knives_shooting",
+        "melee",
+        "melee_attack",
+        "shotgun",
+        "shotgun_shot",       
+        "revolver",
+        "revolver_shot",
+        "death"
+    ]
+}

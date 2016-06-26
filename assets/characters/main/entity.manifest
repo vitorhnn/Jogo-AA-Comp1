@@ -1,7 +1,0 @@
-ENTITY
-anims:
-idle
-revolver
-revolver_shot
-death
-# botei o anims: ali no caso de eu implementar parsear a vida daqui.

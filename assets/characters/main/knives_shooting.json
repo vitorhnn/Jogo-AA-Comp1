@@ -126,6 +126,9 @@
 	"image": "knives_shooting.png",
 	"format": "RGBA8888",
 	"size": {"w":256,"h":512},
-	"scale": "1"
+	"scale": "1",
+	"rot": {"x":40,"y":68},
+	"origin": {"x":43,"y":7},
+	"origin_frame": 7
 }
 }

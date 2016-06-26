@@ -1,8 +1,0 @@
-SPRITE
-#number of sprites
-n: 12
-#width and height of each sprite
-w: 79
-h: 68 
-rot: 39, 49
-proj: 65, 0 
