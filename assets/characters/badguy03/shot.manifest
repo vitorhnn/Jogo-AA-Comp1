@@ -1,0 +1,14 @@
+SPRITE
+#number of sprites
+n: 13
+#width and height of each sprite
+w: 63
+h: 88
+#point of rotation and birth of projjectile
+rot: 32, 33
+proj: 65, 0 
+#sprite that the projectile is launched
+pn: 7
+#coordinates of the projectile's birth
+px: 15
+py: 0

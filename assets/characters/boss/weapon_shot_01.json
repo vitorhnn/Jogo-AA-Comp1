@@ -1,0 +1,67 @@
+﻿{"frames": {
+
+"boss0000":
+{
+	"frame": {"x":0,"y":0,"w":472,"h":414},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":473,"h":414},
+	"sourceSize": {"w":473,"h":414}
+},
+"boss0001":
+{
+	"frame": {"x":472,"y":0,"w":460,"h":414},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":473,"h":414},
+	"sourceSize": {"w":473,"h":414}
+},
+"boss0002":
+{
+	"frame": {"x":932,"y":0,"w":451,"h":414},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":473,"h":414},
+	"sourceSize": {"w":473,"h":414}
+},
+"boss0003":
+{
+	"frame": {"x":1383,"y":0,"w":454,"h":414},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":473,"h":414},
+	"sourceSize": {"w":473,"h":414}
+},
+"boss0004":
+{
+	"frame": {"x":1837,"y":0,"w":460,"h":414},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":473,"h":414},
+	"sourceSize": {"w":473,"h":414}
+},
+"boss0005":
+{
+	"frame": {"x":2297,"y":0,"w":466,"h":414},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":473,"h":414},
+	"sourceSize": {"w":473,"h":414}
+},
+"boss0006":
+{
+	"frame": {"x":2763,"y":0,"w":473,"h":414},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":473,"h":414},
+	"sourceSize": {"w":473,"h":414}
+}},
+"meta": {
+	"app": "Adobe Flash Professional",
+	"version": "13.1.0.226",
+	"image": "weapon_shot.png",
+	"format": "RGBA8888",
+	"size": {"w":3300,"h":415},
+	"scale": "1"
+}
+}
