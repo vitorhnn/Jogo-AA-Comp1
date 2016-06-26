@@ -1,8 +1,0 @@
-SPRITE
-#number of sprites
-n: 86
-#width and height of each sprite
-w: 46
-h: 91
-#point of rotation
-rot: 22, 49
