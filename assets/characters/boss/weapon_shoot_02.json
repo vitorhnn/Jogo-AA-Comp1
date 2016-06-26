@@ -1,67 +1,67 @@
-{"frames": {
+﻿{"frames": {
 
-"boss0000":
+"boss instance 10000":
 {
-	"frame": {"x":0,"y":0,"w":472,"h":414},
+	"frame": {"x":0,"y":0,"w":131,"h":115},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":0,"y":0,"w":472,"h":415},
-	"sourceSize": {"w":472,"h":415}
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":131,"h":115},
+	"sourceSize": {"w":131,"h":115}
 },
-"boss0001":
+"boss instance 10001":
 {
-	"frame": {"x":472,"y":0,"w":468,"h":405},
+	"frame": {"x":131,"y":0,"w":131,"h":115},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":4,"y":0,"w":472,"h":415},
-	"sourceSize": {"w":472,"h":415}
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":131,"h":115},
+	"sourceSize": {"w":131,"h":115}
 },
-"boss0002":
+"boss instance 10002":
 {
-	"frame": {"x":940,"y":0,"w":467,"h":405},
+	"frame": {"x":262,"y":0,"w":131,"h":115},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":5,"y":0,"w":472,"h":415},
-	"sourceSize": {"w":472,"h":415}
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":131,"h":115},
+	"sourceSize": {"w":131,"h":115}
 },
-"boss0003":
+"boss instance 10003":
 {
-	"frame": {"x":1407,"y":0,"w":467,"h":405},
+	"frame": {"x":0,"y":115,"w":131,"h":115},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":5,"y":0,"w":472,"h":415},
-	"sourceSize": {"w":472,"h":415}
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":131,"h":115},
+	"sourceSize": {"w":131,"h":115}
 },
-"boss0004":
+"boss instance 10004":
 {
-	"frame": {"x":1874,"y":0,"w":468,"h":405},
+	"frame": {"x":131,"y":115,"w":131,"h":115},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":4,"y":0,"w":472,"h":415},
-	"sourceSize": {"w":472,"h":415}
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":131,"h":115},
+	"sourceSize": {"w":131,"h":115}
 },
-"boss0005":
+"boss instance 10005":
 {
-	"frame": {"x":2342,"y":0,"w":470,"h":405},
+	"frame": {"x":262,"y":115,"w":131,"h":115},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":2,"y":0,"w":472,"h":415},
-	"sourceSize": {"w":472,"h":415}
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":131,"h":115},
+	"sourceSize": {"w":131,"h":115}
 },
-"boss0006":
+"boss instance 10006":
 {
-	"frame": {"x":2812,"y":0,"w":472,"h":415},
+	"frame": {"x":0,"y":230,"w":131,"h":115},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":0,"y":0,"w":472,"h":415},
-	"sourceSize": {"w":472,"h":415}
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":131,"h":115},
+	"sourceSize": {"w":131,"h":115}
 }},
 "meta": {
 	"app": "Adobe Flash Professional",
 	"version": "13.1.0.226",
 	"image": "weapon_shoot_02.png",
 	"format": "RGBA8888",
-	"size": {"w":3300,"h":415},
+	"size": {"w":512,"h":400},
 	"scale": "1"
 }
 }
