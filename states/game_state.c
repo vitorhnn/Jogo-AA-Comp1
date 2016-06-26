@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #include "../sprite.h"
+#include "../anim.h"
 #include "../vecmath.h"
 #include "game_state.h"
 
@@ -11,7 +12,7 @@
 
 static struct {
     bool up, down, left, right, click;
-    vec2 mousepos;
+    vec2 mousepos, prevmouse;
 } iptstate;
 
 static struct entity player;
@@ -29,6 +30,8 @@ static struct projectile projectiles[100];
 
 static sprite bullet;
 
+static anim testanim;
+
 void game_init(SDL_Renderer *renderer)
 {
     SDL_RenderSetLogicalSize(renderer, 1280, 720);
@@ -43,7 +46,7 @@ void game_init(SDL_Renderer *renderer)
     player.current_sprite = &player.idle;
     entity_load(renderer, "papaco", &player);
 
-    background_load(renderer, "template", &background);
+    background_load(renderer, "background_01", &background);
 
     sprite_load(&bullet, renderer, "revolver_bullet.png");
     /*
@@ -55,6 +58,8 @@ void game_init(SDL_Renderer *renderer)
 
     entity_load("idle.txt", &player);
     */
+
+    anim_load(&testanim, renderer, "weapon_shoot_02");
     memset(projectiles, 0, sizeof(projectiles));
 }
 
@@ -239,6 +244,19 @@ static void player_think(void)
         player.pos = sum(player.pos, unmov);
     }
 
+    float dist = pointdistance(iptstate.mousepos, sum(player.pos, player.current_sprite->rotcenter));
+
+    if (dist < 150) {
+        vec2 mmov = get_vec(iptstate.prevmouse, iptstate.mousepos);
+        mmov = mul(mmov, -5);
+
+        iptstate.mousepos = sum(iptstate.mousepos, mmov);
+
+        SDL_WarpMouseInWindow(NULL, (int) iptstate.mousepos.x, (int) iptstate.mousepos.y);
+    }
+
+    iptstate.prevmouse = iptstate.mousepos;
+
     // HIC SUNT DRACONES
     // really ugly math to get the projectile origin after the sprite has been rotated by SDL
 
@@ -263,7 +281,7 @@ static void player_think(void)
         struct projectile newp = {
             .pos = rotorigin,
             .mov = mov,
-            .angle = pointangle(rotorigin, iptstate.mousepos) - (acos(-1) / 2),
+            .angle = pointangle(rotorigin, iptstate.mousepos) - (acosf(-1) / 2),
             .active = true
         };
 
@@ -272,7 +290,7 @@ static void player_think(void)
         iptstate.click = false;
     }
 
-    player.lookat = pointangle(rotorigin, iptstate.mousepos) - (acos(-1) / 2);
+    player.lookat = pointangle(rotorigin, iptstate.mousepos) - (acosf(-1) / 2);
 }
 
 void game_think(void)
@@ -288,7 +306,7 @@ static void projectiles_paint(SDL_Renderer *renderer, unsigned diff)
         if (projectiles[i].active) {
             vec2 corrected = mul(projectiles[i].mov, diff);
             corrected = sum(corrected, projectiles[i].pos);
-            sprite_paint_ex(&bullet, renderer, corrected, projectiles[i].angle, bullet.rotcenter);
+            sprite_paint_less_ex(&bullet, renderer, corrected, projectiles[i].angle);
         }
     }
 }
@@ -301,7 +319,9 @@ void game_paint(SDL_Renderer *renderer, unsigned diff)
 
     vec2 bpos = {0, 0};
     sprite_paint(&background.spr, renderer, bpos);
-    sprite_paint_ex(player.current_sprite, renderer, corrected, player.lookat, player.current_sprite->rotcenter);
+    sprite_paint_less_ex(player.current_sprite, renderer, corrected, player.lookat);
+
+    anim_paint(&testanim, renderer, bpos, 0);
     projectiles_paint(renderer, diff);
 }
 

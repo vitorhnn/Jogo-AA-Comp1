@@ -45,25 +45,40 @@ bool sprite_load(sprite *sprite, SDL_Renderer *renderer, const char *path)
 
 void sprite_paint(sprite *sprite, SDL_Renderer *renderer, vec2 pos)
 {
-    vec2 center = {0, 0};
-    sprite_paint_ex(sprite, renderer, pos, 0, center);
+    rect clip = {0, 0, sprite->w, sprite->h};
+    sprite_paint_ex(sprite, renderer, clip, pos, 0);
 }
 
-void sprite_paint_ex(sprite *sprite, SDL_Renderer *renderer, vec2 pos, float angle, vec2 rotcenter)
+void sprite_paint_less_ex(sprite *sprite, SDL_Renderer *renderer, vec2 pos, float angle)
 {
+    rect clip = {0, 0, sprite->w, sprite->h};
+    sprite_paint_ex(sprite, renderer, clip, pos, angle);
+}
+
+void sprite_paint_ex(sprite *sprite, SDL_Renderer *renderer, rect clip, vec2 pos, float angle)
+{
+    SDL_Rect sdlclip = {
+        .x = (int) clip.x,
+        .y = (int) clip.y,
+        .w = (int) clip.w,
+        .h = (int) clip.h
+    };
+
     SDL_Rect rect = {
         .x = (int) pos.x,
         .y = (int) pos.y,
-        .w = sprite->w,
-        .h = sprite->h
+        .w = (int) clip.w,
+        .h = (int) clip.h
     };
+
     SDL_Point point = {
-        .x = (int) rotcenter.x,
-        .y = (int) rotcenter.y
+        .x = (int) sprite->rotcenter.x,
+        .y = (int) sprite->rotcenter.y
     };
+
     // SDL uses degrees for whatever god forsaken reason
     double degrees = (angle * (180 / acos(-1)));
-    SDL_RenderCopyEx(renderer, sprite->texture, NULL, &rect, degrees, &point, SDL_FLIP_NONE);
+    SDL_RenderCopyEx(renderer, sprite->texture, &sdlclip, &rect, degrees, &point, SDL_FLIP_NONE);
 }
 void sprite_free(sprite *sprite)
 {
