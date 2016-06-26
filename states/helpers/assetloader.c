@@ -58,7 +58,6 @@ sprite sheet_load(SDL_Renderer *renderer, const char *path)
             if (strncmp(line, "n:", 2) == 0) {
                 line += 2;
 
-                retspr.frames = (int) strtol(line, NULL, 10);
             } else if (strncmp(line, "w:", 2) == 0) {
                 line += 2;
 
@@ -209,23 +208,30 @@ void background_load(SDL_Renderer *renderer, const char *bgname, struct backgrou
 
         tok = strtok(NULL, "\n");
 
+        bool is_main_col = true;
+
         while (tok) {
-            if (strncmp(tok, "x:", 2) == 0) {
-                tok += 2;
-                // TODO: (will probably never be done!): check (float) strtol's success
-                bg->col.x = (float) (strtol(tok, NULL, 10));
-            } else if (strncmp(tok, "y:", 2) == 0) {
-                tok += 2;
+            if (strncmp(tok, "col", 3) == 0) {
+                is_main_col = false;
+            }
+            if (is_main_col) {
+                if (strncmp(tok, "x:", 2) == 0) {
+                    tok += 2;
+                    // TODO: (will probably never be done!): check (float) strtol's success
+                    bg->col.x = (float) (strtol(tok, NULL, 10));
+                } else if (strncmp(tok, "y:", 2) == 0) {
+                    tok += 2;
 
-                bg->col.y = (float) (strtol(tok, NULL, 10));
-            } else if (strncmp(tok, "w:", 2) == 0) {
-                tok += 2;
+                    bg->col.y = (float) (strtol(tok, NULL, 10));
+                } else if (strncmp(tok, "w:", 2) == 0) {
+                    tok += 2;
 
-                bg->col.w = (float) (strtol(tok, NULL, 10));
-            } else if (strncmp(tok, "h:", 2) == 0) {
-                tok += 2;
+                    bg->col.w = (float) (strtol(tok, NULL, 10));
+                } else if (strncmp(tok, "h:", 2) == 0) {
+                    tok += 2;
 
-                bg->col.h = (float) (strtol(tok, NULL, 10));
+                    bg->col.h = (float) (strtol(tok, NULL, 10));
+                }
             }
 
             tok = strtok(NULL, "\n");

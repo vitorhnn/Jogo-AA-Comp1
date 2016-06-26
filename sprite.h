@@ -14,14 +14,16 @@ typedef struct {
     SDL_Texture *texture;
     vec2 rotcenter,
          projorigin; // it hurts my soul to add these here, but I can't be arsed to write another struct to wrap these
-    int w, h, frames;
+    int w, h;
 } sprite;
 
 bool sprite_load(sprite *sprite, SDL_Renderer *renderer, const char *path);
 
 void sprite_paint(sprite *sprite, SDL_Renderer *renderer, vec2 pos);
 
-void sprite_paint_ex(sprite *sprite, SDL_Renderer *renderer, vec2 pos, float angle, vec2 rotcenter);
+void sprite_paint_less_ex(sprite *sprite, SDL_Renderer *renderer, vec2 pos, float angle);
+
+void sprite_paint_ex(sprite *sprite, SDL_Renderer *renderer, rect clip, vec2 pos, float angle);
 
 void sprite_free(sprite *sprite);
 
