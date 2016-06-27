@@ -118,6 +118,9 @@
 	"image": "shot.png",
 	"format": "RGBA8888",
 	"size": {"w":256,"h":200},
-	"scale": "1"
+	"scale": "1",
+	"rot": {"x":35,"y":53},
+	"origin": {"x":55,"y":1},
+	"origin_frame": 0
 }
 }

@@ -62,6 +62,9 @@
 	"image": "weapon_shot_01.png",
 	"format": "RGBA8888",
 	"size": {"w":512,"h":400},
-	"scale": "1"
+	"scale": "1",
+	"rot": {"x":62,"y":26},
+	"origin": {"x":21,"y":113},
+	"origin_frame": 0
 }
 }

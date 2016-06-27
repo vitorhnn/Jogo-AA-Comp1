@@ -62,6 +62,7 @@
 	"image": "blood.png",
 	"format": "RGBA8888",
 	"size": {"w":32,"h":32},
-	"scale": "1"
+	"scale": "1",
+	"rot": {"x":1,"y":0}
 }
 }

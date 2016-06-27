@@ -1,0 +1,9 @@
+{
+    "anims": [
+        "idle",
+        "weapon",
+        "shot_01",
+        "shot_02",
+        "death"
+    ]
+}

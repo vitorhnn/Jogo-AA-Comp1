@@ -1,9 +1,0 @@
-SPRITE
-#number of sprites
-n: 14
-#width and height of each sprite
-w: 65
-h: 50
-#point of rotation and birth of projjectile
-rot: 39, 49
-proj: 65, 0 
