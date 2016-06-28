@@ -1,0 +1,70 @@
+﻿{"frames": {
+
+"boss instance 10000":
+{
+	"frame": {"x":0,"y":0,"w":131,"h":115},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":131,"h":115},
+	"sourceSize": {"w":131,"h":115}
+},
+"boss instance 10001":
+{
+	"frame": {"x":131,"y":0,"w":131,"h":115},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":131,"h":115},
+	"sourceSize": {"w":131,"h":115}
+},
+"boss instance 10002":
+{
+	"frame": {"x":262,"y":0,"w":131,"h":115},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":131,"h":115},
+	"sourceSize": {"w":131,"h":115}
+},
+"boss instance 10003":
+{
+	"frame": {"x":0,"y":115,"w":131,"h":115},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":131,"h":115},
+	"sourceSize": {"w":131,"h":115}
+},
+"boss instance 10004":
+{
+	"frame": {"x":131,"y":115,"w":131,"h":115},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":131,"h":115},
+	"sourceSize": {"w":131,"h":115}
+},
+"boss instance 10005":
+{
+	"frame": {"x":262,"y":115,"w":131,"h":115},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":131,"h":115},
+	"sourceSize": {"w":131,"h":115}
+},
+"boss instance 10006":
+{
+	"frame": {"x":0,"y":230,"w":131,"h":115},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":131,"h":115},
+	"sourceSize": {"w":131,"h":115}
+}},
+"meta": {
+	"app": "Adobe Flash Professional",
+	"version": "13.1.0.226",
+	"image": "weapon_shoot_02.png",
+	"format": "RGBA8888",
+	"size": {"w":512,"h":400},
+	"scale": "1",
+	"rot": {"x":62,"y":26},
+	"origin": {"x":112,"y":110},
+	"origin_frame": 0
+}
+}
