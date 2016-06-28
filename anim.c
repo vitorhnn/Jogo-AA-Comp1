@@ -57,6 +57,8 @@ static void json_parse(anim *anim, const char *path)
 
     anim->spr.rotcenter.x = (float) (json_object_dotget_number(meta, "rot.x"));
     anim->spr.rotcenter.y = (float) (json_object_dotget_number(meta, "rot.y"));
+
+    json_value_free(root);
 }
 
 void anim_load(anim *anim, SDL_Renderer *renderer, const char *path)
