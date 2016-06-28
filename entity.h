@@ -19,7 +19,7 @@ typedef struct entity {
 
 void entity_load(entity *ent, SDL_Renderer *renderer, const char *path);
 
-void entity_switch_sprite(entity *ent, const char *name);
+void entity_play_anim(entity *ent, const char *name);
 
 void entity_free(entity *ent);
 

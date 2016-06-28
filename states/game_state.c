@@ -47,7 +47,7 @@ void game_init(SDL_Renderer *renderer)
 
     entity_load(&player, renderer, "assets/characters/main");
 
-    entity_switch_sprite(&player, "idle");
+    entity_play_anim(&player, "idle");
 
     background_load(renderer, "background_01", &background);
 
@@ -204,9 +204,9 @@ static void player_think(entity *this)
     player.pos = sum(player.pos, player.mov);
 
     if (moving) {
-        entity_switch_sprite(&player, "revolver");
+        entity_play_anim(&player, "revolver");
     } else {
-        entity_switch_sprite(&player, "idle");
+        entity_play_anim(&player, "idle");
     }
 
     rect playercol = {player.pos.x, player.pos.y, player.current_anim->frames[player.current_anim->curframe].w, player.current_anim->frames[player.current_anim->curframe].h};
@@ -254,7 +254,7 @@ static void player_think(entity *this)
     };
 
     if (iptstate.click) {
-        entity_switch_sprite(this, "revolver_shot");
+        entity_play_anim(this, "revolver_shot");
         iptstate.click = false;
     }
 
