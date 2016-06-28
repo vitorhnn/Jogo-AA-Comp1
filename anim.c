@@ -11,6 +11,11 @@
 static void json_parse(anim *anim, const char *path)
 {
     PHYSFS_file *fp = PHYSFS_openRead(path);
+
+    if (fp == NULL) {
+        show_error("shit failed", ERROR_SOURCE_PHYSFS);
+        return;
+    }
     
     PHYSFS_sint64 len = PHYSFS_fileLength(fp);
     if (len == -1) {
@@ -42,8 +47,10 @@ static void json_parse(anim *anim, const char *path)
             anim->frames[i].w = (float) (json_object_dotget_number(frame, "frame.w"));
             anim->frames[i].h = (float) (json_object_dotget_number(frame, "frame.h"));
         }
+        anim->over = false;
     } else {
         anim->framec = 0;
+        anim->over = true;
         anim->frames = xmalloc(sizeof(rect));
 
         anim->frames[0].x = 0;
@@ -58,10 +65,14 @@ static void json_parse(anim *anim, const char *path)
     anim->spr.rotcenter.x = (float) (json_object_dotget_number(meta, "rot.x"));
     anim->spr.rotcenter.y = (float) (json_object_dotget_number(meta, "rot.y"));
 
+    anim->origframe = (size_t) (json_object_get_number(meta, "originframe"));
+
+    anim->once = false;
+
     json_value_free(root);
 }
 
-void anim_load(anim *anim, SDL_Renderer *renderer, const char *path)
+void anim_load(anim *anim, SDL_Renderer *renderer, const char *path, const char *name)
 {
     char pngpath[256];
     snprintf(pngpath, 256, "%s.png", path);
@@ -74,20 +85,37 @@ void anim_load(anim *anim, SDL_Renderer *renderer, const char *path)
     json_parse(anim, jsonpath);
 
     anim->curframe = 0;
+
+    memset(anim->name, 0, sizeof(anim->name));
+    strncpy(anim->name, name, sizeof(anim->name));
+}
+
+void anim_think(anim *anim)
+{
+    if (anim->framec != 0) {
+        anim->logicalframe++;
+
+        anim->curframe = anim->logicalframe / 4;
+        if (anim->curframe == anim->framec) {
+            anim->logicalframe = 0;
+            anim->curframe = 0;
+            anim->over = true;
+        }
+
+        if (anim->curframe == anim->origframe && !anim->once) {
+            anim->once = true;
+            anim->projspawned = true;
+        }
+    }
 }
 
 void anim_paint(anim *anim, SDL_Renderer* renderer, vec2 pos, float angle)
 {
     sprite_paint_ex(&anim->spr, renderer, anim->frames[anim->curframe], pos, angle);
-
-    anim->curframe++;
-
-    if (anim->curframe == anim->framec) {
-        anim->curframe = 0;
-    }
 }
 
 void anim_free(anim *anim)
 {
     free(anim->frames);
+    sprite_free(&anim->spr);
 }

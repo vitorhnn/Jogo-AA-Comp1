@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "../sprite.h"
+#include "../entity.h"
 #include "../anim.h"
 #include "../vecmath.h"
 #include "game_state.h"
@@ -15,7 +15,7 @@ static struct {
     vec2 mousepos, prevmouse;
 } iptstate;
 
-static struct entity player;
+static entity player;
 
 struct projectile {
     vec2 pos;
@@ -30,7 +30,7 @@ static struct projectile projectiles[100];
 
 static sprite bullet;
 
-static anim testanim;
+static void player_think(entity *this);
 
 void game_init(SDL_Renderer *renderer)
 {
@@ -43,23 +43,16 @@ void game_init(SDL_Renderer *renderer)
     player.pos.y = 300;
     player.mov.x = 0;
     player.mov.y = 0;
-    player.current_sprite = &player.idle;
-    entity_load(renderer, "papaco", &player);
+    player.think = &player_think;
+
+    entity_load(&player, renderer, "assets/characters/main");
+
+    entity_switch_sprite(&player, "idle");
 
     background_load(renderer, "background_01", &background);
 
     sprite_load(&bullet, renderer, "revolver_bullet.png");
-    /*
-    sprite_load(&player.spr, renderer, "iddle.png");
 
-    sprite_load(&background.spr, renderer, "template.png");
-
-    background_load("template.txt", &background);
-
-    entity_load("idle.txt", &player);
-    */
-
-    anim_load(&testanim, renderer, "weapon_shoot_02");
     memset(projectiles, 0, sizeof(projectiles));
 }
 
@@ -157,8 +150,6 @@ static void projectile_add(struct projectile proj)
 
 static void projectiles_update(void)
 {
-    // TODO: collide projectiles with the bg borders and entities, and set active to false
-    // otherwise we're eventually going to run out of projectiles
     for (size_t i = 0; i < 100; i++) {
         if (projectiles[i].active) {
             projectiles[i].pos = sum(projectiles[i].pos, projectiles[i].mov);
@@ -181,21 +172,9 @@ static void projectiles_update(void)
     }
 }
 
-static void player_switch_sprite(sprite *new_sprite)
+static void player_think(entity *this)
 {
-    if (player.current_sprite == new_sprite) {
-        return;
-    }
-
-    vec2 rotdelta = sum(player.current_sprite->rotcenter, mul(new_sprite->rotcenter, -1));
-
-    player.current_sprite = new_sprite;
-
-    player.pos = sum(player.pos, rotdelta);
-}
-
-static void player_think(void)
-{
+    anim_think(this->current_anim);
     vec2 newmov = {0, 0};
     bool moving = false;
 
@@ -225,12 +204,12 @@ static void player_think(void)
     player.pos = sum(player.pos, player.mov);
 
     if (moving) {
-        player_switch_sprite(&player.revolver);
+        entity_switch_sprite(&player, "revolver");
     } else {
-        player_switch_sprite(&player.revolver);
+        entity_switch_sprite(&player, "idle");
     }
 
-    rect playercol = {player.pos.x, player.pos.y, player.current_sprite->w, player.current_sprite->h};
+    rect playercol = {player.pos.x, player.pos.y, player.current_anim->frames[player.current_anim->curframe].w, player.current_anim->frames[player.current_anim->curframe].h};
 
     if (playercol.y <= background.col.y ||
         playercol.y + playercol.h >= background.col.y + background.col.h ||
@@ -244,7 +223,7 @@ static void player_think(void)
         player.pos = sum(player.pos, unmov);
     }
 
-    float dist = pointdistance(iptstate.mousepos, sum(player.pos, player.current_sprite->rotcenter));
+    float dist = pointdistance(iptstate.mousepos, sum(player.pos, player.current_anim->spr.rotcenter));
 
     if (dist < 150) {
         vec2 mmov = get_vec(iptstate.prevmouse, iptstate.mousepos);
@@ -262,8 +241,8 @@ static void player_think(void)
 
     // EM NOME DE JESUS
 
-    vec2 absrot = sum(player.pos, player.current_sprite->rotcenter);
-    vec2 absorigin = sum(player.pos, player.current_sprite->projorigin);
+    vec2 absrot = sum(player.pos, player.current_anim->spr.rotcenter);
+    vec2 absorigin = sum(player.pos, player.current_anim->spr.projorigin);
     float distance = pointdistance(absorigin, absrot);
     float angle = pointangle(absrot, absorigin) + player.lookat;
     vec2 rotorigin = {
@@ -275,19 +254,23 @@ static void player_think(void)
     };
 
     if (iptstate.click) {
+        entity_switch_sprite(this, "revolver_shot");
+        iptstate.click = false;
+    }
 
+    if (player.current_anim->projspawned) {
         vec2 mov = get_vec(rotorigin, iptstate.mousepos);
 
         struct projectile newp = {
             .pos = rotorigin,
-            .mov = mov,
+            .mov = mul(mov, 3.5),
             .angle = pointangle(rotorigin, iptstate.mousepos) - (acosf(-1) / 2),
             .active = true
         };
 
         projectile_add(newp);
 
-        iptstate.click = false;
+        player.current_anim->projspawned = false;
     }
 
     player.lookat = pointangle(rotorigin, iptstate.mousepos) - (acosf(-1) / 2);
@@ -295,7 +278,7 @@ static void player_think(void)
 
 void game_think(void)
 {
-    player_think();
+    player.think(&player);
     projectiles_update();
 }
 
@@ -319,15 +302,14 @@ void game_paint(SDL_Renderer *renderer, unsigned diff)
 
     vec2 bpos = {0, 0};
     sprite_paint(&background.spr, renderer, bpos);
-    sprite_paint_less_ex(player.current_sprite, renderer, corrected, player.lookat);
+    anim_paint(player.current_anim, renderer, player.pos, player.lookat);
 
-    anim_paint(&testanim, renderer, bpos, 0);
     projectiles_paint(renderer, diff);
 }
 
 void game_quit(void)
 {
-    sprite_free(&player.idle);
+    entity_free(&player);
 }
 
 // vim: set ts=4 sw=4 expandtab:

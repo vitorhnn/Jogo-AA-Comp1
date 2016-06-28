@@ -6,10 +6,6 @@
 
 #include "../game_state.h"
 
-sprite sheet_load(SDL_Renderer *renderer, const char *path);
-
-void background_load(SDL_Renderer *renderer, const char *path, struct background *bg);
-
-void entity_load(SDL_Renderer *renderer, const char *path, struct entity *ent);
+void background_load(SDL_Renderer *renderer, const char *bgname, struct background *bg);
 
 #endif

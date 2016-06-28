@@ -7,13 +7,19 @@
 #include "sprite.h"
 
 typedef struct {
+    char name[64];
     sprite spr;
     rect *frames;
-    size_t framec,
-           curframe;
+    size_t  framec,
+            curframe,
+            origframe,
+            logicalframe;
+    bool over, projspawned, once;
 } anim;
 
-void anim_load(anim *anim, SDL_Renderer *renderer, const char *path);
+void anim_load(anim *anim, SDL_Renderer *renderer, const char *path, const char *name);
+
+void anim_think(anim *anim);
 
 void anim_paint(anim *anim, SDL_Renderer *renderer, vec2 pos, float angle);
 

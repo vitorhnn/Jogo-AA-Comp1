@@ -175,6 +175,15 @@ static int engine_run(void)
     long lag = 0;
 
     while (running) {
+
+        if (switch_pending) {
+            ptrs.quit();
+            state_initializer_ptr state_init = engine_reevaluate_ptrs(&ptrs, current_state);
+            state_init(renderer);
+
+            switch_pending = false;
+        }
+
         unsigned now = SDL_GetTicks();
         unsigned diff = now - then;
         then = now;
@@ -217,14 +226,6 @@ static int engine_run(void)
             if (SDL_GetTicks() - then < 1000 / fpsmax) {
                 SDL_Delay(1000 / fpsmax - (SDL_GetTicks() - then));
             }
-        }
-
-        if (switch_pending) {
-            ptrs.quit();
-            state_initializer_ptr state_init = engine_reevaluate_ptrs(&ptrs, current_state);
-            state_init(renderer);
-
-            switch_pending = false;
         }
     }
 

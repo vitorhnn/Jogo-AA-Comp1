@@ -12,13 +12,6 @@ struct background {
     rect col;
 };
 
-struct entity {
-    sprite idle, revolver, revolver_shot, death;
-    sprite *current_sprite;
-    vec2 pos, mov;
-    float lookat;
-};
-
 void game_init(SDL_Renderer *renderer);
 
 void game_handle(SDL_Event *event);
