@@ -81,6 +81,32 @@ void entity_play_anim(entity *ent, const char *name)
     }
 }
 
+void entity_think(entity *ent)
+{
+    vec2    absrot = sum(ent->pos, ent->current_anim->spr.rotcenter),
+            absorigin = sum(ent->pos, ent->current_anim->spr.projorigin);
+
+    float   distance = pointdistance(absorigin, absrot),
+            angle = pointangle(absrot, absorigin) + ent->lookat;
+
+    vec2 rotorigin = {
+        absrot.x - distance * cosf(angle),
+        absrot.y - distance * sinf(angle)
+    };
+    ent->rotorigin = rotorigin;
+
+    ent->real_think(ent);
+}
+
+void entity_paint(entity *ent, SDL_Renderer *renderer, unsigned diff)
+{
+    vec2 corrected = mul(ent->mov, diff);
+
+    corrected = sum(corrected, ent->pos);
+
+    anim_paint(ent->current_anim, renderer, ent->pos, ent->lookat);
+}
+
 void entity_free(entity *ent)
 {
     for (size_t i = 0; i < ent->animc; ++i) {
@@ -88,4 +114,5 @@ void entity_free(entity *ent)
     }
 
     free(ent->anims);
+    free(ent);
 }

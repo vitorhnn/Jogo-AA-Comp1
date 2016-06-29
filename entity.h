@@ -11,15 +11,21 @@ typedef struct entity {
     anim  *anims,
           *current_anim;
     size_t animc;
-    vec2 pos, mov;
+    vec2 pos, mov, rotorigin;
     float lookat;
 
-    void (*think)(struct entity*);
+    void (*real_think)(struct entity *);
+
+    void (*free)(struct entity *);
 } entity;
 
 void entity_load(entity *ent, SDL_Renderer *renderer, const char *path);
 
 void entity_play_anim(entity *ent, const char *name);
+
+void entity_think(entity *ent);
+
+void entity_paint(entity *ent, SDL_Renderer *renderer, unsigned diff);
 
 void entity_free(entity *ent);
 

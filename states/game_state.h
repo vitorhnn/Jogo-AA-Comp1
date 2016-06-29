@@ -7,11 +7,6 @@
 #include <SDL2/SDL.h>
 #include "../sprite.h"
 
-struct background {
-    sprite spr;
-    rect col;
-};
-
 void game_init(SDL_Renderer *renderer);
 
 void game_handle(SDL_Event *event);
