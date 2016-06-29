@@ -4,6 +4,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#define FPI (acosf(-1))
+
 #include <stddef.h>
 #include <stdbool.h>
 

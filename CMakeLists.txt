@@ -23,5 +23,5 @@ add_library ( asprintf 3rdparty/asprintf/asprintf.c 3rdparty/asprintf/vasprintf-
 add_library ( parson 3rdparty/parson/parson.c )
 add_library ( z_containers containers/vector.c )
 
-add_executable(joguin main.c common.c entity.c states/credits_state.c settings.c states/menu_state.c ui.c anim.c sprite.c states/game_state.c vecmath.c states/helpers/assetloader.c)
+add_executable(joguin main.c common.c entity.c stage.c states/credits_state.c settings.c states/menu_state.c ui.c anim.c sprite.c states/game_state.c vecmath.c )
 target_link_libraries( joguin physfsextras asprintf parson z_containers ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${SDL2_TTF_LIBRARY} ${SDL2_MIXER_LIBRARY} ${PHYSFS_LIBRARY} m)
