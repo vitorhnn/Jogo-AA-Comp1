@@ -6,7 +6,7 @@ x: 65
 y: 90
 
 #Assets colision
-cols: 
+cols: 6
 
 col1:
 x: 176

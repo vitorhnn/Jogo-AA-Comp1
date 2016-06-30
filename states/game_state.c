@@ -26,6 +26,10 @@ static sprite bullet;
 
 static sprite shell;
 
+static int btimeframes;
+
+static bool isbtime;
+
 static void player_think(entity *this);
 
 static SDL_Renderer *renderer_; // ugly hack
@@ -59,7 +63,7 @@ static void gunslinger_think(entity *this)
             stage_add_projectile(&curstage, this, &bullet, target, 2);    
             this->current_anim->projspawned = false;
         }
-        this->lookat = pointangle(this->pos, target) - (FPI/2);
+        this->lookat = pointangle(this->rotorigin, target) - (FPI/2);
 
         if (pointdistance(player.pos, this->pos) > 350) {
             vec2 mov = get_vec(this->pos, player.pos);
@@ -106,7 +110,7 @@ static void shotgunner_think(entity *this)
             stage_add_projectile_ex(&curstage, this, &shell, target, 1.5, -angle);    
             this->current_anim->projspawned = false;
         }
-        this->lookat = pointangle(this->pos, target) - (FPI/2);
+        this->lookat = pointangle(this->rotorigin, target) - (FPI/2);
 
         if (pointdistance(player.pos, this->pos) > 350) {
             vec2 mov = get_vec(this->pos, player.pos);
@@ -209,6 +213,9 @@ void game_init(SDL_Renderer *renderer)
     player.real_think = &player_think;
     player.free = &fake_free;
     player.health = PLAYER_HP;
+
+    isbtime = false;
+    btimeframes = 240;
 
     entity_load(&player, renderer, "assets/characters/main");
 

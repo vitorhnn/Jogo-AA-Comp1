@@ -36,10 +36,12 @@ static void json_parse(anim *anim, const char *path)
     JSON_Object *obj = json_object(root);
     JSON_Object *frames = json_object_get_object(obj, "frames");
     JSON_Object *meta = json_object_get_object(obj, "meta");
+    
+    size_t emptyframes = (size_t) (json_object_get_number(meta, "emptyframes"));
 
     if (frames != NULL) {
         anim->framec = json_object_get_count(frames);
-        anim->frames = xmalloc(anim->framec * sizeof(rect));
+        anim->frames = xmalloc((anim->framec + emptyframes) * sizeof(rect));
 
         for (size_t i = 0; i < anim->framec; ++i) {
             JSON_Object *frame = json_object(json_object_get_value_at(frames, i)); 
@@ -53,13 +55,14 @@ static void json_parse(anim *anim, const char *path)
     } else {
         anim->framec = 0;
         anim->over = true;
-        anim->frames = xmalloc(sizeof(rect));
+        anim->frames = xmalloc((emptyframes + 1) * sizeof(rect));
 
         anim->frames[0].x = 0;
         anim->frames[0].y = 0;
         anim->frames[0].w = anim->spr.w;
         anim->frames[0].h = anim->spr.h;
     }
+
 
     anim->spr.projorigin.x = (float) (json_object_dotget_number(meta, "origin.x"));
     anim->spr.projorigin.y = (float) (json_object_dotget_number(meta, "origin.y"));
@@ -68,6 +71,13 @@ static void json_parse(anim *anim, const char *path)
     anim->spr.rotcenter.y = (float) (json_object_dotget_number(meta, "rot.y"));
 
     anim->origframe = (size_t) (json_object_get_number(meta, "originframe"));
+
+
+    for (size_t i = 0; i < emptyframes; ++i) {
+        memcpy(&anim->frames[anim->framec + i], &anim->frames[0], sizeof(rect)); 
+    }
+
+    anim->framec += emptyframes;
 
     anim->once = false;
 
