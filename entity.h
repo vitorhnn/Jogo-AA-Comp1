@@ -9,10 +9,12 @@
 
 typedef struct entity {
     anim  *anims,
-          *current_anim;
-    size_t animc;
+          *current_anim,
+          staticleg, legs;
+    size_t animc, deadframes;
     vec2 pos, mov, rotorigin;
-    float lookat;
+    float lookat, health;
+    bool enemy, dead;
 
     void (*real_think)(struct entity *);
 

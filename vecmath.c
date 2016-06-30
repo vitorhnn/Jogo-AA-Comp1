@@ -20,6 +20,7 @@ float pointangle(vec2 a, vec2 b)
 
     return atan2f(deltaY, deltaX);
 }
+
 bool edgecollide(rect a, rect b)
 {
     // totally not copy and pasted from my old pong clone
@@ -66,8 +67,8 @@ bool fullcollide(rect a, rect b)
 vec2 rot_vec(vec2 vec, float angle)
 {
     vec2 retvec = {
-        .x = vec.x * cosf(angle) + vec.y * sinf(angle),
-        .y = -(vec.x * sinf(angle)) + vec.y * cosf(angle)
+        .x = vec.x * cosf(angle) - vec.y * sinf(angle),
+        .y = vec.x * sinf(angle) + vec.y * cosf(angle)
     };
 
     return retvec;
@@ -82,17 +83,22 @@ vec2 get_vec(vec2 a, vec2 b)
     return unit(retvec);
 }
 
+float norm(vec2 vec)
+{
+    return sqrtf(vec.x * vec.x + vec.y * vec.y);
+}
+
 vec2 unit(vec2 vec)
 {
-    float norm = sqrtf(vec.x * vec.x + vec.y * vec.y);
+    float n = norm(vec);
 
-    if (norm == 0) {
+    if (n == 0) {
         return vec;
     }
 
     vec2 retvec = {
-        .x = vec.x / norm,
-        .y = vec.y / norm
+        .x = vec.x / n,
+        .y = vec.y / n
     };
 
     return retvec;

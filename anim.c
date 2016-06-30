@@ -25,6 +25,8 @@ static void json_parse(anim *anim, const char *path)
 
     char *text = xmalloc((size_t) len);
 
+    memset(text, 0, (size_t) len);
+
     PHYSFS_read(fp, text, sizeof(char), (PHYSFS_uint32) len);
 
     JSON_Value *root = json_parse_string(text);

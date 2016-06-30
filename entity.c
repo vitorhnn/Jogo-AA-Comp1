@@ -53,6 +53,9 @@ void entity_load(entity *ent, SDL_Renderer *renderer, const char *path)
     json_value_free(root);
 
     ent->current_anim = NULL;
+    
+    anim_load(&ent->staticleg, renderer, "assets/characters/legs", "MACHO");
+    anim_load(&ent->legs, renderer, "assets/characters/legs_walking", "CU");
 }
 
 void entity_play_anim(entity *ent, const char *name)
@@ -77,6 +80,8 @@ void entity_play_anim(entity *ent, const char *name)
             ent->anims[i].projspawned = false;
             ent->anims[i].once = false;
             ent->anims[i].logicalframe = 0;
+
+            return;
         }
     }
 }
@@ -95,11 +100,28 @@ void entity_think(entity *ent)
     };
     ent->rotorigin = rotorigin;
 
+    anim_think(ent->current_anim);
+    anim_think(&ent->legs);
+
     ent->real_think(ent);
 }
 
 void entity_paint(entity *ent, SDL_Renderer *renderer, unsigned diff)
 {
+    if (!ent->dead) {
+        if (norm(ent->mov) > 0) {
+            vec2 fodase = mul(ent->legs.spr.rotcenter, -1);
+            vec2 fodasemais = sum(ent->current_anim->spr.rotcenter, fodase);
+            fodasemais = sum(fodasemais, ent->pos);
+            anim_paint(&ent->legs, renderer, fodasemais, atan2f(ent->mov.y, ent->mov.x) + (FPI/2));
+        } else {
+            vec2 fodase = mul(ent->staticleg.spr.rotcenter, -1);
+            vec2 fodasemais = sum(ent->current_anim->spr.rotcenter, fodase);
+            fodasemais = sum(fodasemais, ent->pos);
+            anim_paint(&ent->staticleg, renderer, fodasemais, atan2f(ent->mov.y, ent->mov.x) + (FPI/2));
+        }
+    }
+
     vec2 corrected = mul(ent->mov, diff);
 
     corrected = sum(corrected, ent->pos);
@@ -112,6 +134,10 @@ void entity_free(entity *ent)
     for (size_t i = 0; i < ent->animc; ++i) {
         anim_free(&ent->anims[i]);
     }
+
+    anim_free(&ent->legs);
+    anim_free(&ent->staticleg);
+
 
     free(ent->anims);
     free(ent);

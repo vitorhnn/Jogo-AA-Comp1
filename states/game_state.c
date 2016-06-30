@@ -3,12 +3,15 @@
 
 #include <stdbool.h>
 
+#include "../ui.h"
 #include "../common.h"
 #include "../stage.h"
 #include "../entity.h"
 #include "../anim.h"
 #include "../vecmath.h"
 #include "game_state.h"
+
+#define PLAYER_HP 500
 
 static struct {
     bool up, down, left, right, click, EL;
@@ -21,9 +24,20 @@ static stage curstage;
 
 static sprite bullet;
 
+static sprite shell;
+
 static void player_think(entity *this);
 
 static SDL_Renderer *renderer_; // ugly hack
+
+static vec2 spawns[] = {
+    {48, 358},
+    {547, 96},
+    {1211, 390},
+    {635, 694}
+};
+
+static entity *spawnerarray[4];
 
 static void fake_free(entity *nothing)
 {
@@ -35,20 +49,151 @@ static void dumb_think(entity *nothing)
 #pragma unused (nothing)
 }
 
-static entity *make_entity(const char *path)
+static void gunslinger_think(entity *this)
 {
+    if (!this->dead) {
+        entity_play_anim(this, "shot");
+
+        vec2 target = sum(player.pos, player.current_anim->spr.rotcenter);
+        if (this->current_anim->projspawned) {
+            stage_add_projectile(&curstage, this, &bullet, target, 2);    
+            this->current_anim->projspawned = false;
+        }
+        this->lookat = pointangle(this->pos, target) - (FPI/2);
+
+        if (pointdistance(player.pos, this->pos) > 350) {
+            vec2 mov = get_vec(this->pos, player.pos);
+            mov = unit(mov);
+
+            this->mov = mov;
+
+            this->pos = sum(this->pos, this->mov);
+        } else {
+            vec2 fodase = {0, 0};
+            this->mov = fodase;
+        }
+
+        if (this->health <= 0) {
+            this->dead = true;
+            
+            // HACK
+            this->current_anim->over = true;
+            entity_play_anim(this, "death");
+
+            this->lookat = this->lookat + FPI;
+        }
+    } else {
+        this->deadframes++;
+
+        if (this->deadframes > 480) {
+            stage_remove_entity(&curstage, this);
+        }
+    }
+}
+
+static void shotgunner_think(entity *this)
+{
+    if (!this->dead) {
+        entity_play_anim(this, "shot");
+
+        vec2 target = sum(player.pos, player.current_anim->spr.rotcenter);
+        float angle = FPI / 12;
+
+
+        if (this->current_anim->projspawned) {
+            stage_add_projectile(&curstage, this, &shell, target, 1.5);    
+            stage_add_projectile_ex(&curstage, this, &shell, target, 1.5, angle);    
+            stage_add_projectile_ex(&curstage, this, &shell, target, 1.5, -angle);    
+            this->current_anim->projspawned = false;
+        }
+        this->lookat = pointangle(this->pos, target) - (FPI/2);
+
+        if (pointdistance(player.pos, this->pos) > 350) {
+            vec2 mov = get_vec(this->pos, player.pos);
+            mov = unit(mov);
+
+            this->mov = mov;
+
+            this->pos = sum(this->pos, this->mov);
+        } else {
+            vec2 fodase = {0, 0};
+            this->mov = fodase;
+        }
+
+        if (this->health <= 0) {
+            this->dead = true;
+            
+            // HACK
+            this->current_anim->over = true;
+            entity_play_anim(this, "death");
+
+            this->lookat = this->lookat + FPI;
+        }
+    } else {
+        this->deadframes++;
+
+        if (this->deadframes > 480) {
+            stage_remove_entity(&curstage, this);
+        }
+    }
+}
+
+static entity *make_gunslinger(void)
+{
+    const char *path = "assets/characters/badguy01";
+
     entity *ent = xmalloc(sizeof(entity));
 
     memset(ent, 0, sizeof(entity));
 
     ent->free = &entity_free;
-    ent->real_think = &dumb_think;
+    ent->real_think = &gunslinger_think;
+    ent->enemy = true;
+    ent->health = 10;
 
     entity_load(ent, renderer_, path);
 
     stage_add_entity(&curstage, ent);
 
+    entity_play_anim(ent, "idle");
+
     return ent;
+}
+
+static entity *make_shotgunner(void)
+{
+    const char *path = "assets/characters/badguy02";
+
+    entity *ent = xmalloc(sizeof(entity));
+
+    memset(ent, 0, sizeof(entity));
+
+    ent->free = &entity_free;
+    ent->real_think = &shotgunner_think;
+    ent->enemy = true;
+    ent->health = 15;
+
+    entity_load(ent, renderer_, path);
+
+    stage_add_entity(&curstage, ent);
+
+    entity_play_anim(ent, "idle");
+
+    return ent;
+}
+
+static void spawner_spawn(void)
+{
+    spawnerarray[0] = make_gunslinger();
+    spawnerarray[1] = make_gunslinger();
+    spawnerarray[2] = make_gunslinger();
+    spawnerarray[3] = make_shotgunner();
+
+    spawnerarray[0]->pos = spawns[0];
+    spawnerarray[1]->pos = spawns[1];
+    spawnerarray[2]->pos = spawns[2];
+    spawnerarray[3]->pos = spawns[3];
+
 }
 
 void game_init(SDL_Renderer *renderer)
@@ -60,25 +205,21 @@ void game_init(SDL_Renderer *renderer)
     player.pos.y = 400;
     player.mov.x = 0;
     player.mov.y = 0;
+    player.enemy = false;
     player.real_think = &player_think;
     player.free = &fake_free;
+    player.health = PLAYER_HP;
 
     entity_load(&player, renderer, "assets/characters/main");
 
-    entity_play_anim(&player, "idle");
+    entity_play_anim(&player, "revolver");
 
     stage_load(&curstage, renderer, "assets/background/background_01");
 
     stage_add_entity(&curstage, &player);
 
-    sprite_load(&bullet, renderer, "revolver_bullet.png");
-
-
-    entity *boss = make_entity("assets/characters/boss");
-    entity_play_anim(boss, "idle");
-
-    boss->pos.x = 600;
-    boss->pos.y = 600;
+    sprite_load(&bullet, renderer, "assets/weapons/revolver_bullet.png");
+    sprite_load(&shell, renderer, "assets/weapons/shotgun_bullet.png");
 }
 
 void game_handle(SDL_Event *event)
@@ -169,7 +310,10 @@ void game_handle(SDL_Event *event)
 
 static void player_think(entity *this)
 {
-    anim_think(this->current_anim);
+    if (this->health <= 0) {
+       // abort();
+    }
+
     vec2 newmov = {0, 0};
     bool moving = false;
 
@@ -194,7 +338,9 @@ static void player_think(entity *this)
     }
 
     if (iptstate.EL) {
-        //background_load(renderer_, "assets/background/background_02", &background);
+        stage_free(&curstage);
+        stage_load(&curstage, renderer_, "assets/background/background_03");
+        stage_add_entity(&curstage, &player);
         iptstate.EL = false;
     }
 
@@ -203,11 +349,7 @@ static void player_think(entity *this)
 
     this->pos = sum(this->pos, this->mov);
 
-    if (moving) {
-        entity_play_anim(this, "revolver");
-    } else {
-        entity_play_anim(this, "idle");
-    }
+    entity_play_anim(this, "revolver");
 
     if (stage_is_ent_colliding(&curstage, this)) {
         vec2 unmov = this->mov;
@@ -233,12 +375,26 @@ static void player_think(entity *this)
 
 void game_think(void)
 {
+    if (!stage_is_anything_alive(&curstage)) {
+        spawner_spawn();
+    }
+
     stage_think(&curstage);
 }
 
 void game_paint(SDL_Renderer *renderer, unsigned diff)
 {
     stage_paint(&curstage, renderer, diff);
+
+    char buf[10];
+    vec2 pos = {100, 645};
+    SDL_Color c = {255, 255, 255, SDL_ALPHA_OPAQUE};
+    snprintf(buf, 10, "%.0f", player.health / 5);
+    ui_button(UI_ID, buf, pos, c);
+    SDL_Rect aaaa = {100, 660, player.health * 0.8, 30};
+
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+    int buceta = SDL_RenderFillRect(renderer, &aaaa);
 }
 
 void game_quit(void)

@@ -124,16 +124,34 @@ void stage_add_entity(stage *stage, entity *ent)
     }
 }
 
+void stage_remove_entity(stage *stage, entity *ent)
+{
+    for (size_t i = 0; i < ARRAY_SIZE(stage->entwrapper); ++i) {
+        if (stage->entwrapper[i].ent == ent) {
+            stage->entwrapper[i].active = false;
+            stage->entwrapper[i].ent->free(stage->entwrapper[i].ent);
+        }
+    }
+}
+
 void stage_add_projectile(stage *stage, entity *shooter, sprite *spr, vec2 target, float speed)
 {
+    stage_add_projectile_ex(stage, shooter, spr, target, speed, 0);
+}
+
+void stage_add_projectile_ex(stage *stage, entity *shooter, sprite *spr, vec2 target, float speed, float angle)
+{
     vec2 mov = get_vec(shooter->rotorigin, target);
+
+    mov = rot_vec(mov, angle);
 
     projectile newp = {
         .spr = spr,
         .pos = shooter->rotorigin,
         .mov = mul(mov, speed),
         .angle = pointangle(shooter->rotorigin, target) - (FPI/2),
-        .active = true
+        .active = true,
+        .enemy  = shooter->enemy
     };
 
     for (size_t i = 0; i < ARRAY_SIZE(stage->projectiles); i++) {
@@ -142,6 +160,20 @@ void stage_add_projectile(stage *stage, entity *shooter, sprite *spr, vec2 targe
             return;
         } 
     }
+}
+
+bool stage_is_anything_alive(stage *stage)
+{
+    for (size_t i = 0; i < ARRAY_SIZE(stage->entwrapper); ++i) {
+        if (stage->entwrapper[i].active && 
+            !stage->entwrapper[i].ent->dead &&
+            stage->entwrapper[i].ent->enemy)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 static bool stage_is_anything_colliding(stage *stage, rect col)
@@ -164,6 +196,29 @@ static bool stage_is_anything_colliding(stage *stage, rect col)
 
 }
 
+static entity *projectile_entcollide(projectile *this, stage *stage)
+{
+    for (size_t i = 0; i < ARRAY_SIZE(stage->entwrapper); ++i) {
+        if (stage->entwrapper[i].active) {
+            entity *ent = stage->entwrapper[i].ent;
+            rect col = {this->pos.x, this->pos.y, this->spr->w, this->spr->h};
+
+            rect entcol = {
+                .x = ent->pos.x,
+                .y = ent->pos.y,
+                .w = ent->current_anim->frames[ent->current_anim->curframe].w,
+                .h = ent->current_anim->frames[ent->current_anim->curframe].h
+            };
+
+            if (fullcollide(col, entcol)) {
+                return ent;
+            }
+        }
+    }
+
+    return NULL;
+}
+
 static void projectile_update(projectile *this, stage *stage)
 {
     this->pos = sum(this->pos, this->mov);
@@ -174,6 +229,13 @@ static void projectile_update(projectile *this, stage *stage)
         this->spr->w,
         this->spr->h
     };
+
+    entity *maybecol = projectile_entcollide(this, stage);
+
+    if (maybecol && maybecol->enemy != this->enemy && !maybecol->dead) {
+        maybecol->health -= 5;
+        this->active = false;
+    }
 
     if (stage_is_anything_colliding(stage, col)) {
         this->active = false;

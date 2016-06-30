@@ -11,7 +11,7 @@ typedef struct {
     sprite *spr;
     vec2 pos, mov;
     float angle;
-    bool active;
+    bool active, enemy;
 } projectile;
 
 typedef struct {
@@ -29,9 +29,15 @@ void stage_load(stage *stage, SDL_Renderer *renderer, const char *path);
 
 void stage_add_entity(stage *stage, entity *ent);
 
+void stage_remove_entity(stage *stage, entity *ent);
+
 void stage_add_projectile(stage *stage, entity *shooter, sprite *sprm, vec2 target, float speed);
 
+void stage_add_projectile_ex(stage *stage, entity *shooter, sprite *sprm, vec2 target, float speed, float angle);
+
 bool stage_is_ent_colliding(stage *stage, entity *ent);
+
+bool stage_is_anything_alive(stage *stage);
 
 void stage_think(stage *stage);
 

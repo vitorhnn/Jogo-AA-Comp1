@@ -26,6 +26,8 @@ vec2 rot_vec(vec2 vec, float angle);
 
 vec2 get_vec(vec2 a, vec2 b);
 
+float norm(vec2 vec);
+
 vec2 unit(vec2 vec);
 
 vec2 sum(vec2 a, vec2 b);

@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include <time.h>
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
@@ -35,7 +37,7 @@ typedef struct {
     state_quitter_ptr quit;
 } state_function_ptrs;
 
-static game_state current_state     = STATE_CREDITS;
+static game_state current_state     = STATE_GAME;
 static bool running                 = true;
 static bool switch_pending          = false;
 
@@ -242,6 +244,8 @@ static int engine_run(void)
 int main(int argc, char **argv)
 {
     // start everything up
+
+    srand(time(0));
 
     printf("Platform is %s\n", SDL_GetPlatform());
 

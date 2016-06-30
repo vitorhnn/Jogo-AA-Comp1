@@ -14,7 +14,7 @@ static sprite bg;
 
 void menu_init(SDL_Renderer *renderer)
 {
-    sprite_load(&bg, renderer, "menubg.png");
+    sprite_load(&bg, renderer, "assets/menus/main_menu/main_menu.png");
 }
 
 void menu_handle(SDL_Event *event)
