@@ -3,9 +3,11 @@
 
 #include <stdbool.h>
 
+#include "../settings.h"
 #include "../ui.h"
 #include "../common.h"
 #include "../stage.h"
+#include "../main.h"
 #include "../entity.h"
 #include "../anim.h"
 #include "../vecmath.h"
@@ -14,7 +16,7 @@
 #define PLAYER_HP 500
 
 static struct {
-    bool up, down, left, right, click, EL;
+    bool up, down, left, right, click, EL, btime;
     vec2 mousepos;
 } iptstate;
 
@@ -26,7 +28,7 @@ static sprite bullet;
 
 static sprite shell;
 
-static int btimeframes;
+static float btimeframes;
 
 static bool isbtime;
 
@@ -213,9 +215,11 @@ void game_init(SDL_Renderer *renderer)
     player.real_think = &player_think;
     player.free = &fake_free;
     player.health = PLAYER_HP;
+    player.dead = false;
+    player.deadframes = 0;
 
     isbtime = false;
-    btimeframes = 240;
+    btimeframes = 160;
 
     entity_load(&player, renderer, "assets/characters/main");
 
@@ -254,6 +258,10 @@ void game_handle(SDL_Event *event)
                     iptstate.EL = true;
                     break;
 
+                case SDLK_q:
+                    iptstate.btime = true;
+                    break;
+
                 default:
                     break;
             }
@@ -276,6 +284,10 @@ void game_handle(SDL_Event *event)
 
                 case SDLK_a:
                     iptstate.left = false;
+                    break;
+
+                case SDLK_q:
+                    iptstate.btime = false;
                     break;
 
                 default:
@@ -317,67 +329,102 @@ void game_handle(SDL_Event *event)
 
 static void player_think(entity *this)
 {
-    if (this->health <= 0) {
-       // abort();
+    if (!this->dead) {
+        if (this->health <= 0) {
+            // HACK
+
+            this->dead = true;
+            this->current_anim->over = true;
+            entity_play_anim(this, "death");
+
+            this->lookat = this->lookat + FPI;
+
+            return;
+        }
+
+        if (iptstate.btime) {
+            iptstate.btime = false;
+
+            isbtime = !isbtime;
+        }
+
+        if (isbtime && btimeframes > 0) {
+            setting_set_num("game_tickrate", 40);
+            btimeframes--;
+        } else {
+            isbtime = false;
+            setting_set_num("game_tickrate", 240);
+
+            if (btimeframes < 160) {
+                btimeframes += 0.1;
+            }
+        }
+
+
+        vec2 newmov = {0, 0};
+        bool moving = false;
+
+        if (iptstate.up) {
+            newmov.y -= 1;
+            moving = true;
+        }
+
+        if (iptstate.down) {
+            newmov.y += 1;
+            moving = true;
+        }
+
+        if (iptstate.right) {
+            newmov.x += 1;
+            moving = true;
+        }
+
+        if (iptstate.left) {
+            newmov.x -= 1;
+            moving = true;
+        }
+
+        if (iptstate.EL) {
+            stage_free(&curstage);
+            stage_load(&curstage, renderer_, "assets/background/background_03");
+            stage_add_entity(&curstage, &player);
+            iptstate.EL = false;
+        }
+
+        newmov = unit(newmov);
+        this->mov = newmov;
+
+        this->pos = sum(this->pos, this->mov);
+
+        entity_play_anim(this, "revolver");
+
+        if (stage_is_ent_colliding(&curstage, this)) {
+            vec2 unmov = this->mov;
+            unmov.x = -unmov.x;
+            unmov.y = -unmov.y;
+
+            this->pos = sum(this->pos, unmov);
+        }
+
+        if (iptstate.click) {
+            entity_play_anim(this, "revolver_shot");
+            iptstate.click = false;
+        }
+
+        if (this->current_anim->projspawned) {
+            stage_add_projectile(&curstage, this, &bullet, iptstate.mousepos, 3.5);
+
+            this->current_anim->projspawned = false;
+        }
+
+        this->lookat = pointangle(this->rotorigin, iptstate.mousepos) - (FPI / 2);
+    } else {
+        this->deadframes++;
+
+        if (this->deadframes > 960) {
+            engine_switch_state(STATE_MENU);
+        }
     }
-
-    vec2 newmov = {0, 0};
-    bool moving = false;
-
-    if (iptstate.up) {
-        newmov.y -= 1;
-        moving = true;
-    }
-
-    if (iptstate.down) {
-        newmov.y += 1;
-        moving = true;
-    }
-
-    if (iptstate.right) {
-        newmov.x += 1;
-        moving = true;
-    }
-
-    if (iptstate.left) {
-        newmov.x -= 1;
-        moving = true;
-    }
-
-    if (iptstate.EL) {
-        stage_free(&curstage);
-        stage_load(&curstage, renderer_, "assets/background/background_03");
-        stage_add_entity(&curstage, &player);
-        iptstate.EL = false;
-    }
-
-    newmov = unit(newmov);
-    this->mov = newmov;
-
-    this->pos = sum(this->pos, this->mov);
-
-    entity_play_anim(this, "revolver");
-
-    if (stage_is_ent_colliding(&curstage, this)) {
-        vec2 unmov = this->mov;
-        unmov.x = -unmov.x;
-        unmov.y = -unmov.y;
-
-        this->pos = sum(this->pos, unmov);
-    }
-
-    if (iptstate.click) {
-        entity_play_anim(this, "revolver_shot");
-        iptstate.click = false;
-    }
-
-    if (this->current_anim->projspawned) {
-        stage_add_projectile(&curstage, this, &bullet, iptstate.mousepos, 3.5);
-
-        this->current_anim->projspawned = false;
-    }
-
-    this->lookat = pointangle(this->rotorigin, iptstate.mousepos) - (FPI / 2);
 }
 
 void game_think(void)
@@ -399,9 +446,11 @@ void game_paint(SDL_Renderer *renderer, unsigned diff)
     snprintf(buf, 10, "%.0f", player.health / 5);
     ui_button(UI_ID, buf, pos, c);
     SDL_Rect aaaa = {100, 660, player.health * 0.8, 30};
-
+    SDL_Rect saicapeta = {850, 660, btimeframes * 2.5, 30};
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
-    int buceta = SDL_RenderFillRect(renderer, &aaaa);
+    SDL_RenderFillRect(renderer, &aaaa);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 255, SDL_ALPHA_OPAQUE);
+    SDL_RenderFillRect(renderer, &saicapeta);
 }
 
 void game_quit(void)

@@ -37,7 +37,7 @@ typedef struct {
     state_quitter_ptr quit;
 } state_function_ptrs;
 
-static game_state current_state     = STATE_GAME;
+static game_state current_state     = STATE_CREDITS;
 static bool running                 = true;
 static bool switch_pending          = false;
 

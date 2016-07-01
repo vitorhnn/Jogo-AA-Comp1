@@ -27,17 +27,17 @@ void menu_handle(SDL_Event *event)
 
 void menu_think(void)
 {
-    vec2 pos = {600, 100};
-    SDL_Color c = {0, 0, 0, SDL_ALPHA_OPAQUE};
+    vec2 pos = {150, 85};
+    SDL_Color c = {255, 255, 255, SDL_ALPHA_OPAQUE};
 
-    if (ui_button(UI_ID, "dá pray", pos, c)) {
+    if (ui_button(UI_ID, "GIVE PRAY", pos, c)) {
         engine_switch_state(STATE_GAME);
     }
 
-    pos.x = 600;
-    pos.y = 300;
+    pos.x = 150;
+    pos.y = 230;
 
-    if (ui_button(UI_ID, "asdasd", pos, c)) {
+    if (ui_button(UI_ID, "SAIR", pos, c)) {
         engine_quit();
     }
 }
