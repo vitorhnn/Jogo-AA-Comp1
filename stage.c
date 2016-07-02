@@ -3,105 +3,72 @@
 
 #include <physfs.h>
 
+#include "3rdparty/parson/parson.h"
+
 #include "common.h"
 #include "stage.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 
-static float parse_line(char *line)
+static void json_load(stage *stage, const char *path)
 {
-    for (; *line != ':'; ++line); ++line;
-
-    return strtof(line, NULL);
-}
-
-static void ugly_old_hack(stage *stage, const char *path)
-{
-    PHYSFS_file *fp = PHYSFS_openRead(path); 
+    PHYSFS_file *fp = PHYSFS_openRead(path);
 
     if (fp == NULL) {
-        show_error("wwwwwwwwwwwooooooooords", ERROR_SOURCE_PHYSFS);
-        return;
+        show_error_msgbox("failed to json_load stage", ERROR_SOURCE_PHYSFS);
+        abort();
     }
-
-    Sint64 len = PHYSFS_fileLength(fp);
-
+    
+    PHYSFS_sint64 len = PHYSFS_fileLength(fp);
     if (len == -1) {
-        show_error("len was -1", ERROR_SOURCE_INTERNAL);
-        return;
+        show_error_msgbox("len was -1, wtf", ERROR_SOURCE_INTERNAL);
+        abort();
     }
 
-    char *text = xmalloc((size_t) len + 1);
+    char *text = xmalloc((size_t) len);
 
-    memset(text, 0, (size_t) (len) + 1);
+    PHYSFS_read(fp, text, sizeof(char), (PHYSFS_uint32) len);
 
-    PHYSFS_read(fp, text, sizeof(char), (unsigned) len);
-
-    char *line = strtok(text, "\n");
-
-    if (line == NULL) return;
-
-    if (strncmp("BACKGROUND", line, 10) != 0) {
-        return;
-    }
-
-    unsigned colidx = 0;
-    bool is_main_col = true;
-
-    for (; line; line = strtok(NULL, "\n")) {
-        if (strncmp("cols", line, 4) == 0) {
-            is_main_col = false;
-
-            size_t arrsz = (size_t) (parse_line(line));
-
-            stage->colc = arrsz;
-            stage->colarray = xmalloc(arrsz * sizeof(rect));
-        } else if (strncmp("col", line, 3) == 0) {
-            colidx++;
-        } else {
-            switch (*line) {
-                case 'x':
-                    if (is_main_col) {
-                        stage->maincol.x = parse_line(line);
-                    } else {
-                        stage->colarray[colidx - 1].x = parse_line(line);
-                    }
-                    break;
-                case 'y':
-                    if (is_main_col) {
-                        stage->maincol.y = parse_line(line);
-                    } else {
-                        stage->colarray[colidx - 1].y = parse_line(line);
-                    }
-                    break;
-                case 'w':
-                    if (is_main_col) {
-                        stage->maincol.w = parse_line(line);
-                    } else {
-                        stage->colarray[colidx - 1].w = parse_line(line);
-                    }
-                    break;
-                case 'h':
-                    if (is_main_col) {
-                        stage->maincol.h = parse_line(line);
-                    } else {
-                        stage->colarray[colidx - 1].h = parse_line(line);
-                    }
-                    break;
-            }
-        }
-    }
+    JSON_Value *root = json_parse_string(text);
 
     free(text);
+
+    JSON_Object *obj = json_object(root);
+    JSON_Object *maincol = json_object_get_object(obj, "maincol");
+    JSON_Array *cols = json_object_get_array(obj, "cols");
+    
+    rect col = {
+        .x = (float) json_object_get_number(maincol, "x"),
+        .y = (float) json_object_get_number(maincol, "y"),
+        .w = (float) json_object_get_number(maincol, "w"),
+        .h = (float) json_object_get_number(maincol, "h")
+    };
+
+    stage->maincol = col;
+
+    stage->colc = json_array_get_count(cols);
+    stage->colarray = xmalloc(stage->colc * sizeof(rect));
+
+    for (size_t i = 0; i < stage->colc; ++i) {
+        JSON_Object *colobj = json_array_get_object(cols, i);
+        rect col = {
+            .x = (float) json_object_get_number(colobj, "x"),
+            .y = (float) json_object_get_number(colobj, "y"),
+            .w = (float) json_object_get_number(colobj, "w"),
+            .h = (float) json_object_get_number(colobj, "h")
+        };
+
+        memcpy(&stage->colarray[i], &col, sizeof(col));
+    }
 }
 
 void stage_load(stage *stage, SDL_Renderer *renderer, const char *path)
 {
-    char mnftpath[64];
+    char jsonpath[64];
 
-    snprintf(mnftpath, 64, "%s.manifest", path);
+    snprintf(jsonpath, 64, "%s.json", path);
 
-    ugly_old_hack(stage, mnftpath);
+    json_load(stage, jsonpath);
 
     char pngpath[64];
     
@@ -129,7 +96,7 @@ void stage_remove_entity(stage *stage, entity *ent)
     for (size_t i = 0; i < ARRAY_SIZE(stage->entwrapper); ++i) {
         if (stage->entwrapper[i].ent == ent) {
             stage->entwrapper[i].active = false;
-            stage->entwrapper[i].ent->free(stage->entwrapper[i].ent);
+            entity_free(stage->entwrapper[i].ent);
         }
     }
 }
@@ -298,7 +265,9 @@ void stage_paint(stage *stage, SDL_Renderer *renderer, unsigned diff)
 void stage_free(stage *stage)
 {
     for (size_t i = 0; i < ARRAY_SIZE(stage->entwrapper); ++i) {
-   
+        if (stage->entwrapper[i].active) {
+            entity_free(stage->entwrapper[i].ent);
+        }
     }
 
     free(stage->colarray);

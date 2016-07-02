@@ -3,6 +3,10 @@
 
 #include <stdbool.h>
 
+#include <SDL2/SDL_mixer.h>
+
+#include "../3rdparty/physicsfs/extras/physfsrwops.h"
+
 #include "../settings.h"
 #include "../ui.h"
 #include "../common.h"
@@ -36,6 +40,8 @@ static void player_think(entity *this);
 
 static SDL_Renderer *renderer_; // ugly hack
 
+static Mix_Chunk *revolver_sfx;
+
 static vec2 spawns[] = {
     {48, 358},
     {547, 96},
@@ -64,6 +70,8 @@ static void gunslinger_think(entity *this)
         if (this->current_anim->projspawned) {
             stage_add_projectile(&curstage, this, &bullet, target, 2);    
             this->current_anim->projspawned = false;
+
+            Mix_PlayChannel(-1, revolver_sfx, 0);
         }
         this->lookat = pointangle(this->rotorigin, target) - (FPI/2);
 
@@ -144,6 +152,11 @@ static void shotgunner_think(entity *this)
     }
 }
 
+static void heap_ent_free(entity *this)
+{
+    free(this);
+}
+
 static entity *make_gunslinger(void)
 {
     const char *path = "assets/characters/badguy01";
@@ -152,7 +165,7 @@ static entity *make_gunslinger(void)
 
     memset(ent, 0, sizeof(entity));
 
-    ent->free = &entity_free;
+    ent->free = &heap_ent_free;
     ent->real_think = &gunslinger_think;
     ent->enemy = true;
     ent->health = 10;
@@ -174,7 +187,7 @@ static entity *make_shotgunner(void)
 
     memset(ent, 0, sizeof(entity));
 
-    ent->free = &entity_free;
+    ent->free = &heap_ent_free;
     ent->real_think = &shotgunner_think;
     ent->enemy = true;
     ent->health = 15;
@@ -231,6 +244,9 @@ void game_init(SDL_Renderer *renderer)
 
     sprite_load(&bullet, renderer, "assets/weapons/revolver_bullet.png");
     sprite_load(&shell, renderer, "assets/weapons/shotgun_bullet.png");
+
+    SDL_RWops *fp = PHYSFSRWOPS_openRead("assets/weapons/revolver.ogg");
+    revolver_sfx = Mix_LoadWAV_RW(fp, 1);
 }
 
 void game_handle(SDL_Event *event)

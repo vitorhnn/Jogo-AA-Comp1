@@ -275,6 +275,12 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1) {
+        show_error_msgbox("failed to Mix_OpenAudio", ERROR_SOURCE_SDL);
+        return EXIT_FAILURE;
+    }
+    Mix_AllocateChannels(32);
+
     if (TTF_Init() != 0) {
         show_error_msgbox("failed to TTF_Init", ERROR_SOURCE_SDL);
         return EXIT_FAILURE;
