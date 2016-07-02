@@ -118,7 +118,7 @@ void entity_paint(entity *ent, SDL_Renderer *renderer, unsigned diff)
             vec2 fodase = mul(ent->staticleg.spr.rotcenter, -1);
             vec2 fodasemais = sum(ent->current_anim->spr.rotcenter, fodase);
             fodasemais = sum(fodasemais, ent->pos);
-            anim_paint(&ent->staticleg, renderer, fodasemais, atan2f(ent->mov.y, ent->mov.x) + (FPI/2));
+            anim_paint(&ent->staticleg, renderer, fodasemais, ent->lookat);
         }
     }
 
@@ -140,5 +140,6 @@ void entity_free(entity *ent)
 
 
     free(ent->anims);
-    free(ent);
+
+    ent->free(ent);
 }
