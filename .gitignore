@@ -8,3 +8,5 @@ build/*
 #Sublime text files
 *.sublime-project
 *.sublime-workspace
+#Ignore the "To Do" file.
+assets/To_do_list.txt*
