@@ -10,8 +10,8 @@
 typedef struct {
     sprite *spr;
     vec2 pos, mov;
-    float angle;
-    bool active, enemy;
+    float angle, damage;
+    bool active, enemy, piercing;
 } projectile;
 
 typedef struct {
@@ -31,9 +31,9 @@ void stage_add_entity(stage *stage, entity *ent);
 
 void stage_remove_entity(stage *stage, entity *ent);
 
-void stage_add_projectile(stage *stage, entity *shooter, sprite *sprm, vec2 target, float speed);
+void stage_add_projectile(stage *stage, entity *shooter, sprite *sprm, vec2 target, float speed, float damage);
 
-void stage_add_projectile_ex(stage *stage, entity *shooter, sprite *sprm, vec2 target, float speed, float angle);
+void stage_add_projectile_ex(stage *stage, entity *shooter, sprite *sprm, vec2 target, float speed, float damage, float angle, bool piercing);
 
 bool stage_is_ent_colliding(stage *stage, entity *ent);
 

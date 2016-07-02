@@ -291,6 +291,8 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
+    PHYSFS_permitSymbolicLinks(1);
+
     setting_register(&r_width);
     setting_register(&r_height);
     setting_register(&r_accelerated);

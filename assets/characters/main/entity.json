@@ -1,8 +1,8 @@
 {
     "anims": [
         "idle",
-        "knives",
-        "knives_shooting",
+        "knife",
+        "knife_shot",
         "melee",
         "melee_attack",
         "shotgun",

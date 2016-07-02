@@ -101,12 +101,12 @@ void stage_remove_entity(stage *stage, entity *ent)
     }
 }
 
-void stage_add_projectile(stage *stage, entity *shooter, sprite *spr, vec2 target, float speed)
+void stage_add_projectile(stage *stage, entity *shooter, sprite *spr, vec2 target, float speed, float damage)
 {
-    stage_add_projectile_ex(stage, shooter, spr, target, speed, 0);
+    stage_add_projectile_ex(stage, shooter, spr, target, speed, damage, 0, false);
 }
 
-void stage_add_projectile_ex(stage *stage, entity *shooter, sprite *spr, vec2 target, float speed, float angle)
+void stage_add_projectile_ex(stage *stage, entity *shooter, sprite *spr, vec2 target, float speed, float damage, float angle, bool piercing)
 {
     vec2 mov = get_vec(shooter->rotorigin, target);
 
@@ -118,7 +118,9 @@ void stage_add_projectile_ex(stage *stage, entity *shooter, sprite *spr, vec2 ta
         .mov = mul(mov, speed),
         .angle = pointangle(shooter->rotorigin, target) - (FPI/2),
         .active = true,
-        .enemy  = shooter->enemy
+        .enemy  = shooter->enemy,
+        .damage = damage,
+        .piercing = piercing
     };
 
     for (size_t i = 0; i < ARRAY_SIZE(stage->projectiles); i++) {
@@ -200,8 +202,11 @@ static void projectile_update(projectile *this, stage *stage)
     entity *maybecol = projectile_entcollide(this, stage);
 
     if (maybecol && maybecol->enemy != this->enemy && !maybecol->dead) {
-        maybecol->health -= 5;
-        this->active = false;
+        maybecol->health -= this->damage;
+
+        if (!this->piercing) {
+            this->active = false;
+        }
     }
 
     if (stage_is_anything_colliding(stage, col)) {
