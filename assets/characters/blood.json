@@ -1,68 +1,69 @@
-{"frames": {
+﻿{"frames": {
 
-"blood0000":
+"blood instance 10000":
 {
-	"frame": {"x":0,"y":0,"w":2,"h":3},
+	"frame": {"x":0,"y":0,"w":34,"h":39},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":5,"y":16,"w":17,"h":19},
-	"sourceSize": {"w":17,"h":19}
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":34,"h":39},
+	"sourceSize": {"w":34,"h":39}
 },
-"blood0001":
+"blood instance 10001":
 {
-	"frame": {"x":2,"y":0,"w":7,"h":8},
+	"frame": {"x":34,"y":0,"w":34,"h":39},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":10,"w":17,"h":19},
-	"sourceSize": {"w":17,"h":19}
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":34,"h":39},
+	"sourceSize": {"w":34,"h":39}
 },
-"blood0002":
+"blood instance 10002":
 {
-	"frame": {"x":9,"y":0,"w":8,"h":10},
+	"frame": {"x":68,"y":0,"w":34,"h":39},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":7,"w":17,"h":19},
-	"sourceSize": {"w":17,"h":19}
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":34,"h":39},
+	"sourceSize": {"w":34,"h":39}
 },
-"blood0003":
+"blood instance 10003":
 {
-	"frame": {"x":17,"y":0,"w":12,"h":12},
+	"frame": {"x":0,"y":39,"w":34,"h":39},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":1,"y":3,"w":17,"h":19},
-	"sourceSize": {"w":17,"h":19}
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":34,"h":39},
+	"sourceSize": {"w":34,"h":39}
 },
-"blood0004":
+"blood instance 10004":
 {
-	"frame": {"x":0,"y":12,"w":13,"h":11},
+	"frame": {"x":34,"y":39,"w":34,"h":39},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":0,"y":2,"w":17,"h":19},
-	"sourceSize": {"w":17,"h":19}
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":34,"h":39},
+	"sourceSize": {"w":34,"h":39}
 },
-"blood0005":
+"blood instance 10005":
 {
-	"frame": {"x":13,"y":12,"w":16,"h":10},
+	"frame": {"x":68,"y":39,"w":34,"h":39},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":1,"y":0,"w":17,"h":19},
-	"sourceSize": {"w":17,"h":19}
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":34,"h":39},
+	"sourceSize": {"w":34,"h":39}
 },
-"blood0006":
+"blood instance 10006":
 {
-	"frame": {"x":0,"y":23,"w":15,"h":4},
+	"frame": {"x":0,"y":78,"w":34,"h":39},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":1,"y":0,"w":17,"h":19},
-	"sourceSize": {"w":17,"h":19}
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":34,"h":39},
+	"sourceSize": {"w":34,"h":39}
 }},
 "meta": {
 	"app": "Adobe Flash Professional",
 	"version": "13.1.0.226",
 	"image": "blood.png",
 	"format": "RGBA8888",
-	"size": {"w":32,"h":32},
+	"size": {"w":128,"h":128},
 	"scale": "1",
-	"rot": {"x":1,"y":0}
+	"rot":{"x":12, "y":35}
+
 }
 }
