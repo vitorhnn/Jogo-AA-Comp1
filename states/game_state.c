@@ -28,7 +28,8 @@ enum weapon {
     WEAPON_NONE,
     WEAPON_REVOLVER,
     WEAPON_SHOTGUN,
-    WEAPON_KNIFE
+    WEAPON_KNIFE,
+    WEAPON_FISTS
 };
 
 static enum weapon current_weapon;
@@ -43,6 +44,8 @@ static sprite shell;
 
 static sprite knife;
 
+static sprite strength;
+
 static float btimeframes;
 
 static bool isbtime;
@@ -52,6 +55,10 @@ static void player_think(entity *this);
 static SDL_Renderer *renderer_; // ugly hack
 
 static Mix_Chunk *revolver_sfx;
+
+static Mix_Chunk *showtime;
+
+static Mix_Chunk *birl;
 
 static vec2 spawns[] = {
     {48, 358},
@@ -234,7 +241,14 @@ static void player_init(entity *this)
     this->dead = false;
     this->deadframes = 0;
 
-    current_weapon = WEAPON_KNIFE;
+    current_weapon = WEAPON_REVOLVER;
+}
+
+static void hora_do_show_porra(void)
+{
+    Mix_PlayChannel(-1, showtime, 0);
+
+    current_weapon = WEAPON_FISTS;
 }
 
 void game_init(SDL_Renderer *renderer)
@@ -260,8 +274,18 @@ void game_init(SDL_Renderer *renderer)
     sprite_load(&shell, renderer, "assets/weapons/shotgun_bullet.png");
     sprite_load(&knife, renderer, "assets/weapons/knife.png");
 
+    sprite_load(&strength, renderer, "assets/powerups/strenght.png");
+
     SDL_RWops *fp = PHYSFSRWOPS_openRead("assets/weapons/revolver.ogg");
     revolver_sfx = Mix_LoadWAV_RW(fp, 1);
+
+    fp = PHYSFSRWOPS_openRead("assets/powerups/strength_pickup.ogg");
+    showtime = Mix_LoadWAV_RW(fp, 1);
+
+    fp = PHYSFSRWOPS_openRead("assets/powerups/strength_attack.ogg");
+    birl = Mix_LoadWAV_RW(fp, 1);
+
+    stage_add_pickup(&curstage, &strength, MAKEVEC(500, 500), hora_do_show_porra);
 }
 
 void game_handle(SDL_Event *event)
@@ -439,6 +463,8 @@ static void player_think(entity *this)
             case WEAPON_KNIFE:
                 entity_play_anim(this, "knife");
                 break;
+            case WEAPON_FISTS:
+                entity_play_anim(this, "melee");
         }
 
         if (stage_is_ent_colliding(&curstage, this)) {
@@ -460,6 +486,8 @@ static void player_think(entity *this)
                 case WEAPON_KNIFE:
                     entity_play_anim(this, "knife_shot");
                     break;
+                case WEAPON_FISTS:
+                    entity_play_anim(this, "melee_attack");
             }
 
             iptstate.click = false;
@@ -479,9 +507,11 @@ static void player_think(entity *this)
 
                     break;
                 }
-                case WEAPON_KNIFE: {
+                case WEAPON_KNIFE:
                     stage_add_projectile_ex(&curstage, this, &knife, iptstate.mousepos, 1.5, 8, 0, true);
-                }
+                    break;
+                case WEAPON_FISTS:
+                    Mix_PlayChannel(-1, birl, 0);
             }
 
             this->current_anim->projspawned = false;
