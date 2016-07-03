@@ -24,23 +24,33 @@ static struct {
     vec2 mousepos;
 } iptstate;
 
-static entity player;
+enum weapon {
+    WEAPON_NONE,
+    WEAPON_REVOLVER,
+    WEAPON_SHOTGUN,
+    WEAPON_KNIFE,
+    WEAPON_FISTS
+};
+
+static enum weapon current_weapon;
+
 
 static stage curstage;
 
-static sprite bullet;
+static sprite weapon_sprites[sizeof(enum weapon) + 1];
+static sprite strength;
 
-static sprite shell;
-
+static entity player;
 static float btimeframes;
-
+static unsigned score;
 static bool isbtime;
-
 static void player_think(entity *this);
 
 static SDL_Renderer *renderer_; // ugly hack
 
 static Mix_Chunk *revolver_sfx;
+static Mix_Chunk *showtime;
+static Mix_Chunk *birl;
 
 static vec2 spawns[] = {
     {48, 358},
@@ -48,7 +58,6 @@ static vec2 spawns[] = {
     {1211, 390},
     {635, 694}
 };
-
 static entity *spawnerarray[4];
 
 static void fake_free(entity *nothing)
@@ -56,9 +65,21 @@ static void fake_free(entity *nothing)
 #pragma unused (nothing)
 }
 
-static void dumb_think(entity *nothing)
+static void hora_do_show_porra(void)
 {
-#pragma unused (nothing)
+    Mix_PlayChannel(-1, showtime, 0);
+
+    current_weapon = WEAPON_FISTS;
+}
+
+static void maybe_add_pickup(vec2 where)
+{
+    float frand = rand() / (float) RAND_MAX;
+
+    bool maybe = (bool) (roundf(frand));
+    if (maybe) {
+        stage_add_pickup(&curstage, &strength, where, hora_do_show_porra);
+    }
 }
 
 static void gunslinger_think(entity *this)
@@ -68,10 +89,10 @@ static void gunslinger_think(entity *this)
 
         vec2 target = sum(player.pos, player.current_anim->spr.rotcenter);
         if (this->current_anim->projspawned) {
-            stage_add_projectile(&curstage, this, &bullet, target, 2);    
+            stage_add_projectile(&curstage, this, &weapon_sprites[WEAPON_REVOLVER], target, 5, 2);
             this->current_anim->projspawned = false;
 
-            Mix_PlayChannel(-1, revolver_sfx, 0);
+//            Mix_PlayChannel(-1, revolver_sfx, 0);
         }
         this->lookat = pointangle(this->rotorigin, target) - (FPI/2);
 
@@ -95,11 +116,13 @@ static void gunslinger_think(entity *this)
             entity_play_anim(this, "death");
 
             this->lookat = this->lookat + FPI;
+            score += 5;
         }
     } else {
         this->deadframes++;
 
         if (this->deadframes > 480) {
+            maybe_add_pickup(this->pos);
             stage_remove_entity(&curstage, this);
         }
     }
@@ -115,9 +138,9 @@ static void shotgunner_think(entity *this)
 
 
         if (this->current_anim->projspawned) {
-            stage_add_projectile(&curstage, this, &shell, target, 1.5);    
-            stage_add_projectile_ex(&curstage, this, &shell, target, 1.5, angle);    
-            stage_add_projectile_ex(&curstage, this, &shell, target, 1.5, -angle);    
+            stage_add_projectile(&curstage, this, &weapon_sprites[WEAPON_SHOTGUN], target, 1.5, 5);
+            stage_add_projectile_ex(&curstage, this, &weapon_sprites[WEAPON_SHOTGUN], target, 1.5, 5, angle, false);
+            stage_add_projectile_ex(&curstage, this, &weapon_sprites[WEAPON_SHOTGUN], target, 1.5, 5, -angle, false);
             this->current_anim->projspawned = false;
         }
         this->lookat = pointangle(this->rotorigin, target) - (FPI/2);
@@ -142,6 +165,7 @@ static void shotgunner_think(entity *this)
             entity_play_anim(this, "death");
 
             this->lookat = this->lookat + FPI;
+            score += 10;
         }
     } else {
         this->deadframes++;
@@ -215,21 +239,32 @@ static void spawner_spawn(void)
 
 }
 
+static void player_init(entity *this)
+{
+    this->pos.x = 400;
+    this->pos.y = 400;
+    this->mov.x = 0;
+    this->mov.y = 0;
+    this->enemy = false;
+    this->real_think = &player_think;
+    this->free = &fake_free;
+    this->health = PLAYER_HP;
+    this->dead = false;
+    this->deadframes = 0;
+
+    score = 0;
+
+    current_weapon = WEAPON_REVOLVER;
+}
+
+
 void game_init(SDL_Renderer *renderer)
 {
     renderer_ = renderer;
     SDL_RenderSetLogicalSize(renderer, 1280, 720);
     memset(&iptstate, 0, sizeof(iptstate));
-    player.pos.x = 400;
-    player.pos.y = 400;
-    player.mov.x = 0;
-    player.mov.y = 0;
-    player.enemy = false;
-    player.real_think = &player_think;
-    player.free = &fake_free;
-    player.health = PLAYER_HP;
-    player.dead = false;
-    player.deadframes = 0;
+
+    player_init(&player);
 
     isbtime = false;
     btimeframes = 160;
@@ -242,11 +277,22 @@ void game_init(SDL_Renderer *renderer)
 
     stage_add_entity(&curstage, &player);
 
-    sprite_load(&bullet, renderer, "assets/weapons/revolver_bullet.png");
-    sprite_load(&shell, renderer, "assets/weapons/shotgun_bullet.png");
+    sprite_load(&weapon_sprites[WEAPON_REVOLVER], renderer, "assets/weapons/revolver_bullet.png");
+    sprite_load(&weapon_sprites[WEAPON_SHOTGUN], renderer, "assets/weapons/shotgun_bullet.png");
+    sprite_load(&weapon_sprites[WEAPON_KNIFE], renderer, "assets/weapons/knife.png");
+
+    sprite_load(&strength, renderer, "assets/powerups/strenght.png");
 
     SDL_RWops *fp = PHYSFSRWOPS_openRead("assets/weapons/revolver.ogg");
     revolver_sfx = Mix_LoadWAV_RW(fp, 1);
+
+    fp = PHYSFSRWOPS_openRead("assets/powerups/strength_pickup.ogg");
+    showtime = Mix_LoadWAV_RW(fp, 1);
+
+    fp = PHYSFSRWOPS_openRead("assets/powerups/strength_attack.ogg");
+    birl = Mix_LoadWAV_RW(fp, 1);
+
+    stage_add_pickup(&curstage, &strength, MAKEVEC(500, 500), hora_do_show_porra);
 }
 
 void game_handle(SDL_Event *event)
@@ -405,6 +451,8 @@ static void player_think(entity *this)
             stage_load(&curstage, renderer_, "assets/background/background_03");
             stage_add_entity(&curstage, &player);
             iptstate.EL = false;
+
+            return;
         }
 
         newmov = unit(newmov);
@@ -412,7 +460,19 @@ static void player_think(entity *this)
 
         this->pos = sum(this->pos, this->mov);
 
-        entity_play_anim(this, "revolver");
+        switch (current_weapon) {
+            case WEAPON_REVOLVER:
+                entity_play_anim(this, "revolver");
+                break;
+            case WEAPON_SHOTGUN:
+                entity_play_anim(this, "shotgun");
+                break;
+            case WEAPON_KNIFE:
+                entity_play_anim(this, "knife");
+                break;
+            case WEAPON_FISTS:
+                entity_play_anim(this, "melee");
+        }
 
         if (stage_is_ent_colliding(&curstage, this)) {
             vec2 unmov = this->mov;
@@ -423,12 +483,43 @@ static void player_think(entity *this)
         }
 
         if (iptstate.click) {
-            entity_play_anim(this, "revolver_shot");
+            switch (current_weapon) {
+                case WEAPON_REVOLVER:
+                    entity_play_anim(this, "revolver_shot");
+                    break;
+                case WEAPON_SHOTGUN:
+                    entity_play_anim(this, "shotgun_shot");
+                    break;
+                case WEAPON_KNIFE:
+                    entity_play_anim(this, "knife_shot");
+                    break;
+                case WEAPON_FISTS:
+                    entity_play_anim(this, "melee_attack");
+            }
+
             iptstate.click = false;
         }
 
         if (this->current_anim->projspawned) {
-            stage_add_projectile(&curstage, this, &bullet, iptstate.mousepos, 3.5);
+            switch (current_weapon) {
+                case WEAPON_REVOLVER:
+                    stage_add_projectile(&curstage, this, &weapon_sprites[WEAPON_REVOLVER], iptstate.mousepos, 3.5, 5);
+                    break;
+                case WEAPON_SHOTGUN: {
+                    float angle = FPI / 12;
+
+                    stage_add_projectile(&curstage, this, &weapon_sprites[WEAPON_SHOTGUN], iptstate.mousepos, 1.5, 5);
+                    stage_add_projectile_ex(&curstage, this, &weapon_sprites[WEAPON_SHOTGUN], iptstate.mousepos, 1.5, 5, angle, false);
+                    stage_add_projectile_ex(&curstage, this, &weapon_sprites[WEAPON_SHOTGUN], iptstate.mousepos, 1.5, 5, -angle, false);
+
+                    break;
+                }
+                case WEAPON_KNIFE:
+                    stage_add_projectile_ex(&curstage, this, &weapon_sprites[WEAPON_KNIFE], iptstate.mousepos, 1.5, 8, 0, true);
+                    break;
+                case WEAPON_FISTS:
+                    Mix_PlayChannel(-1, birl, 0);
+            }
 
             this->current_anim->projspawned = false;
         }
@@ -472,6 +563,10 @@ void game_paint(SDL_Renderer *renderer, unsigned diff)
 void game_quit(void)
 {
     stage_free(&curstage);
+
+    for (size_t i = 0; i < 5; ++i) {
+        sprite_free(&weapon_sprites[i]);
+    }
 }
 
 // vim: set ts=4 sw=4 expandtab:

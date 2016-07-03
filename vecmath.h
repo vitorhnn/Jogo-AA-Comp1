@@ -14,6 +14,8 @@ typedef struct {
     float x, y, w, h;
 } rect;
 
+vec2 MAKEVEC(float x, float y);
+
 float pointdistance(vec2 a, vec2 b);
 
 float pointangle(vec2 a, vec2 b);

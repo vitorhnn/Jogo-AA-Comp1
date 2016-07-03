@@ -78,6 +78,7 @@ void stage_load(stage *stage, SDL_Renderer *renderer, const char *path)
 
     memset(stage->entwrapper, 0, sizeof(stage->entwrapper));
     memset(stage->projectiles, 0, sizeof(stage->projectiles));
+    memset(stage->pickups, 0, sizeof(stage->pickups));
 }
 
 void stage_add_entity(stage *stage, entity *ent)
@@ -101,28 +102,48 @@ void stage_remove_entity(stage *stage, entity *ent)
     }
 }
 
-void stage_add_projectile(stage *stage, entity *shooter, sprite *spr, vec2 target, float speed)
+void stage_add_pickup(stage *stage, sprite *spr, vec2 pos, void(*callback)(void))
 {
-    stage_add_projectile_ex(stage, shooter, spr, target, speed, 0);
+    for (size_t i = 0; i < ARRAY_SIZE(stage->pickups); ++i) {
+        if (!stage->pickups[i].active) {
+            pickup new = {
+                .spr = spr,
+                .pos = pos,
+                .frames = 0,
+                .active = true,
+                .picked_callback = callback
+            };
+
+            stage->pickups[i] = new;
+            return;
+        }
+    }
 }
 
-void stage_add_projectile_ex(stage *stage, entity *shooter, sprite *spr, vec2 target, float speed, float angle)
+void stage_add_projectile(stage *stage, entity *shooter, sprite *spr, vec2 target, float speed, float damage)
 {
-    vec2 mov = get_vec(shooter->rotorigin, target);
+    stage_add_projectile_ex(stage, shooter, spr, target, speed, damage, 0, false);
+}
 
-    mov = rot_vec(mov, angle);
-
-    projectile newp = {
-        .spr = spr,
-        .pos = shooter->rotorigin,
-        .mov = mul(mov, speed),
-        .angle = pointangle(shooter->rotorigin, target) - (FPI/2),
-        .active = true,
-        .enemy  = shooter->enemy
-    };
-
+void stage_add_projectile_ex(stage *stage, entity *shooter, sprite *spr, vec2 target, float speed, float damage, float angle, bool piercing)
+{
     for (size_t i = 0; i < ARRAY_SIZE(stage->projectiles); i++) {
         if (!stage->projectiles[i].active) {
+            vec2 mov = get_vec(shooter->rotorigin, target);
+
+            mov = rot_vec(mov, angle);
+
+            projectile newp = {
+                .spr = spr,
+                .pos = shooter->rotorigin,
+                .mov = mul(mov, speed),
+                .angle = pointangle(shooter->rotorigin, target) - (FPI/2),
+                .active = true,
+                .enemy  = shooter->enemy,
+                .damage = damage,
+                .piercing = piercing
+            };
+
             stage->projectiles[i] = newp;
             return;
         } 
@@ -200,8 +221,11 @@ static void projectile_update(projectile *this, stage *stage)
     entity *maybecol = projectile_entcollide(this, stage);
 
     if (maybecol && maybecol->enemy != this->enemy && !maybecol->dead) {
-        maybecol->health -= 5;
-        this->active = false;
+        maybecol->health -= this->damage;
+
+        if (!this->piercing) {
+            this->active = false;
+        }
     }
 
     if (stage_is_anything_colliding(stage, col)) {
@@ -221,6 +245,32 @@ bool stage_is_ent_colliding(stage *stage, entity *ent)
     return stage_is_anything_colliding(stage, col);
 }
 
+static void pickup_think(pickup *this, stage *stage)
+{
+    this->frames++;
+
+    if (this->frames > 1200) {
+        this->active = false;
+    }
+
+    rect thiscol = {this->pos.x, this->pos.y, this->spr->w, this->spr->h};
+    for (size_t i = 0; i < ARRAY_SIZE(stage->entwrapper); ++i) {
+        if (stage->entwrapper[i].active && !stage->entwrapper[i].ent->enemy) {
+            rect entcol = {
+                stage->entwrapper[i].ent->pos.x,
+                stage->entwrapper[i].ent->pos.y,
+                stage->entwrapper[i].ent->current_anim->frames[stage->entwrapper[i].ent->current_anim->curframe].w,
+                stage->entwrapper[i].ent->current_anim->frames[stage->entwrapper[i].ent->current_anim->curframe].h
+            };
+
+            if (fullcollide(thiscol, entcol)) {
+                this->picked_callback();
+                this->active = false;
+            }
+        }
+    }
+}
+
 void stage_think(stage *stage)
 {
     for (size_t i = 0; i < ARRAY_SIZE(stage->entwrapper); ++i) {
@@ -232,6 +282,12 @@ void stage_think(stage *stage)
     for (size_t i = 0; i < ARRAY_SIZE(stage->projectiles); ++i) {
         if (stage->projectiles[i].active) {
             projectile_update(&stage->projectiles[i], stage);
+        }
+    }
+
+    for (size_t i = 0; i < ARRAY_SIZE(stage->pickups); ++i) {
+        if (stage->pickups[i].active) {
+            pickup_think(&stage->pickups[i], stage);
         }
     }
 }
@@ -258,6 +314,12 @@ void stage_paint(stage *stage, SDL_Renderer *renderer, unsigned diff)
     for (size_t i = 0; i < ARRAY_SIZE(stage->projectiles); ++i) {
         if (stage->projectiles[i].active) {
             projectile_paint(&stage->projectiles[i], renderer, diff);
+        }
+    }
+
+    for (size_t i = 0; i < ARRAY_SIZE(stage->pickups); ++i) {
+        if (stage->pickups[i].active) {
+            sprite_paint(stage->pickups[i].spr, renderer, stage->pickups[i].pos);
         }
     }
 }

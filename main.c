@@ -280,6 +280,7 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
     Mix_AllocateChannels(32);
+    Mix_Volume(-1, MIX_MAX_VOLUME);
 
     if (TTF_Init() != 0) {
         show_error_msgbox("failed to TTF_Init", ERROR_SOURCE_SDL);
@@ -290,6 +291,8 @@ int main(int argc, char **argv)
         show_error_msgbox("failed to PHYSFS_init", ERROR_SOURCE_PHYSFS);
         return EXIT_FAILURE;
     }
+
+    PHYSFS_permitSymbolicLinks(1);
 
     setting_register(&r_width);
     setting_register(&r_height);

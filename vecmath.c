@@ -4,6 +4,13 @@
 #include <math.h>
 #include "vecmath.h"
 
+vec2 MAKEVEC(float x, float y)
+{
+    vec2 r = {x, y};
+
+    return r;
+}
+
 // not really vector math, but I need this, so
 float pointdistance(vec2 a, vec2 b)
 {
