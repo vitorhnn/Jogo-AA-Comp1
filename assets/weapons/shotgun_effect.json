@@ -1,0 +1,100 @@
+﻿{"frames": {
+
+"powder_shotgun instance 10000":
+{
+	"frame": {"x":0,"y":0,"w":28,"h":61},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":28,"h":61},
+	"sourceSize": {"w":28,"h":61}
+},
+"powder_shotgun instance 10001":
+{
+	"frame": {"x":28,"y":0,"w":28,"h":61},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":28,"h":61},
+	"sourceSize": {"w":28,"h":61}
+},
+"powder_shotgun instance 10002":
+{
+	"frame": {"x":56,"y":0,"w":28,"h":61},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":28,"h":61},
+	"sourceSize": {"w":28,"h":61}
+},
+"powder_shotgun instance 10003":
+{
+	"frame": {"x":84,"y":0,"w":28,"h":61},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":28,"h":61},
+	"sourceSize": {"w":28,"h":61}
+},
+"powder_shotgun instance 10004":
+{
+	"frame": {"x":0,"y":61,"w":28,"h":61},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":28,"h":61},
+	"sourceSize": {"w":28,"h":61}
+},
+"powder_shotgun instance 10005":
+{
+	"frame": {"x":28,"y":61,"w":28,"h":61},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":28,"h":61},
+	"sourceSize": {"w":28,"h":61}
+},
+"powder_shotgun instance 10006":
+{
+	"frame": {"x":56,"y":61,"w":28,"h":61},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":28,"h":61},
+	"sourceSize": {"w":28,"h":61}
+},
+"powder_shotgun instance 10007":
+{
+	"frame": {"x":84,"y":61,"w":28,"h":61},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":28,"h":61},
+	"sourceSize": {"w":28,"h":61}
+},
+"powder_shotgun instance 10008":
+{
+	"frame": {"x":0,"y":122,"w":28,"h":61},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":28,"h":61},
+	"sourceSize": {"w":28,"h":61}
+},
+"powder_shotgun instance 10009":
+{
+	"frame": {"x":28,"y":122,"w":28,"h":61},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":28,"h":61},
+	"sourceSize": {"w":28,"h":61}
+},
+"powder_shotgun instance 10010":
+{
+	"frame": {"x":28,"y":122,"w":28,"h":61},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":28,"h":61},
+	"sourceSize": {"w":28,"h":61}
+}},
+"meta": {
+	"app": "Adobe Flash Professional",
+	"version": "13.1.0.226",
+	"image": "shotgun_effect.png",
+	"format": "RGBA8888",
+	"size": {"w":128,"h":256},
+	"scale": "1",
+	"rot":{"x":12, "y":60}
+}
+}

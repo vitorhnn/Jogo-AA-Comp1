@@ -10,3 +10,5 @@ build/*
 *.sublime-workspace
 #Ignore the "To Do" file.
 assets/To_do_list.txt*
+#Ignore Photoshop files.
+*.psd

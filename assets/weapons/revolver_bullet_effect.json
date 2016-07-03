@@ -1,0 +1,108 @@
+﻿{"frames": {
+
+"powder_revolver instance 10000":
+{
+	"frame": {"x":0,"y":0,"w":6,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":6,"h":24},
+	"sourceSize": {"w":6,"h":24}
+},
+"powder_revolver instance 10001":
+{
+	"frame": {"x":6,"y":0,"w":6,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":6,"h":24},
+	"sourceSize": {"w":6,"h":24}
+},
+"powder_revolver instance 10002":
+{
+	"frame": {"x":12,"y":0,"w":6,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":6,"h":24},
+	"sourceSize": {"w":6,"h":24}
+},
+"powder_revolver instance 10003":
+{
+	"frame": {"x":18,"y":0,"w":6,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":6,"h":24},
+	"sourceSize": {"w":6,"h":24}
+},
+"powder_revolver instance 10004":
+{
+	"frame": {"x":24,"y":0,"w":6,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":6,"h":24},
+	"sourceSize": {"w":6,"h":24}
+},
+"powder_revolver instance 10005":
+{
+	"frame": {"x":0,"y":24,"w":6,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":6,"h":24},
+	"sourceSize": {"w":6,"h":24}
+},
+"powder_revolver instance 10006":
+{
+	"frame": {"x":6,"y":24,"w":6,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":6,"h":24},
+	"sourceSize": {"w":6,"h":24}
+},
+"powder_revolver instance 10007":
+{
+	"frame": {"x":12,"y":24,"w":6,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":6,"h":24},
+	"sourceSize": {"w":6,"h":24}
+},
+"powder_revolver instance 10008":
+{
+	"frame": {"x":18,"y":24,"w":6,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":6,"h":24},
+	"sourceSize": {"w":6,"h":24}
+},
+"powder_revolver instance 10009":
+{
+	"frame": {"x":18,"y":24,"w":6,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":6,"h":24},
+	"sourceSize": {"w":6,"h":24}
+},
+"powder_revolver instance 10010":
+{
+	"frame": {"x":24,"y":24,"w":6,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":6,"h":24},
+	"sourceSize": {"w":6,"h":24}
+},
+"powder_revolver instance 10011":
+{
+	"frame": {"x":24,"y":24,"w":6,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":6,"h":24},
+	"sourceSize": {"w":6,"h":24}
+}},
+"meta": {
+	"app": "Adobe Flash Professional",
+	"version": "13.1.0.226",
+	"image": "revolver_bullet_effect.png",
+	"format": "RGBA8888",
+	"size": {"w":32,"h":64},
+	"scale": "1",
+	"rot":{"x":3, "y":21}
+}
+}
