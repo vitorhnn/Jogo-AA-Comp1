@@ -108,7 +108,7 @@ void anim_think(anim *anim)
         anim->logicalframe++;
 
         anim->curframe = anim->logicalframe / 4;
-        if (anim->curframe == anim->framec) {
+        if (anim->curframe >= anim->framec) {
             anim->logicalframe = 0;
             anim->curframe = 0;
             anim->over = true;

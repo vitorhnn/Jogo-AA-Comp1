@@ -68,11 +68,11 @@
     "character_spawn":
     {
         "x":635, 
-        "y":694
+        "y":600
     },
     "character_exit":
     {
         "x": 1211,
-            "y": 390
+        "y": 390
     }
 }

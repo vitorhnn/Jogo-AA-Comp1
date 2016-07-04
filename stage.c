@@ -7,8 +7,10 @@
 
 #include "common.h"
 #include "stage.h"
+#include "effect.h"
 
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+
+#define EFFECT_ACTIVE(x) (x && x->active)
 
 static void json_load(stage *stage, const char *path)
 {
@@ -36,6 +38,7 @@ static void json_load(stage *stage, const char *path)
     JSON_Object *obj = json_object(root);
     JSON_Object *maincol = json_object_get_object(obj, "maincol");
     JSON_Array *cols = json_object_get_array(obj, "cols");
+    JSON_Array *spawns = json_object_get_array(obj, "spawns");
     
     rect col = {
         .x = (float) json_object_get_number(maincol, "x"),
@@ -60,6 +63,23 @@ static void json_load(stage *stage, const char *path)
 
         memcpy(&stage->colarray[i], &col, sizeof(col));
     }
+
+    stage->spawnc = json_array_get_count(spawns);
+    stage->spawns = xmalloc(stage->spawnc * sizeof(vec2));
+
+    for (size_t i = 0; i < stage->spawnc; ++i) {
+        JSON_Object *vecobj = json_array_get_object(spawns, i);
+
+        vec2 vec = {
+            .x = (float) json_object_get_number(vecobj, "x"),
+            .y = (float) json_object_get_number(vecobj, "y")
+        };
+
+        memcpy(&stage->spawns[i], &vec, sizeof(vec2));
+    }
+
+    stage->playerspawn.x = (float) json_object_dotget_number(obj, "character_spawn.x");
+    stage->playerspawn.y = (float) json_object_dotget_number(obj, "character_spawn.y");
 }
 
 void stage_load(stage *stage, SDL_Renderer *renderer, const char *path)
@@ -76,9 +96,25 @@ void stage_load(stage *stage, SDL_Renderer *renderer, const char *path)
 
     sprite_load(&stage->background, renderer, pngpath);
 
+    stage->renderer_ = renderer;
+
+    memcpy(stage->name, path, sizeof(char) * strlen(path));
+
     memset(stage->entwrapper, 0, sizeof(stage->entwrapper));
     memset(stage->projectiles, 0, sizeof(stage->projectiles));
     memset(stage->pickups, 0, sizeof(stage->pickups));
+    memset(stage->effects, 0, sizeof(stage->effects));
+}
+
+bool stage_is_spawn_visible(vec2 spawn, rect camera)
+{
+    rect fakecol = {spawn.x, spawn.y, 0, 0};
+
+    if (fullcollide(fakecol, camera)) {
+        return true;
+    }
+    
+    return false;
 }
 
 void stage_add_entity(stage *stage, entity *ent)
@@ -115,6 +151,16 @@ void stage_add_pickup(stage *stage, sprite *spr, vec2 pos, void(*callback)(void)
             };
 
             stage->pickups[i] = new;
+            return;
+        }
+    }
+}
+
+void stage_add_effect(stage *stage, effect *fx)
+{
+    for (size_t i = 0; i < ARRAY_SIZE(stage->effects); ++i) {
+        if (!EFFECT_ACTIVE(stage->effects[i])) {
+            stage->effects[i] = fx;
             return;
         }
     }
@@ -198,7 +244,7 @@ static entity *projectile_entcollide(projectile *this, stage *stage)
                 .h = ent->current_anim->frames[ent->current_anim->curframe].h
             };
 
-            if (fullcollide(col, entcol)) {
+            if (fullcollide(col, entcol) && ent->enemy != this->enemy && !ent->dead) {
                 return ent;
             }
         }
@@ -220,8 +266,12 @@ static void projectile_update(projectile *this, stage *stage)
 
     entity *maybecol = projectile_entcollide(this, stage);
 
-    if (maybecol && maybecol->enemy != this->enemy && !maybecol->dead) {
+    if (maybecol) {
         maybecol->health -= this->damage;
+
+        effect *FUCK = effect_load(stage->renderer_, this->pos, this->angle - FPI, "assets/characters/blood");
+
+        stage_add_effect(stage, FUCK);
 
         if (!this->piercing) {
             this->active = false;
@@ -290,36 +340,54 @@ void stage_think(stage *stage)
             pickup_think(&stage->pickups[i], stage);
         }
     }
+
+    for (size_t i = 0; i < ARRAY_SIZE(stage->effects); ++i) {
+        if (EFFECT_ACTIVE(stage->effects[i])) {
+            effect_think(stage->effects[i]);
+
+            if (!stage->effects[i]->active) {
+                effect_free(stage->effects[i]);
+                stage->effects[i] = NULL;
+            }
+        }
+    }
 }
 
-static void projectile_paint(projectile *this, SDL_Renderer *renderer, unsigned diff)
+static void projectile_paint(projectile *this, SDL_Renderer *renderer, rect camera, unsigned diff)
 {
+    vec2 campos = {this->pos.x - camera.x, this->pos.y - camera.y};
     vec2 corrected = mul(this->mov, diff);
-    corrected = sum(corrected, this->pos);
+    corrected = sum(corrected, campos);
 
     sprite_paint_less_ex(this->spr, renderer, corrected, this->angle);
 }
 
-void stage_paint(stage *stage, SDL_Renderer *renderer, unsigned diff)
+void stage_paint(stage *stage, SDL_Renderer *renderer, rect camera, unsigned diff)
 {
-    vec2 nullvec = {0, 0};
-    sprite_paint(&stage->background, renderer, nullvec);
+    sprite_paint_ex(&stage->background, renderer, camera, MAKEVEC(0, 0), 0);
 
     for (size_t i = 0; i < ARRAY_SIZE(stage->entwrapper); ++i) {
         if (stage->entwrapper[i].active) {
-            entity_paint(stage->entwrapper[i].ent, renderer, diff);
+            entity_paint(stage->entwrapper[i].ent, renderer, camera, diff);
         }
     }
 
     for (size_t i = 0; i < ARRAY_SIZE(stage->projectiles); ++i) {
         if (stage->projectiles[i].active) {
-            projectile_paint(&stage->projectiles[i], renderer, diff);
+            projectile_paint(&stage->projectiles[i], renderer, camera, diff);
         }
     }
 
     for (size_t i = 0; i < ARRAY_SIZE(stage->pickups); ++i) {
         if (stage->pickups[i].active) {
-            sprite_paint(stage->pickups[i].spr, renderer, stage->pickups[i].pos);
+            vec2 pos = {stage->pickups[i].pos.x - camera.x, stage->pickups[i].pos.y - camera.y};
+            sprite_paint(stage->pickups[i].spr, renderer, pos);
+        }
+    }
+
+    for (size_t i = 0; i < ARRAY_SIZE(stage->effects); ++i) {
+        if (EFFECT_ACTIVE(stage->effects[i])) {
+            effect_paint(stage->effects[i], renderer, camera);
         }
     }
 }
@@ -327,10 +395,12 @@ void stage_paint(stage *stage, SDL_Renderer *renderer, unsigned diff)
 void stage_free(stage *stage)
 {
     for (size_t i = 0; i < ARRAY_SIZE(stage->entwrapper); ++i) {
-        if (stage->entwrapper[i].active) {
+        if (stage->entwrapper[i].active && stage->entwrapper[i].ent->enemy) {
+            stage->entwrapper[i].active = false;
             entity_free(stage->entwrapper[i].ent);
         }
     }
 
     free(stage->colarray);
+    free(stage->spawns);
 }

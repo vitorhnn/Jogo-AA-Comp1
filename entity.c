@@ -53,9 +53,11 @@ void entity_load(entity *ent, SDL_Renderer *renderer, const char *path)
     json_value_free(root);
 
     ent->current_anim = NULL;
+
+    ent->haslegs = true;
     
-    anim_load(&ent->staticleg, renderer, "assets/characters/legs", "MACHO");
-    anim_load(&ent->legs, renderer, "assets/characters/legs_walking", "CU");
+    anim_load(&ent->staticleg, renderer, "assets/characters/legs", "legs");
+    anim_load(&ent->legs, renderer, "assets/characters/legs_walking", "legs_walk");
 }
 
 void entity_play_anim(entity *ent, const char *name)
@@ -106,27 +108,28 @@ void entity_think(entity *ent)
     ent->real_think(ent);
 }
 
-void entity_paint(entity *ent, SDL_Renderer *renderer, unsigned diff)
+void entity_paint(entity *ent, SDL_Renderer *renderer, rect camera, unsigned diff)
 {
-    if (!ent->dead) {
+    vec2 campos = {ent->pos.x - camera.x, ent->pos.y - camera.y};
+    if (!ent->dead && ent->haslegs) {
         if (norm(ent->mov) > 0) {
             vec2 fodase = mul(ent->legs.spr.rotcenter, -1);
             vec2 fodasemais = sum(ent->current_anim->spr.rotcenter, fodase);
-            fodasemais = sum(fodasemais, ent->pos);
+            fodasemais = sum(fodasemais, campos);
             anim_paint(&ent->legs, renderer, fodasemais, atan2f(ent->mov.y, ent->mov.x) + (FPI/2));
         } else {
             vec2 fodase = mul(ent->staticleg.spr.rotcenter, -1);
             vec2 fodasemais = sum(ent->current_anim->spr.rotcenter, fodase);
-            fodasemais = sum(fodasemais, ent->pos);
+            fodasemais = sum(fodasemais, campos);
             anim_paint(&ent->staticleg, renderer, fodasemais, ent->lookat);
         }
     }
 
     vec2 corrected = mul(ent->mov, diff);
 
-    corrected = sum(corrected, ent->pos);
+    corrected = sum(corrected, campos);
 
-    anim_paint(ent->current_anim, renderer, ent->pos, ent->lookat);
+    anim_paint(ent->current_anim, renderer, corrected, ent->lookat);
 }
 
 void entity_free(entity *ent)

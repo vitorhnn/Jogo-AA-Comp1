@@ -21,7 +21,7 @@
 
 static struct {
     bool up, down, left, right, click, EL, btime;
-    vec2 mousepos;
+    vec2 rawmouse, mousepos;
 } iptstate;
 
 enum weapon {
@@ -32,18 +32,32 @@ enum weapon {
     WEAPON_FISTS
 };
 
-static enum weapon current_weapon;
+enum powerup {
+    POWERUP_STRENGTH,
+    POWERUP_HEALTH,
+    POWERUP_SPEED,
+    POWERUP_DAMAGE,
+    POWERUP_NONE
+};
 
+static enum weapon current_weapon;
+static enum powerup current_powerup;
+
+static size_t powerup_frames;
 
 static stage curstage;
 
 static sprite weapon_sprites[sizeof(enum weapon) + 1];
-static sprite strength;
+static sprite powerup_sprites[sizeof(enum powerup) + 1];
+
+static sprite frame_back;
+static sprite frame_front;
 
 static entity player;
 static float btimeframes;
 static unsigned score;
 static bool isbtime;
+static rect camera;
 static void player_think(entity *this);
 
 static SDL_Renderer *renderer_; // ugly hack
@@ -52,12 +66,6 @@ static Mix_Chunk *revolver_sfx;
 static Mix_Chunk *showtime;
 static Mix_Chunk *birl;
 
-static vec2 spawns[] = {
-    {48, 358},
-    {547, 96},
-    {1211, 390},
-    {635, 694}
-};
 static entity *spawnerarray[4];
 
 static void fake_free(entity *nothing)
@@ -70,15 +78,55 @@ static void hora_do_show_porra(void)
     Mix_PlayChannel(-1, showtime, 0);
 
     current_weapon = WEAPON_FISTS;
+    current_powerup = POWERUP_STRENGTH;
+    powerup_frames = 0;
+}
+
+static void gib_health_pls(void)
+{
+    player.health += 50;
+}
+
+static void SANIC(void)
+{
+    if (current_weapon == WEAPON_FISTS) {
+        current_weapon = WEAPON_REVOLVER;
+    }
+
+    current_powerup = POWERUP_SPEED;
+    powerup_frames = 0;
+}
+
+static void qaam(void)
+{
+    if (current_weapon == WEAPON_FISTS) {
+        current_weapon = WEAPON_REVOLVER;
+    }
+
+    current_powerup = POWERUP_DAMAGE;
+    powerup_frames = 0;
 }
 
 static void maybe_add_pickup(vec2 where)
 {
     float frand = rand() / (float) RAND_MAX;
+    frand *= sizeof(enum powerup);
 
-    bool maybe = (bool) (roundf(frand));
-    if (maybe) {
-        stage_add_pickup(&curstage, &strength, where, hora_do_show_porra);
+    enum powerup which = roundf(frand);
+    
+    switch (which) {
+        case POWERUP_STRENGTH:
+            stage_add_pickup(&curstage, &powerup_sprites[POWERUP_STRENGTH], where, hora_do_show_porra);
+            break;
+        case POWERUP_HEALTH:
+            stage_add_pickup(&curstage, &powerup_sprites[POWERUP_HEALTH], where, gib_health_pls);
+            break;
+        case POWERUP_SPEED:
+            stage_add_pickup(&curstage, &powerup_sprites[POWERUP_SPEED], where, SANIC);
+            break;
+        case POWERUP_DAMAGE:
+            stage_add_pickup(&curstage, &powerup_sprites[POWERUP_DAMAGE], where, qaam);
+            break;
     }
 }
 
@@ -231,18 +279,22 @@ static void spawner_spawn(void)
     spawnerarray[1] = make_gunslinger();
     spawnerarray[2] = make_gunslinger();
     spawnerarray[3] = make_shotgunner();
-
-    spawnerarray[0]->pos = spawns[0];
-    spawnerarray[1]->pos = spawns[1];
-    spawnerarray[2]->pos = spawns[2];
-    spawnerarray[3]->pos = spawns[3];
-
+    
+    size_t j = 0;
+    for (size_t i = 0; i < ARRAY_SIZE(spawnerarray); ++i) {
+        for (; j < curstage.spawnc; ++j) {
+            if (stage_is_spawn_visible(curstage.spawns[j], camera)) {
+                spawnerarray[i]->pos = curstage.spawns[j];
+                j++;
+                break;
+            } 
+        }
+    }
 }
 
 static void player_init(entity *this)
 {
-    this->pos.x = 400;
-    this->pos.y = 400;
+    this->pos = curstage.playerspawn;
     this->mov.x = 0;
     this->mov.y = 0;
     this->enemy = false;
@@ -255,6 +307,8 @@ static void player_init(entity *this)
     score = 0;
 
     current_weapon = WEAPON_REVOLVER;
+    current_powerup = POWERUP_NONE;
+    powerup_frames = 0;
 }
 
 
@@ -262,9 +316,10 @@ void game_init(SDL_Renderer *renderer)
 {
     renderer_ = renderer;
     SDL_RenderSetLogicalSize(renderer, 1280, 720);
+    camera.w = 1280;
+    camera.h = 720;
     memset(&iptstate, 0, sizeof(iptstate));
 
-    player_init(&player);
 
     isbtime = false;
     btimeframes = 160;
@@ -273,7 +328,9 @@ void game_init(SDL_Renderer *renderer)
 
     entity_play_anim(&player, "revolver");
 
-    stage_load(&curstage, renderer, "assets/background/background_01");
+    stage_load(&curstage, renderer, "assets/background/background_02");
+
+    player_init(&player);
 
     stage_add_entity(&curstage, &player);
 
@@ -281,7 +338,10 @@ void game_init(SDL_Renderer *renderer)
     sprite_load(&weapon_sprites[WEAPON_SHOTGUN], renderer, "assets/weapons/shotgun_bullet.png");
     sprite_load(&weapon_sprites[WEAPON_KNIFE], renderer, "assets/weapons/knife.png");
 
-    sprite_load(&strength, renderer, "assets/powerups/strenght.png");
+    sprite_load(&powerup_sprites[POWERUP_STRENGTH], renderer, "assets/powerups/strength.png");
+    sprite_load(&powerup_sprites[POWERUP_HEALTH], renderer, "assets/powerups/health.png");
+    sprite_load(&powerup_sprites[POWERUP_SPEED], renderer, "assets/powerups/speed.png");
+    sprite_load(&powerup_sprites[POWERUP_DAMAGE], renderer, "assets/powerups/damage.png");
 
     SDL_RWops *fp = PHYSFSRWOPS_openRead("assets/weapons/revolver.ogg");
     revolver_sfx = Mix_LoadWAV_RW(fp, 1);
@@ -292,7 +352,10 @@ void game_init(SDL_Renderer *renderer)
     fp = PHYSFSRWOPS_openRead("assets/powerups/strength_attack.ogg");
     birl = Mix_LoadWAV_RW(fp, 1);
 
-    stage_add_pickup(&curstage, &strength, MAKEVEC(500, 500), hora_do_show_porra);
+    sprite_load(&frame_back, renderer, "assets/menus/status_bar/status_bar_back.png");
+    sprite_load(&frame_front, renderer, "assets/menus/status_bar/status_bar_front.png");
+
+    spawner_spawn();
 }
 
 void game_handle(SDL_Event *event)
@@ -383,14 +446,38 @@ void game_handle(SDL_Event *event)
             break;
 
         case SDL_MOUSEMOTION:
-            iptstate.mousepos.x = event->motion.x;
-            iptstate.mousepos.y = event->motion.y;
+            iptstate.rawmouse.x = event->motion.x;
+            iptstate.rawmouse.y = event->motion.y;
             break;
     }
 }
 
 static void player_think(entity *this)
 {
+    vec2 camvec = {
+        (player.pos.x + player.current_anim->spr.rotcenter.x / 2) - camera.w / 2,
+        (player.pos.y + player.current_anim->spr.rotcenter.y / 2) - camera.h / 2,
+    };
+
+    camera.x = camvec.x;
+    camera.y = camvec.y;
+
+    
+    if (camera.x < 0) {
+        camera.x = 0;
+    }
+    if (camera.y < 0) {
+        camera.y = 0;
+    }
+    if (camera.x > curstage.background.w - camera.w) {
+        camera.x = curstage.background.w - camera.w;
+    }
+    if (camera.y > curstage.background.h - camera.h) {
+        camera.y = curstage.background.h - camera.h;
+    }
+
+    iptstate.mousepos.x = iptstate.rawmouse.x + camera.x;
+    iptstate.mousepos.y = iptstate.rawmouse.y + camera.y;
     if (!this->dead) {
         if (this->health <= 0) {
             // HACK
@@ -420,6 +507,22 @@ static void player_think(entity *this)
             if (btimeframes < 160) {
                 btimeframes += 0.1;
             }
+        }
+
+        if (current_powerup != POWERUP_NONE) {
+            powerup_frames++;
+        }
+
+        if (powerup_frames >= 2400) {
+            powerup_frames = 0;
+            
+            switch (current_powerup) {
+                case POWERUP_STRENGTH:
+                    current_weapon = WEAPON_REVOLVER;
+                    break;
+            }
+
+            current_powerup = POWERUP_NONE;
         }
 
 
@@ -457,6 +560,10 @@ static void player_think(entity *this)
 
         newmov = unit(newmov);
         this->mov = newmov;
+
+        if (current_powerup == POWERUP_SPEED) {
+            this->mov = mul(this->mov, 1.5);
+        }
 
         this->pos = sum(this->pos, this->mov);
 
@@ -501,16 +608,21 @@ static void player_think(entity *this)
         }
 
         if (this->current_anim->projspawned) {
+            float mod = 1;
+            if (current_powerup == POWERUP_DAMAGE) {
+                mod = 2; 
+            }
+
             switch (current_weapon) {
                 case WEAPON_REVOLVER:
-                    stage_add_projectile(&curstage, this, &weapon_sprites[WEAPON_REVOLVER], iptstate.mousepos, 3.5, 5);
+                    stage_add_projectile(&curstage, this, &weapon_sprites[WEAPON_REVOLVER], iptstate.mousepos, 3.5, 5 * mod);
                     break;
                 case WEAPON_SHOTGUN: {
                     float angle = FPI / 12;
 
-                    stage_add_projectile(&curstage, this, &weapon_sprites[WEAPON_SHOTGUN], iptstate.mousepos, 1.5, 5);
-                    stage_add_projectile_ex(&curstage, this, &weapon_sprites[WEAPON_SHOTGUN], iptstate.mousepos, 1.5, 5, angle, false);
-                    stage_add_projectile_ex(&curstage, this, &weapon_sprites[WEAPON_SHOTGUN], iptstate.mousepos, 1.5, 5, -angle, false);
+                    stage_add_projectile(&curstage, this, &weapon_sprites[WEAPON_SHOTGUN], iptstate.mousepos, 1.5, 5 * mod);
+                    stage_add_projectile_ex(&curstage, this, &weapon_sprites[WEAPON_SHOTGUN], iptstate.mousepos, 1.5, 5 * mod, angle, false);
+                    stage_add_projectile_ex(&curstage, this, &weapon_sprites[WEAPON_SHOTGUN], iptstate.mousepos, 1.5, 5 * mod, -angle, false);
 
                     break;
                 }
@@ -537,7 +649,7 @@ static void player_think(entity *this)
 void game_think(void)
 {
     if (!stage_is_anything_alive(&curstage)) {
-        spawner_spawn();
+        //spawner_spawn();
     }
 
     stage_think(&curstage);
@@ -545,27 +657,31 @@ void game_think(void)
 
 void game_paint(SDL_Renderer *renderer, unsigned diff)
 {
-    stage_paint(&curstage, renderer, diff);
+    stage_paint(&curstage, renderer, camera, diff);
 
-    char buf[10];
-    vec2 pos = {100, 645};
-    SDL_Color c = {255, 255, 255, SDL_ALPHA_OPAQUE};
-    snprintf(buf, 10, "%.0f", player.health / 5);
-    ui_button(UI_ID, buf, pos, c);
-    SDL_Rect aaaa = {100, 660, player.health * 0.8, 30};
-    SDL_Rect saicapeta = {850, 660, btimeframes * 2.5, 30};
+    vec2 frame = {0, 623};
+    sprite_paint(&frame_back, renderer, frame);
+
+    SDL_Rect aaaa = {13, 684, player.health * ((float) 337 / PLAYER_HP), 32};
+    SDL_Rect saicapeta = {932, 683, btimeframes * ((float) 337 / 160), 32};
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(renderer, &aaaa);
     SDL_SetRenderDrawColor(renderer, 0, 0, 255, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(renderer, &saicapeta);
+
+    sprite_paint(&frame_front, renderer, frame);
 }
 
 void game_quit(void)
 {
     stage_free(&curstage);
 
-    for (size_t i = 0; i < 5; ++i) {
+    for (size_t i = 0; i < sizeof(enum weapon); ++i) {
         sprite_free(&weapon_sprites[i]);
+    }
+
+    for (size_t i = 0; i < sizeof(enum powerup); ++i) {
+        sprite_free(&powerup_sprites[i]);
     }
 }
 

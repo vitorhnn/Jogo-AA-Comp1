@@ -6,6 +6,8 @@
 
 #define FPI (acosf(-1))
 
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+
 #include <stddef.h>
 #include <stdbool.h>
 
