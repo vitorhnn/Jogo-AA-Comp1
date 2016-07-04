@@ -15,5 +15,11 @@ Passos:
     cmake ..
     make
 
+Linke os assets para a pasta do jogo:
+    
+    mkdir loosefiles && cd loosefiles
+    ln -s ../../assets .
+
+
 ## Licença
 MIT/Expat, veja o arquivo LICENSE para mais detalhes.
