@@ -592,7 +592,17 @@ static void player_think(entity *this)
 
             if (fullcollide(playercol, curstage.playerexit)) {
                 stage_free(&curstage);
-                stage_load(&curstage, renderer_, "assets/background/background_02");
+                char *toload = NULL;
+
+                if (strcmp(curstage.name, "assets/background/background_01") == 0) {
+                    toload = "assets/background/background_02";
+                } else if (strcmp(curstage.name, "assets/background/background_02") == 0) {
+                    toload = "assets/background/background_03";
+                } else if (strcmp(curstage.name, "assets/background/background_03")) {
+                    toload = "assets/background/background_04";
+                }
+
+                stage_load(&curstage, renderer_, toload);
                 player_init(this);
             }
         }
