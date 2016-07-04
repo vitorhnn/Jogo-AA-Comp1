@@ -118,7 +118,7 @@ static void maybe_add_pickup(vec2 where)
     
     switch (which) {
         case POWERUP_STRENGTH:
-            stage_add_pickup(&curstage, &powerup_sprites[POWERUP_STRENGTH], where, hora_do_show_porra);
+//            stage_add_pickup(&curstage, &powerup_sprites[POWERUP_STRENGTH], where, hora_do_show_porra);
             break;
         case POWERUP_HEALTH:
             stage_add_pickup(&curstage, &powerup_sprites[POWERUP_HEALTH], where, gib_health_pls);
@@ -260,7 +260,7 @@ static void knifethrower_think(entity *this)
             entity_play_anim(this, "death");
 
             this->lookat = this->lookat + FPI;
-            score += 5;
+            score += 15;
         }
     } else {
         this->deadframes++;
@@ -345,22 +345,35 @@ static entity *make_knifethrower(void)
 
 static void spawner_spawn(void)
 {
-    spawnerarray[0] = make_gunslinger();
-    spawnerarray[1] = make_gunslinger();
-    spawnerarray[2] = make_knifethrower();
-    spawnerarray[3] = make_shotgunner();
-    
     size_t j = 0;
     for (size_t i = 0; i < ARRAY_SIZE(spawnerarray); ++i) {
         for (; j < curstage.spawnc; ++j) {
             if (stage_is_spawn_visible(curstage.spawns[j], camera)) {
+            
+                float frand = rand() / (float) RAND_MAX;
+                frand *= 2;
+                
+                int rand = roundf(frand);
+                
+                switch (rand) {
+                    case 0:
+                        spawnerarray[i] = make_gunslinger();
+                        break;
+                    case 1:
+                        spawnerarray[i] = make_knifethrower();
+                        break;
+                    case 2:
+                        spawnerarray[i] = make_shotgunner();
+                        break;
+                }
+                
                 spawnerarray[i]->pos = curstage.spawns[j];
                 j++;
+                waves--;
                 break;
             } 
         }
     }
-    waves--;
 }
 
 static void player_init(entity *this)
@@ -376,7 +389,7 @@ static void player_init(entity *this)
     this->deadframes = 0;
 
     score = 0;
-    waves = 4;
+    waves = 16;
     stage_over = false;
 
     current_weapon = WEAPON_SHOTGUN;
@@ -458,6 +471,18 @@ void game_handle(SDL_Event *event)
 
                 case SDLK_q:
                     iptstate.btime = true;
+                    break;
+
+                case SDLK_1:
+                    current_weapon = WEAPON_REVOLVER;
+                    break;
+
+                case SDLK_2:
+                    current_weapon = WEAPON_SHOTGUN;
+                    break;
+
+                case SDLK_3:
+                    current_weapon = WEAPON_KNIFE;
                     break;
 
                 default:
@@ -598,7 +623,7 @@ static void player_think(entity *this)
                     toload = "assets/background/background_02";
                 } else if (strcmp(curstage.name, "assets/background/background_02") == 0) {
                     toload = "assets/background/background_03";
-                } else if (strcmp(curstage.name, "assets/background/background_03")) {
+                } else if (strcmp(curstage.name, "assets/background/background_03") == 0) {
                     toload = "assets/background/background_04";
                 }
 
@@ -770,6 +795,12 @@ void game_paint(SDL_Renderer *renderer, unsigned diff)
     SDL_RenderFillRect(renderer, &aaaa);
     SDL_SetRenderDrawColor(renderer, 0, 0, 255, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(renderer, &saicapeta);
+
+    char buf[32];
+    snprintf(buf, 32, "Score: %u", score);
+    SDL_Color c = {255, 255, 255, SDL_ALPHA_OPAQUE};
+
+    ui_button(UI_ID, buf, MAKEVEC(0, 0), c);
 
     sprite_paint(&frame_front, renderer, frame);
 }

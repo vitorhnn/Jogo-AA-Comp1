@@ -61,7 +61,7 @@ void credits_init(SDL_Renderer *renderer)
 {
     SDL_RenderSetLogicalSize(renderer, 1280, 720);
 
-    if (!sprite_load(&credits, renderer, "credits.png")) {
+    if (!sprite_load(&credits, renderer, "assets/credits.png")) {
         show_error_msgbox("credits_init: failed to sprite_load credits", ERROR_SOURCE_SDL);
         exit(EXIT_FAILURE);
     }

@@ -26,6 +26,8 @@ void ui_paint(SDL_Renderer *renderer);
 
 void ui_quit(void);
 
+bool ui_rect(int id, rect rect);
+
 bool ui_button(int id, const char *text, vec2 pos, SDL_Color color);
 
 #endif

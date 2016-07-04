@@ -23,7 +23,8 @@ typedef struct {
 } ui_state;
 
 typedef enum {
-    BUTTON
+    BUTTON,
+    RECT
 } ui_type;
 
 typedef struct {
@@ -34,6 +35,11 @@ typedef struct {
     int         w, h;
     SDL_Color   color;
 } ui_button_t;
+
+typedef struct {
+    rect actual;
+    bool valid;
+} ui_rect_t;
 
 typedef struct {
     void    *data;
@@ -113,6 +119,17 @@ void ui_handle(SDL_Event *event)
 
                 break;
             }
+            case RECT: {
+                ui_rect_t *rect = el->data;
+
+                if (mouse_in_rect(MAKEVEC(rect->actual.x, rect->actual.y), rect->actual.w, rect->actual.h)) {
+                    state.hotitem = el->id;
+
+                    if (state.activeitem == 0 && state.mousedown) {
+                        state.activeitem = el->id;
+                    }
+                }
+            }
         }
     }
 }
@@ -176,6 +193,7 @@ void ui_quit(void)
 
                 free(btn->text);
                 SDL_DestroyTexture(btn->tex);
+                break;
             }
         }
 
@@ -214,6 +232,44 @@ static bool button_render_text(SDL_Renderer *renderer, ui_button_t *btn)
 
 failure:
     SDL_FreeSurface(surf);
+    return false;
+}
+
+bool ui_rect(int id, rect rect)
+{
+    for (size_t i = 0; i < elements.used; i++) {
+        ui_element *element = elements.data[i];
+
+        if (element->id == id) {
+            element->should_draw = true;
+
+            if (!state.mousedown && state.hotitem == id && state.activeitem == id) {
+                state.activeitem = 0;
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    ui_rect_t *r = xmalloc(sizeof(ui_button_t));
+
+    r->actual = rect;
+    r->valid = true;
+
+
+    ui_element *el = xmalloc(sizeof(ui_element));
+
+    el->id          = id;
+    el->type        = RECT;
+    el->should_draw = true;
+    el->data        = r;
+
+    // we can't actually know if the user clicked right now, as w and h are invalid
+    // we need to wait for a render frame, so just say that the user didn't click.
+
+    vector_insert(&elements, el);
+
     return false;
 }
 
