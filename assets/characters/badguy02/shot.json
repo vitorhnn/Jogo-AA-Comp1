@@ -122,6 +122,6 @@
 	"rot": {"x":31,"y":58},
 	"origin": {"x":56,"y":1}, 
 	"origin_frame": 0,
-	"emptyframes": 20
+	"emptyframes": 150
 }
 }

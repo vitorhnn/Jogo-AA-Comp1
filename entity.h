@@ -14,7 +14,7 @@ typedef struct entity {
     size_t animc, deadframes;
     vec2 pos, mov, rotorigin;
     float lookat, health;
-    bool enemy, dead;
+    bool enemy, dead, haslegs;
 
     void (*real_think)(struct entity *);
 
@@ -27,7 +27,7 @@ void entity_play_anim(entity *ent, const char *name);
 
 void entity_think(entity *ent);
 
-void entity_paint(entity *ent, SDL_Renderer *renderer, unsigned diff);
+void entity_paint(entity *ent, SDL_Renderer *renderer, rect camera, unsigned diff);
 
 void entity_free(entity *ent);
 

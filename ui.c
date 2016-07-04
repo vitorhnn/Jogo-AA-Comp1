@@ -70,7 +70,7 @@ void ui_init(void)
     vector_init(&elements, 20);
 
     SDL_RWops *ops = PHYSFSRWOPS_openRead("opensans.ttf");
-    ui_font = TTF_OpenFontRW(ops, 1, 40);
+    ui_font = TTF_OpenFontRW(ops, 1, 20);
 }
 
 void ui_handle(SDL_Event *event)
