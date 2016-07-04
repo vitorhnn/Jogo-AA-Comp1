@@ -1,4 +1,4 @@
-{"frames": {
+﻿{"frames": {
 
 "idle instance 10000":
 {
@@ -109,7 +109,7 @@
 	"version": "13.1.0.226",
 	"image": "shot.png",
 	"format": "RGBA8888",
-	"size": {"w":256,"h":350},
+	"size": {"w":256,"h":512},
 	"scale": "1",
 	"rot": {"x":30,"y":58},
 	"origin": {"x":12,"y":3},
