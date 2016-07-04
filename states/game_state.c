@@ -67,6 +67,8 @@ static Mix_Chunk *showtime;
 static Mix_Chunk *birl;
 
 static entity *spawnerarray[4];
+static int waves;
+static bool stage_over;
 
 static void fake_free(entity *nothing)
 {
@@ -224,6 +226,52 @@ static void shotgunner_think(entity *this)
     }
 }
 
+static void knifethrower_think(entity *this)
+{
+    if (!this->dead) {
+        entity_play_anim(this, "shot");
+
+        vec2 target = sum(player.pos, player.current_anim->spr.rotcenter);
+        if (this->current_anim->projspawned) {
+            stage_add_projectile_ex(&curstage, this, &weapon_sprites[WEAPON_KNIFE], target, 5, 1, 0, true);
+            this->current_anim->projspawned = false;
+
+//            Mix_PlayChannel(-1, revolver_sfx, 0);
+        }
+        this->lookat = pointangle(this->rotorigin, target) - (FPI/2);
+
+        if (pointdistance(player.pos, this->pos) > 350) {
+            vec2 mov = get_vec(this->pos, player.pos);
+            mov = unit(mov);
+
+            this->mov = mov;
+
+            this->pos = sum(this->pos, this->mov);
+        } else {
+            vec2 fodase = {0, 0};
+            this->mov = fodase;
+        }
+
+        if (this->health <= 0) {
+            this->dead = true;
+ 
+            // HACK
+            this->current_anim->over = true;
+            entity_play_anim(this, "death");
+
+            this->lookat = this->lookat + FPI;
+            score += 5;
+        }
+    } else {
+        this->deadframes++;
+
+        if (this->deadframes > 480) {
+            maybe_add_pickup(this->pos);
+            stage_remove_entity(&curstage, this);
+        }
+    }
+}
+
 static void heap_ent_free(entity *this)
 {
     free(this);
@@ -273,11 +321,33 @@ static entity *make_shotgunner(void)
     return ent;
 }
 
+static entity *make_knifethrower(void)
+{
+    const char *path = "assets/characters/badguy03";
+
+    entity *ent = xmalloc(sizeof(entity));
+
+    memset(ent, 0, sizeof(entity));
+
+    ent->free = &heap_ent_free;
+    ent->real_think = &knifethrower_think;
+    ent->enemy = true;
+    ent->health = 15;
+
+    entity_load(ent, renderer_, path);
+
+    stage_add_entity(&curstage, ent);
+
+    entity_play_anim(ent, "idle");
+
+    return ent;
+}
+
 static void spawner_spawn(void)
 {
     spawnerarray[0] = make_gunslinger();
     spawnerarray[1] = make_gunslinger();
-    spawnerarray[2] = make_gunslinger();
+    spawnerarray[2] = make_knifethrower();
     spawnerarray[3] = make_shotgunner();
     
     size_t j = 0;
@@ -290,6 +360,7 @@ static void spawner_spawn(void)
             } 
         }
     }
+    waves--;
 }
 
 static void player_init(entity *this)
@@ -305,10 +376,14 @@ static void player_init(entity *this)
     this->deadframes = 0;
 
     score = 0;
+    waves = 4;
+    stage_over = false;
 
-    current_weapon = WEAPON_REVOLVER;
+    current_weapon = WEAPON_SHOTGUN;
     current_powerup = POWERUP_NONE;
     powerup_frames = 0;
+
+    stage_add_entity(&curstage, this);
 }
 
 
@@ -328,11 +403,9 @@ void game_init(SDL_Renderer *renderer)
 
     entity_play_anim(&player, "revolver");
 
-    stage_load(&curstage, renderer, "assets/background/background_02");
+    stage_load(&curstage, renderer, "assets/background/background_01");
 
     player_init(&player);
-
-    stage_add_entity(&curstage, &player);
 
     sprite_load(&weapon_sprites[WEAPON_REVOLVER], renderer, "assets/weapons/revolver_bullet.png");
     sprite_load(&weapon_sprites[WEAPON_SHOTGUN], renderer, "assets/weapons/shotgun_bullet.png");
@@ -461,7 +534,6 @@ static void player_think(entity *this)
 
     camera.x = camvec.x;
     camera.y = camvec.y;
-
     
     if (camera.x < 0) {
         camera.x = 0;
@@ -478,6 +550,7 @@ static void player_think(entity *this)
 
     iptstate.mousepos.x = iptstate.rawmouse.x + camera.x;
     iptstate.mousepos.y = iptstate.rawmouse.y + camera.y;
+
     if (!this->dead) {
         if (this->health <= 0) {
             // HACK
@@ -506,6 +579,21 @@ static void player_think(entity *this)
 
             if (btimeframes < 160) {
                 btimeframes += 0.1;
+            }
+        }
+
+        if (stage_over) {
+            rect playercol = {
+                this->pos.x,
+                this->pos.y,
+                this->current_anim->frames[this->current_anim->curframe].w,
+                this->current_anim->frames[this->current_anim->curframe].h
+            };
+
+            if (fullcollide(playercol, curstage.playerexit)) {
+                stage_free(&curstage);
+                stage_load(&curstage, renderer_, "assets/background/background_02");
+                player_init(this);
             }
         }
 
@@ -649,7 +737,11 @@ static void player_think(entity *this)
 void game_think(void)
 {
     if (!stage_is_anything_alive(&curstage)) {
-        //spawner_spawn();
+        if (waves > 0) {
+            spawner_spawn();
+        } else {
+            stage_over = true;
+        }
     }
 
     stage_think(&curstage);

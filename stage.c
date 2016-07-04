@@ -35,6 +35,8 @@ static void json_load(stage *stage, const char *path)
 
     free(text);
 
+    PHYSFS_close(fp);
+
     JSON_Object *obj = json_object(root);
     JSON_Object *maincol = json_object_get_object(obj, "maincol");
     JSON_Array *cols = json_object_get_array(obj, "cols");
@@ -80,6 +82,13 @@ static void json_load(stage *stage, const char *path)
 
     stage->playerspawn.x = (float) json_object_dotget_number(obj, "character_spawn.x");
     stage->playerspawn.y = (float) json_object_dotget_number(obj, "character_spawn.y");
+
+    stage->playerexit.x = (float) json_object_dotget_number(obj, "character_exit.x");
+    stage->playerexit.y = (float) json_object_dotget_number(obj, "character_exit.y");
+    stage->playerexit.w = (float) json_object_dotget_number(obj, "character_exit.w");
+    stage->playerexit.h = (float) json_object_dotget_number(obj, "character_exit.h");
+
+    json_value_free(root);
 }
 
 void stage_load(stage *stage, SDL_Renderer *renderer, const char *path)
@@ -403,4 +412,6 @@ void stage_free(stage *stage)
 
     free(stage->colarray);
     free(stage->spawns);
+
+    sprite_free(&stage->background);
 }

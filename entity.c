@@ -35,6 +35,8 @@ void entity_load(entity *ent, SDL_Renderer *renderer, const char *path)
 
     free(text);
 
+    PHYSFS_close(fp);
+
     JSON_Array *anims = json_object_get_array(rootobj, "anims");
     
     size_t sz = json_array_get_count(anims);

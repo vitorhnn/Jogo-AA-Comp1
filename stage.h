@@ -28,7 +28,7 @@ typedef struct {
 typedef struct {
     char name[64];
     sprite background;
-    rect maincol, *colarray;
+    rect maincol, *colarray, playerexit;
     struct {
         entity *ent;
         bool active;

@@ -33,6 +33,8 @@ static void json_parse(anim *anim, const char *path)
 
     free(text);
 
+    PHYSFS_close(fp);
+
     JSON_Object *obj = json_object(root);
     JSON_Object *frames = json_object_get_object(obj, "frames");
     JSON_Object *meta = json_object_get_object(obj, "meta");
