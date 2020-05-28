@@ -3,6 +3,7 @@
 
 # the build directory, as that is probably full of binaries.
 build/*
+builddir/*
 #Flash files will be ignored.
 *.fla
 #Sublime text files
