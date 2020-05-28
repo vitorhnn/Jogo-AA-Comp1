@@ -15,32 +15,33 @@ bool sprite_load(sprite *sprite, SDL_Renderer *renderer, const char *path)
         // using ERROR_SOURCE_PHYSICSFS would make more sense, but PHYSICSFS_getLastError
         // resets the current error code, and that's called by PHYSFSRWOPS_openRead
         show_error("sprite_load: PHYSFSRWOPS_openRead failed", ERROR_SOURCE_SDL);
-    } else {
-        SDL_Surface *temp_surf = IMG_Load_RW(file, 1);
-
-        if (temp_surf == NULL) {
-            show_error("sprite_load: IMG_Load_RW failed", ERROR_SOURCE_SDL);
-        } else {
-            SDL_Texture *tex = SDL_CreateTextureFromSurface(renderer, temp_surf);
-
-            int w = temp_surf->w,
-                h = temp_surf->h;
-
-            SDL_FreeSurface(temp_surf);
-
-            if (tex == NULL) {
-                show_error("sprite_load: SDL_CreateTextureFromSurface failed", ERROR_SOURCE_SDL);
-            } else {
-                sprite->texture = tex;
-                sprite->w = w;
-                sprite->h = h;
-
-                return true;
-            }
-        }
+        return false;
     }
 
-    return false;
+    SDL_Surface *temp_surf = IMG_Load_RW(file, 1);
+
+    if (temp_surf == NULL) {
+        show_error("sprite_load: IMG_Load_RW failed", ERROR_SOURCE_SDL);
+        return false;
+    }
+
+    SDL_Texture *tex = SDL_CreateTextureFromSurface(renderer, temp_surf);
+
+    int w = temp_surf->w,
+        h = temp_surf->h;
+
+    SDL_FreeSurface(temp_surf);
+
+    if (tex == NULL) {
+        show_error("sprite_load: SDL_CreateTextureFromSurface failed", ERROR_SOURCE_SDL);
+        return false;
+    }
+
+    sprite->texture = tex;
+    sprite->w = w;
+    sprite->h = h;
+
+    return true;
 }
 
 void sprite_paint(sprite *sprite, SDL_Renderer *renderer, vec2 pos)
@@ -80,6 +81,7 @@ void sprite_paint_ex(sprite *sprite, SDL_Renderer *renderer, rect clip, vec2 pos
     double degrees = (angle * (180 / acos(-1)));
     SDL_RenderCopyEx(renderer, sprite->texture, &sdlclip, &rect, degrees, &point, SDL_FLIP_NONE);
 }
+
 void sprite_free(sprite *sprite)
 {
     SDL_DestroyTexture(sprite->texture);
