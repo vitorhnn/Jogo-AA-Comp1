@@ -39,11 +39,10 @@ typedef struct {
     vec2 *spawns;
     size_t spawnc;
     vec2 playerspawn;
-    SDL_Renderer *renderer_;
     size_t colc;
 } stage;
 
-void stage_load(stage *stage, SDL_Renderer *renderer, const char *path);
+void stage_load(stage *stage, const char *path);
 
 void stage_add_entity(stage *stage, entity *ent);
 
@@ -65,7 +64,7 @@ bool stage_is_anything_alive(stage *stage);
 
 void stage_think(stage *stage);
 
-void stage_paint(stage *stage, SDL_Renderer *renderer, rect camera, unsigned diff);
+void stage_paint(stage *stage, rect camera, unsigned diff);
 
 void stage_free(stage *stage);
 

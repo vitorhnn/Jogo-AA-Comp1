@@ -7,7 +7,7 @@
 #include "common.h"
 #include "3rdparty/physicsfs/extras/physfsrwops.h"
 
-bool sprite_load(sprite *sprite, SDL_Renderer *renderer, const char *path)
+bool sprite_load(sprite *sprite, const char *path)
 {
     SDL_RWops *file = PHYSFSRWOPS_openRead(path);
 
@@ -18,19 +18,9 @@ bool sprite_load(sprite *sprite, SDL_Renderer *renderer, const char *path)
         return false;
     }
 
-    SDL_Surface *temp_surf = IMG_Load_RW(file, 1);
+    vid_texture *tex = vid_load_texture(file);
 
-    if (temp_surf == NULL) {
-        show_error("sprite_load: IMG_Load_RW failed", ERROR_SOURCE_SDL);
-        return false;
-    }
-
-    SDL_Texture *tex = SDL_CreateTextureFromSurface(renderer, temp_surf);
-
-    int w = temp_surf->w,
-        h = temp_surf->h;
-
-    SDL_FreeSurface(temp_surf);
+    SDL_FreeRW(file);
 
     if (tex == NULL) {
         show_error("sprite_load: SDL_CreateTextureFromSurface failed", ERROR_SOURCE_SDL);
@@ -38,51 +28,45 @@ bool sprite_load(sprite *sprite, SDL_Renderer *renderer, const char *path)
     }
 
     sprite->texture = tex;
-    sprite->w = w;
-    sprite->h = h;
+    sprite->w = tex->width;
+    sprite->h = tex->height;
 
     return true;
 }
 
-void sprite_paint(sprite *sprite, SDL_Renderer *renderer, vec2 pos)
+void sprite_paint(sprite *sprite, vec2 pos)
 {
     rect clip = {0, 0, sprite->w, sprite->h};
-    sprite_paint_ex(sprite, renderer, clip, pos, 0);
+    sprite_paint_ex(sprite, clip, pos, 0);
 }
 
-void sprite_paint_less_ex(sprite *sprite, SDL_Renderer *renderer, vec2 pos, float angle)
+void sprite_paint_less_ex(sprite *sprite, vec2 pos, float angle)
 {
     rect clip = {0, 0, sprite->w, sprite->h};
-    sprite_paint_ex(sprite, renderer, clip, pos, angle);
+    sprite_paint_ex(sprite, clip, pos, angle);
 }
 
-void sprite_paint_ex(sprite *sprite, SDL_Renderer *renderer, rect clip, vec2 pos, float angle)
+void sprite_paint_ex(sprite *sprite, rect clip, vec2 pos, float angle)
 {
-    SDL_Rect sdlclip = {
-        .x = (int) clip.x,
-        .y = (int) clip.y,
-        .w = (int) clip.w,
-        .h = (int) clip.h
+    rect dst = {
+        .x = pos.x,
+        .y = pos.y,
+        .w = clip.w,
+        .h = clip.h
     };
 
-    SDL_Rect rect = {
-        .x = (int) pos.x,
-        .y = (int) pos.y,
-        .w = (int) clip.w,
-        .h = (int) clip.h
+    vid_draw_cmd cmd = {
+        .texture = sprite->texture,
+        .src = clip,
+        .dst = dst,
+        .angle = angle,
+        .center = sprite->rotcenter,
     };
 
-    SDL_Point point = {
-        .x = (int) sprite->rotcenter.x,
-        .y = (int) sprite->rotcenter.y
-    };
-
-    // SDL uses degrees for whatever god forsaken reason
-    double degrees = (angle * (180 / acos(-1)));
-    SDL_RenderCopyEx(renderer, sprite->texture, &sdlclip, &rect, degrees, &point, SDL_FLIP_NONE);
+    vid_push_draw_cmd(&cmd);
 }
 
 void sprite_free(sprite *sprite)
 {
-    SDL_DestroyTexture(sprite->texture);
+    vid_free_texture(sprite->texture);
 }

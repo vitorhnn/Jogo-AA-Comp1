@@ -25,11 +25,6 @@ void setting_register(setting *setting)
     // link it in
     setting->next = last_setting;
     last_setting = setting;
-
-    char *value = strdup(setting->value);
-    setting->value = xmalloc(1); // this is needed, as trying to free a constant generates a segfault
-    setting_set(setting->name, value);
-    free(value);
 }
 
 setting *setting_find(char *setting_name)
@@ -55,25 +50,48 @@ void setting_set(char *setting_name, char *value)
         return;
     }
 
-    free(setting->value);
-    setting->value = strdup(value);
+    if (setting->type != SETTING_STR) {
+        show_error("setting_set: attempted to set non str setting", ERROR_SOURCE_INTERNAL);
+        return;
+    }
+
+    strncpy(setting->value.strval, value, sizeof(setting->value.strval));
+    setting->value.strval[sizeof(setting->value.strval) - 1] = '\0';
 }
 
-void setting_set_num(char *setting_name, float value)
+void setting_set_float(char *setting_name, float value)
 {
-    // convert to a string and pass it along.
-    char *valuestr;
-    asprintf(&valuestr, "%f", value);
-    setting_set(setting_name, valuestr);
-    free(valuestr);
+    setting *setting = setting_find(setting_name);
+
+    if (setting == NULL) {
+        show_error("setting_set: attempted to set unregistered setting", ERROR_SOURCE_INTERNAL);
+        return;
+    }
+
+    if (setting->type != SETTING_FLOAT) {
+        show_error("setting_set_float: attempted to set non float setting", ERROR_SOURCE_INTERNAL);
+        return;
+    }
+
+    setting->value.floatval = value;
 }
 
 void setting_set_bool(char *setting_name, bool value)
 {
     // same deal as above
-    char *valuestr;
-    valuestr = (value) ? "true" : "false";
-    setting_set(setting_name, valuestr);
+    setting *setting = setting_find(setting_name);
+
+    if (setting == NULL) {
+        show_error("setting_set: attempted to set unregistered setting", ERROR_SOURCE_INTERNAL);
+        return;
+    }
+
+    if (setting->type != SETTING_BOOL) {
+        show_error("setting_set_bool: attempted to set non bool setting", ERROR_SOURCE_INTERNAL);
+        return;
+    }
+
+    setting->value.boolval = value;
 }
 
 char *setting_strvalue(char *setting_name)
@@ -85,7 +103,12 @@ char *setting_strvalue(char *setting_name)
         return NULL;
     }
 
-    return setting->value;
+    if (setting->type != SETTING_STR) {
+        show_error("setting_strvalue: attempted to get non str setting", ERROR_SOURCE_INTERNAL);
+        return NULL;
+    }
+
+    return setting->value.strval;
 }
 
 float setting_floatvalue(char *setting_name)
@@ -97,15 +120,29 @@ float setting_floatvalue(char *setting_name)
         return 0;
     }
 
-    char *end;
-    float maybe_value = strtof(setting->value, &end);
+    if (setting->type != SETTING_FLOAT) {
+        show_error("setting_floatvalue: attempted to get non float setting", ERROR_SOURCE_INTERNAL);
+        return -1.0f;
+    }
 
-    if (*end) {
-        show_error("setting_floatvalue: value was NOT a float.", ERROR_SOURCE_INTERNAL);
+    return setting->value.floatval;
+}
+
+int setting_intvalue(char *setting_name)
+{
+    setting *setting = setting_find(setting_name);
+
+    if (setting == NULL) {
+        show_error("setting_intvalue: attempted to get unregistered setting", ERROR_SOURCE_INTERNAL);
         return 0;
     }
 
-    return maybe_value;
+    if (setting->type != SETTING_INT) {
+        show_error("setting_intvalue: attempted to get non int setting", ERROR_SOURCE_INTERNAL);
+        return -1;
+    }
+
+    return setting->value.intval;
 }
 
 bool setting_boolvalue(char *setting_name)
@@ -117,23 +154,16 @@ bool setting_boolvalue(char *setting_name)
         return 0;
     }
 
-    if (strcmp(setting->value, "true") == 0) {
-        return true;
-    } else if (strcmp(setting->value, "false") == 0) {
+    if (setting->type != SETTING_BOOL) {
+        show_error("setting_boolvalue: attempted to get non bool setting", ERROR_SOURCE_INTERNAL);
         return false;
     }
 
-    show_error("setting_boolvalue: value was NOT a bool", ERROR_SOURCE_INTERNAL);
-    return false;
+    return setting->value.boolval;
 }
 
 void settings_quit(void)
 {
-    setting *ptr;
-
-    for (ptr = last_setting; ptr != NULL; ptr = ptr->next) {
-        free(ptr->value);
-    }
 }
 
 void settings_parse_argv(int argc, char **argv)

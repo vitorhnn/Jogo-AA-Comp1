@@ -28,6 +28,7 @@ src = [
     'states/credits_state.c',
     'states/game_state.c',
     'states/menu_state.c',
+    'drivers/vid_sdl.c',
 ]
 
 gunslinger_exe = executable(

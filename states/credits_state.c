@@ -61,7 +61,7 @@ void credits_init(SDL_Renderer *renderer)
 {
     SDL_RenderSetLogicalSize(renderer, 1280, 720);
 
-    if (!sprite_load(&credits, renderer, "assets/credits.png")) {
+    if (!sprite_load(&credits, "assets/credits.png")) {
         show_error_msgbox("credits_init: failed to sprite_load credits", ERROR_SOURCE_SDL);
         exit(EXIT_FAILURE);
     }
@@ -90,7 +90,7 @@ void credits_paint(SDL_Renderer *renderer, unsigned diff)
     credits_rerender_overlay(renderer, diff);
 
     vec2 pos = {0, 0};
-    sprite_paint(&credits, renderer, pos);
+    sprite_paint(&credits, pos);
 
     SDL_RenderCopy(renderer, overlay, NULL, NULL);
 }

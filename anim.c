@@ -27,7 +27,7 @@ static void json_parse(anim *anim, const char *path)
 
     memset(text, 0, (size_t) len);
 
-    PHYSFS_read(fp, text, sizeof(char), (PHYSFS_uint32) len);
+    PHYSFS_readBytes(fp, text, (PHYSFS_uint64) len);
 
     JSON_Value *root = json_parse_string(text);
 
@@ -86,12 +86,12 @@ static void json_parse(anim *anim, const char *path)
     json_value_free(root);
 }
 
-void anim_load(anim *anim, SDL_Renderer *renderer, const char *path, const char *name)
+void anim_load(anim *anim, const char *path, const char *name)
 {
     char pngpath[256];
     snprintf(pngpath, 256, "%s.png", path);
 
-    sprite_load(&anim->spr, renderer, pngpath);
+    sprite_load(&anim->spr, pngpath);
 
     char jsonpath[256];
     snprintf(jsonpath, 256, "%s.json", path);
@@ -123,9 +123,9 @@ void anim_think(anim *anim)
     }
 }
 
-void anim_paint(anim *anim, SDL_Renderer* renderer, vec2 pos, float angle)
+void anim_paint(anim *anim, vec2 pos, float angle)
 {
-    sprite_paint_ex(&anim->spr, renderer, anim->frames[anim->curframe], pos, angle);
+    sprite_paint_ex(&anim->spr, anim->frames[anim->curframe], pos, angle);
 }
 
 void anim_free(anim *anim)

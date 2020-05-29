@@ -21,13 +21,13 @@ typedef struct entity {
     void (*free)(struct entity *);
 } entity;
 
-void entity_load(entity *ent, SDL_Renderer *renderer, const char *path);
+void entity_load(entity *ent, const char *path);
 
 void entity_play_anim(entity *ent, const char *name);
 
 void entity_think(entity *ent);
 
-void entity_paint(entity *ent, SDL_Renderer *renderer, rect camera, unsigned diff);
+void entity_paint(entity *ent, rect camera, unsigned diff);
 
 void entity_free(entity *ent);
 

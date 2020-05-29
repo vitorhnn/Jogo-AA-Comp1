@@ -6,7 +6,7 @@
 #include "effect.h"
 
 
-effect *effect_load(SDL_Renderer *renderer, vec2 pos, float angle, const char *path)
+effect *effect_load(vec2 pos, float angle, const char *path)
 {
     effect *fx = xmalloc(sizeof(effect));
 
@@ -16,7 +16,7 @@ effect *effect_load(SDL_Renderer *renderer, vec2 pos, float angle, const char *p
     fx->active = true;
     fx->angle = angle;
 
-    anim_load(&fx->effect, renderer, path, "effect");
+    anim_load(&fx->effect, path, "effect");
 
     return fx;
 }
@@ -30,10 +30,10 @@ void effect_think(effect *fx)
     }
 }
 
-void effect_paint(effect *fx, SDL_Renderer *renderer, rect camera)
+void effect_paint(effect *fx, rect camera)
 {
     vec2 pos = {fx->pos.x - camera.x, fx->pos.y - camera.y};
-    anim_paint(&fx->effect, renderer, pos, fx->angle); 
+    anim_paint(&fx->effect, pos, fx->angle); 
 }
 
 void effect_free(effect *fx)

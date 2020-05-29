@@ -12,9 +12,9 @@
 
 static sprite bg;
 
-void menu_init(SDL_Renderer *renderer)
+void menu_init(void)
 {
-    sprite_load(&bg, renderer, "assets/menus/menus/main_menu.png");
+    sprite_load(&bg, "assets/menus/menus/main_menu.png");
 }
 
 void menu_handle(SDL_Event *event)
@@ -27,6 +27,7 @@ void menu_handle(SDL_Event *event)
 
 void menu_think(void)
 {
+    /*
     rect r = {94, 54, 455, 116};
     SDL_Color c = {255, 255, 255, SDL_ALPHA_OPAQUE};
 
@@ -40,13 +41,14 @@ void menu_think(void)
     if (ui_rect(UI_ID, r)) {
         engine_quit();
     }
+    */
 }
 
-void menu_paint(SDL_Renderer *renderer, unsigned diff)
+void menu_paint(float diff)
 {
 #pragma unused (diff)
     vec2 pos = {0, 0};
-    sprite_paint(&bg, renderer, pos);
+    sprite_paint(&bg, pos);
 }
 
 void menu_quit(void)

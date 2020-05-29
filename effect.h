@@ -13,11 +13,11 @@ typedef struct {
     bool active;
 } effect;
 
-effect *effect_load(SDL_Renderer *renderer, vec2 pos, float angle, const char *path);
+effect *effect_load(vec2 pos, float angle, const char *path);
 
 void effect_think(effect *fx);
 
-void effect_paint(effect *fx, SDL_Renderer *renderer, rect camera);
+void effect_paint(effect *fx, rect camera);
 
 void effect_free(effect *fx);
 

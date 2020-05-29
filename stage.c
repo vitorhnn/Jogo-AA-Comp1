@@ -29,7 +29,7 @@ static void json_load(stage *stage, const char *path)
 
     char *text = xmalloc((size_t) len);
 
-    PHYSFS_read(fp, text, sizeof(char), (PHYSFS_uint32) len);
+    PHYSFS_readBytes(fp, text, (PHYSFS_uint64) len);
 
     JSON_Value *root = json_parse_string(text);
 
@@ -91,7 +91,7 @@ static void json_load(stage *stage, const char *path)
     json_value_free(root);
 }
 
-void stage_load(stage *stage, SDL_Renderer *renderer, const char *path)
+void stage_load(stage *stage, const char *path)
 {
     char jsonpath[64];
 
@@ -103,9 +103,7 @@ void stage_load(stage *stage, SDL_Renderer *renderer, const char *path)
     
     snprintf(pngpath, 64, "%s.png", path);
 
-    sprite_load(&stage->background, renderer, pngpath);
-
-    stage->renderer_ = renderer;
+    sprite_load(&stage->background, pngpath);
 
     memcpy(stage->name, path, sizeof(char) * strlen(path));
 
@@ -278,7 +276,7 @@ static void projectile_update(projectile *this, stage *stage)
     if (maybecol) {
         maybecol->health -= this->damage;
 
-        effect *FUCK = effect_load(stage->renderer_, this->pos, this->angle - FPI, "assets/characters/blood");
+        effect *FUCK = effect_load(this->pos, this->angle - FPI, "assets/characters/blood");
 
         stage_add_effect(stage, FUCK);
 
@@ -362,41 +360,41 @@ void stage_think(stage *stage)
     }
 }
 
-static void projectile_paint(projectile *this, SDL_Renderer *renderer, rect camera, unsigned diff)
+static void projectile_paint(projectile *this, rect camera, unsigned diff)
 {
     vec2 campos = {this->pos.x - camera.x, this->pos.y - camera.y};
     vec2 corrected = mul(this->mov, diff);
     corrected = sum(corrected, campos);
 
-    sprite_paint_less_ex(this->spr, renderer, corrected, this->angle);
+    sprite_paint_less_ex(this->spr, corrected, this->angle);
 }
 
-void stage_paint(stage *stage, SDL_Renderer *renderer, rect camera, unsigned diff)
+void stage_paint(stage *stage, rect camera, unsigned diff)
 {
-    sprite_paint_ex(&stage->background, renderer, camera, MAKEVEC(0, 0), 0);
+    sprite_paint_ex(&stage->background, camera, MAKEVEC(0, 0), 0);
 
     for (size_t i = 0; i < ARRAY_SIZE(stage->entwrapper); ++i) {
         if (stage->entwrapper[i].active) {
-            entity_paint(stage->entwrapper[i].ent, renderer, camera, diff);
+            entity_paint(stage->entwrapper[i].ent, camera, diff);
         }
     }
 
     for (size_t i = 0; i < ARRAY_SIZE(stage->projectiles); ++i) {
         if (stage->projectiles[i].active) {
-            projectile_paint(&stage->projectiles[i], renderer, camera, diff);
+            projectile_paint(&stage->projectiles[i], camera, diff);
         }
     }
 
     for (size_t i = 0; i < ARRAY_SIZE(stage->pickups); ++i) {
         if (stage->pickups[i].active) {
             vec2 pos = {stage->pickups[i].pos.x - camera.x, stage->pickups[i].pos.y - camera.y};
-            sprite_paint(stage->pickups[i].spr, renderer, pos);
+            sprite_paint(stage->pickups[i].spr, pos);
         }
     }
 
     for (size_t i = 0; i < ARRAY_SIZE(stage->effects); ++i) {
         if (EFFECT_ACTIVE(stage->effects[i])) {
-            effect_paint(stage->effects[i], renderer, camera);
+            effect_paint(stage->effects[i], camera);
         }
     }
 }

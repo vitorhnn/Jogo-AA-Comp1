@@ -60,8 +60,6 @@ static bool isbtime;
 static rect camera;
 static void player_think(entity *this);
 
-static SDL_Renderer *renderer_; // ugly hack
-
 static Mix_Chunk *revolver_sfx;
 static Mix_Chunk *showtime;
 static Mix_Chunk *birl;
@@ -290,7 +288,7 @@ static entity *make_gunslinger(void)
     ent->enemy = true;
     ent->health = 10;
 
-    entity_load(ent, renderer_, path);
+    entity_load(ent, path);
 
     stage_add_entity(&curstage, ent);
 
@@ -312,7 +310,7 @@ static entity *make_shotgunner(void)
     ent->enemy = true;
     ent->health = 15;
 
-    entity_load(ent, renderer_, path);
+    entity_load(ent, path);
 
     stage_add_entity(&curstage, ent);
 
@@ -334,7 +332,7 @@ static entity *make_knifethrower(void)
     ent->enemy = true;
     ent->health = 15;
 
-    entity_load(ent, renderer_, path);
+    entity_load(ent, path);
 
     stage_add_entity(&curstage, ent);
 
@@ -402,7 +400,6 @@ static void player_init(entity *this)
 
 void game_init(SDL_Renderer *renderer)
 {
-    renderer_ = renderer;
     SDL_RenderSetLogicalSize(renderer, 1280, 720);
     camera.w = 1280;
     camera.h = 720;
@@ -412,22 +409,22 @@ void game_init(SDL_Renderer *renderer)
     isbtime = false;
     btimeframes = 160;
 
-    entity_load(&player, renderer, "assets/characters/main");
+    entity_load(&player, "assets/characters/main");
 
     entity_play_anim(&player, "revolver");
 
-    stage_load(&curstage, renderer, "assets/background/background_01");
+    stage_load(&curstage, "assets/background/background_01");
 
     player_init(&player);
 
-    sprite_load(&weapon_sprites[WEAPON_REVOLVER], renderer, "assets/weapons/revolver_bullet.png");
-    sprite_load(&weapon_sprites[WEAPON_SHOTGUN], renderer, "assets/weapons/shotgun_bullet.png");
-    sprite_load(&weapon_sprites[WEAPON_KNIFE], renderer, "assets/weapons/knife.png");
+    sprite_load(&weapon_sprites[WEAPON_REVOLVER], "assets/weapons/revolver_bullet.png");
+    sprite_load(&weapon_sprites[WEAPON_SHOTGUN], "assets/weapons/shotgun_bullet.png");
+    sprite_load(&weapon_sprites[WEAPON_KNIFE], "assets/weapons/knife.png");
 
-    sprite_load(&powerup_sprites[POWERUP_STRENGTH], renderer, "assets/powerups/strength.png");
-    sprite_load(&powerup_sprites[POWERUP_HEALTH], renderer, "assets/powerups/health.png");
-    sprite_load(&powerup_sprites[POWERUP_SPEED], renderer, "assets/powerups/speed.png");
-    sprite_load(&powerup_sprites[POWERUP_DAMAGE], renderer, "assets/powerups/damage.png");
+    sprite_load(&powerup_sprites[POWERUP_STRENGTH], "assets/powerups/strength.png");
+    sprite_load(&powerup_sprites[POWERUP_HEALTH], "assets/powerups/health.png");
+    sprite_load(&powerup_sprites[POWERUP_SPEED], "assets/powerups/speed.png");
+    sprite_load(&powerup_sprites[POWERUP_DAMAGE], "assets/powerups/damage.png");
 
     SDL_RWops *fp = PHYSFSRWOPS_openRead("assets/weapons/revolver.ogg");
     revolver_sfx = Mix_LoadWAV_RW(fp, 1);
@@ -438,8 +435,8 @@ void game_init(SDL_Renderer *renderer)
     fp = PHYSFSRWOPS_openRead("assets/powerups/strength_attack.ogg");
     birl = Mix_LoadWAV_RW(fp, 1);
 
-    sprite_load(&frame_back, renderer, "assets/menus/status_bar/status_bar_back.png");
-    sprite_load(&frame_front, renderer, "assets/menus/status_bar/status_bar_front.png");
+    sprite_load(&frame_back, "assets/menus/status_bar/status_bar_back.png");
+    sprite_load(&frame_front, "assets/menus/status_bar/status_bar_front.png");
 
     spawner_spawn();
 }
@@ -596,11 +593,11 @@ static void player_think(entity *this)
         }
 
         if (isbtime && btimeframes > 0) {
-            setting_set_num("game_tickrate", 40);
+            setting_set_float("game_tickrate", 40);
             btimeframes--;
         } else {
             isbtime = false;
-            setting_set_num("game_tickrate", 240);
+            setting_set_float("game_tickrate", 240);
 
             if (btimeframes < 160) {
                 btimeframes += 0.1;
@@ -627,7 +624,7 @@ static void player_think(entity *this)
                     toload = "assets/background/background_04";
                 }
 
-                stage_load(&curstage, renderer_, toload);
+                stage_load(&curstage, toload);
                 player_init(this);
             }
         }
@@ -674,7 +671,7 @@ static void player_think(entity *this)
 
         if (iptstate.EL) {
             stage_free(&curstage);
-            stage_load(&curstage, renderer_, "assets/background/background_03");
+            stage_load(&curstage, "assets/background/background_03");
             stage_add_entity(&curstage, &player);
             iptstate.EL = false;
 
@@ -784,10 +781,10 @@ void game_think(void)
 
 void game_paint(SDL_Renderer *renderer, unsigned diff)
 {
-    stage_paint(&curstage, renderer, camera, diff);
+    stage_paint(&curstage, camera, diff);
 
     vec2 frame = {0, 623};
-    sprite_paint(&frame_back, renderer, frame);
+    sprite_paint(&frame_back, frame);
 
     SDL_Rect aaaa = {13, 684, player.health * ((float) 337 / PLAYER_HP), 32};
     SDL_Rect saicapeta = {932, 683, btimeframes * ((float) 337 / 160), 32};
@@ -802,7 +799,7 @@ void game_paint(SDL_Renderer *renderer, unsigned diff)
 
     ui_button(UI_ID, buf, MAKEVEC(0, 0), c);
 
-    sprite_paint(&frame_front, renderer, frame);
+    sprite_paint(&frame_front, frame);
 }
 
 void game_quit(void)

@@ -15,7 +15,7 @@ typedef struct {
     float x, y, w, h;
 } rect;
 
-static vec2 MAKEVEC(float x, float y)
+static inline vec2 MAKEVEC(float x, float y)
 {
     vec2 r = {x, y};
 
@@ -23,7 +23,7 @@ static vec2 MAKEVEC(float x, float y)
 }
 
 // not really vector math, but I need this, so
-static float pointdistance(vec2 a, vec2 b)
+static inline float pointdistance(vec2 a, vec2 b)
 {
     float x = powf(b.x - a.x, 2);
     float y = powf(b.y - a.y, 2);
@@ -31,7 +31,7 @@ static float pointdistance(vec2 a, vec2 b)
     return sqrtf(x + y);
 }
 
-static float pointangle(vec2 a, vec2 b)
+static inline float pointangle(vec2 a, vec2 b)
 {
     float deltaX = a.x - b.x;
     float deltaY = a.y - b.y;
@@ -39,7 +39,7 @@ static float pointangle(vec2 a, vec2 b)
     return atan2f(deltaY, deltaX);
 }
 
-static bool edgecollide(rect a, rect b)
+static inline bool edgecollide(rect a, rect b)
 {
     // totally not copy and pasted from my old pong clone
     if (a.y + a.h <= b.y) {
@@ -61,7 +61,7 @@ static bool edgecollide(rect a, rect b)
     return true;
 }
 
-static bool fullcollide(rect a, rect b)
+static inline bool fullcollide(rect a, rect b)
 {
     if (a.y + a.h < b.y) {
         return false;
@@ -82,7 +82,7 @@ static bool fullcollide(rect a, rect b)
     return true;
 }
 
-static vec2 rot_vec(vec2 vec, float angle)
+static inline vec2 rot_vec(vec2 vec, float angle)
 {
     vec2 retvec = {
         .x = vec.x * cosf(angle) - vec.y * sinf(angle),
@@ -92,12 +92,12 @@ static vec2 rot_vec(vec2 vec, float angle)
     return retvec;
 }
 
-static float norm(vec2 vec)
+static inline float norm(vec2 vec)
 {
     return sqrtf(vec.x * vec.x + vec.y * vec.y);
 }
 
-static vec2 unit(vec2 vec)
+static inline vec2 unit(vec2 vec)
 {
     float n = norm(vec);
 
@@ -113,7 +113,7 @@ static vec2 unit(vec2 vec)
     return retvec;
 }
 
-static vec2 get_vec(vec2 a, vec2 b)
+static inline vec2 get_vec(vec2 a, vec2 b)
 {
     vec2 retvec;
     retvec.x = b.x - a.x;
@@ -123,7 +123,7 @@ static vec2 get_vec(vec2 a, vec2 b)
 }
 
 
-static vec2 sum(vec2 a, vec2 b)
+static inline vec2 sum(vec2 a, vec2 b)
 {
     vec2 retvec = {
         .x = a.x + b.x,
@@ -133,7 +133,7 @@ static vec2 sum(vec2 a, vec2 b)
     return retvec;
 }
 
-static vec2 mul(vec2 vec, float scalar)
+static inline vec2 mul(vec2 vec, float scalar)
 {
     vec2 retvec = {
         .x = vec.x * scalar,

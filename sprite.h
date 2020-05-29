@@ -8,22 +8,23 @@
 
 #include <SDL2/SDL.h>
 
+#include "vid.h"
 #include "vecmath.h"
 
 typedef struct {
-    SDL_Texture *texture;
+    vid_texture *texture;
     vec2 rotcenter,
          projorigin; // it hurts my soul to add these here, but I can't be arsed to write another struct to wrap these
     int w, h;
 } sprite;
 
-bool sprite_load(sprite *sprite, SDL_Renderer *renderer, const char *path);
+bool sprite_load(sprite *sprite, const char *path);
 
-void sprite_paint(sprite *sprite, SDL_Renderer *renderer, vec2 pos);
+void sprite_paint(sprite *sprite, vec2 pos);
 
-void sprite_paint_less_ex(sprite *sprite, SDL_Renderer *renderer, vec2 pos, float angle);
+void sprite_paint_less_ex(sprite *sprite, vec2 pos, float angle);
 
-void sprite_paint_ex(sprite *sprite, SDL_Renderer *renderer, rect clip, vec2 pos, float angle);
+void sprite_paint_ex(sprite *sprite, rect clip, vec2 pos, float angle);
 
 void sprite_free(sprite *sprite);
 
